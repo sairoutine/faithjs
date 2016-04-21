@@ -18,7 +18,7 @@ http://pgate1.at-ninja.jp/NES_on_FPGA/index.html
 
 # iNESファイルのフォーマットについて知る
 まずNESファイルを解析することから始めます。
-
+iNES フォーマットのバイナリを 16進数でダンプしましょう。
 
 # TODO:
 CPU を実装する
