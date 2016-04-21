@@ -1,0 +1,27 @@
+{
+  "name": "faithjs",
+  "version": "0.0.1",
+  "description": "FaithJS is a NES emulator which runs on your chrome.",
+  "main": "index.js",
+  "scripts": {
+    "watch": "gulp watch",
+    "start": "gulp build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "easymock": "^0.2.17",
+    "gulp": "^3.9.0",
+    "gulp-msx": "^0.4.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.5.1",
+    "gulp-watch": "^4.3.5",
+    "run-sequence": "^1.1.5",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+  }
+}
