@@ -18,5 +18,18 @@ ROMHeader.prototype.isNES = function() {
 	return util.isEqual(signature, this.SIGNATURE);
 };
 
+ROMHeader.prototype.getMapperNum = function() {
+	var flags6 = this.rom.load(6);
+	var lowerBits = util.getPartialBits(flags6, 4, 0xf);
+	var flags7 = this.rom.load(6);
+	var higherBits = util.getPartialBits(flags7, 4, 0xf);
+	return (higherBits << 4) | lowerBits;
+};
+
+ROMHeader.prototype.getPartialBits = function(value, bit, mask) {
+  return (value >> bit) & mask;
+};
+
+
 
 module.exports = ROMHeader;
