@@ -20,7 +20,7 @@ ROMHeader.prototype.getCHRROMBanksNum = function() {
 	return this.rom.load(5);
 };
 
-// RPG ROMの場所
+// PRG ROMの場所
 ROMHeader.prototype.getPRGROMBanksNum = function() {
 	// Size of PRG ROM in 16 KB units
 	return this.rom.load(4);
