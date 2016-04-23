@@ -3,12 +3,35 @@
 var ROMHeader = require('./ROMHeader');
 var util = require('./util');
 
+var NROMMapper = require('./Mapper/NROM');
+
 // NES ROM
 var ROM = function(binary) {
 	this.uint8 = new Uint8Array(binary);
-
 	this.header = new ROMHeader(this);
+	this.mapper = this._generateMapper();
+	this.chrrom = null;
+	//this._initCHRROM(this.mapper);
 };
+
+// mapper を生成
+ROM.prototype._generateMapper = function() {
+	var mapper_num = this.header.getMapperNum();
+
+	switch(mapper_num) {
+		case 0:
+			return new NROMMapper(this);
+		default:
+			window.alert('unsupport No.' + mapper_num + ' Mapper');
+			throw new Error('unsupport No.' + mapper_num + ' Mapper');
+	}
+};
+
+
+
+
+
+
 
 // ROMバイナリデータをcosnole.log で dump
 ROM.prototype.dump = function () {
