@@ -4,14 +4,14 @@ var ROMHeader = require('./ROMHeader');
 var util = require('./util');
 
 var NROMMapper = require('./Mapper/NROM');
+var CHRROM = require('./CHRROM');
 
 // NES ROM
 var ROM = function(binary) {
 	this.uint8 = new Uint8Array(binary);
 	this.header = new ROMHeader(this);
 	this.mapper = this._generateMapper();
-	this.chrrom = null;
-	//this._initCHRROM(this.mapper);
+	this.chrrom = this._generateCHRROM(this.mapper);
 };
 
 // mapper を生成
@@ -27,8 +27,27 @@ ROM.prototype._generateMapper = function() {
 	}
 };
 
+// CHR ROM を生成
+ROM.prototype._generateCHRROM = function(mapper) {
+	if(this.hasCHRROM()) {
+		// CHR ROM のサイズ
+		var chrrom_size = 8 * 1024 * this.header.getCHRROMBanksNum();
 
+		// CHR ROMのROM上の開始位置
+		var offset = this.header.SIZE + 16 * 1024 * this.header.getPRGROMBanksNum();
 
+		var chrrom_uint8 = this.load(offset, chrrom_size);
+
+		return new CHRROM(chrrom_uint8, mapper);
+	}
+
+	return;
+};
+
+// CHR ROM があるかどうか
+ROM.prototype.hasCHRROM = function() {
+	return this.header.getCHRROMBanksNum() > 0;
+};
 
 
 
