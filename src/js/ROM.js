@@ -52,7 +52,7 @@ ROM.prototype.hasCHRROM = function() {
 
 
 
-// ROMバイナリデータをcosnole.log で dump
+// ROMバイナリデータをconsole.log で dump
 ROM.prototype.dump = function () {
 	for(var i = 0; i < this.uint8.byteLength / 8; i++) {
 		var hex_str = i * 8 + ":";
