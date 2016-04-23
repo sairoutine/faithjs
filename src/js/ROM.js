@@ -46,7 +46,9 @@ ROM.prototype.dump = function () {
 
 // ROMからデータをロード
 ROM.prototype.load = function (address, length) {
-	if(!length) { length = 1; }
+	if(!length) {
+		return this.uint8[address];
+	}
 
 	var array = [];
 	for(var i = 0; i < length; i++) {
