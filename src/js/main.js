@@ -13,6 +13,8 @@ window.onload = function() {
 		var rom_binary = request.response;
 
 		var rom = new ROM(rom_binary);
+		// dump
+		rom.dump();
 	};
 
 	request.onerror = function(e) {
