@@ -55,7 +55,7 @@ ROM.prototype.load = function (address, length) {
 		array.push(this.uint8[address + i]);
 	}
 
-	return array;
+	return new Uint8Array(array);
 };
 
 // NESフォーマットのバイナリかどうか
