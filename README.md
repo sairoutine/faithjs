@@ -18,7 +18,9 @@ http://pgate1.at-ninja.jp/NES_on_FPGA/index.html
 
 # iNESファイルのフォーマットについて知る
 まずNESファイルを解析することから始めます。
-iNES フォーマットのバイナリを 16進数でダンプしましょう。
+1.iNES フォーマットのバイナリを 16進数でダンプしましょう。
+2.先頭4バイトはSignature なのでそれを読んでROMファイルかどうか判別してみる
+
 
 # TODO:
 CPU を実装する
