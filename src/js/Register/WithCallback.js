@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = require('lodash');
-var Register = require('./base');
+var Register = require('./8Bit');
 
 var RegisterWithCallback = function(id, caller, callbackLoading, callbackStoring) {
 	Register.apply(this, arguments);
