@@ -16050,14 +16050,49 @@ module.exports = CHRROM;
 },{}],3:[function(require,module,exports){
 'use strict';
 
-var CPU = function() {
-};
-CPU.prototype.init = function() {
+var Register8Bit      = require('./Register/8Bit');
+var Register16Bit     = require('./Register/16Bit');
+var CPUStatusRegister = require('./Register/CPUStatus');
 
+var RAM = require('./RAM');
+
+/**
+ * 6502 processor
+ */
+
+function CPU(nes) {
+	this.nes = nes;
+
+	// レジスタ
+	// Accumulator
+	this.a = new Register8Bit();
+	// Indexes
+	this.x = new Register8Bit();
+	this.y = new Register8Bit();
+	// Program Counter
+	this.pc = new Register16Bit();
+	// Stack Pointer
+	this.sp = new Register8Bit();
+	// Status Register
+	this.p = new CPUStatusRegister();
+
+	// メモリ
+	this.ram = new RAM();
+
+	this.pad1 = null;
+	this.ppu = null;
+	this.rom = null;
+	//this.handling = 0;
+};
+
+CPU.prototype.init = function() {
+	this.ppu  = this.nes.ppu;
+	this.pad1 = this.nes.pad1;
+	this.rom  = this.nes.rom;
 };
 module.exports = CPU;
 
-},{}],4:[function(require,module,exports){
+},{"./RAM":10,"./Register/16Bit":13,"./Register/8Bit":14,"./Register/CPUStatus":15}],4:[function(require,module,exports){
 'use strict';
 
 var Display = function(mainCanvas) {
@@ -16145,10 +16180,22 @@ var NES = function(rom, display) {
 	this.display = display;
 
 	this.ppu  = new PPU(this);
-	this.cpu  = new CPU(rom, this.ppu);
-	this.pad1 = new Joypad();
+	this.cpu  = new CPU(this);
+	this.pad1 = new Joypad(this);
+
+	// フレーム数
+	this.count = 0;
+
+	// 電源OFF
+	this.state = this._STATE_POWER_OFF;
 };
 
+// NES Status
+NES.prototype._STATE_POWER_OFF = 0;
+NES.prototype._STATE_RUN       = 1;
+NES.prototype._STATE_STOP      = 2;
+
+// 初期化
 NES.prototype.init = function() {
 	this.ppu.init();
 	this.cpu.init();
@@ -16191,12 +16238,24 @@ PPU.prototype._ID_SR_REG         = 0;
 PPU.prototype.init = function() {
 	this.cpu = this.nes.cpu;
 	this.ram = this.nes.cpu.ram;
-	this.sr.store(0b10000000);
+	// 0b10000000
+	// Vertical blank has started.
+	this.sr.store(0x80);
 };
 
 module.exports = PPU;
 
-},{"./Register/PPUStatus":12}],10:[function(require,module,exports){
+},{"./Register/PPUStatus":16}],10:[function(require,module,exports){
+'use strict';
+
+var RAM = function() {
+
+};
+RAM.prototype.CAPACITY = 64 * 1024; // 64KB
+
+module.exports = RAM;
+
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var ROMHeader = require('./ROMHeader');
@@ -16283,7 +16342,7 @@ ROM.prototype.isNES = function() {
 
 module.exports = ROM;
 
-},{"./CHRROM":2,"./Mapper/NROM":6,"./ROMHeader":11,"./util":16}],11:[function(require,module,exports){
+},{"./CHRROM":2,"./Mapper/NROM":6,"./ROMHeader":12,"./util":19}],12:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -16337,7 +16396,61 @@ ROMHeader.prototype.getPartialBits = function(value, bit, mask) {
 
 module.exports = ROMHeader;
 
-},{"./util":16}],12:[function(require,module,exports){
+},{"./util":19}],13:[function(require,module,exports){
+'use strict';
+
+var Register16bit = function() {
+	var buffer = new ArrayBuffer(this.WORD_SIZE);
+	//this.uint8 = new Uint8Array(buffer);
+
+	this.uint16 = new Uint16Array(buffer);
+	this.uint16[0] = 0;
+};
+
+Register16bit.prototype.WORD_SIZE = 2; // 2 byte
+
+module.exports = Register16bit;
+
+},{}],14:[function(require,module,exports){
+'use strict';
+
+var util = require('../util');
+
+// 8bit
+var Register = function() {
+	var buffer = new ArrayBuffer(this.WORD_SIZE);
+	this.uint8 = new Uint8Array(buffer);
+	this.uint8[0] = 0;
+};
+
+Register.prototype.WORD_SIZE = 1; // 1 byte
+
+
+Register.prototype.store = function(value) {
+	this.uint8[0] = value;
+};
+
+
+
+module.exports = Register;
+
+},{"../util":19}],15:[function(require,module,exports){
+'use strict';
+
+var _ = require('lodash');
+var Register8Bit = require('./8Bit');
+
+var CPUStatusRegister = function() {
+	Register8Bit.apply(this, arguments);
+
+};
+// 基底クラスを継承
+_.extend(CPUStatusRegister.prototype, Register8Bit.prototype);
+_.extend(CPUStatusRegister, Register8Bit);
+
+module.exports = CPUStatusRegister;
+
+},{"./8Bit":14,"lodash":1}],16:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash');
@@ -16353,11 +16466,11 @@ _.extend(PPUStatusRegister, RegisterWithCallback);
 
 module.exports = PPUStatusRegister;
 
-},{"./WithCallback":13,"lodash":1}],13:[function(require,module,exports){
+},{"./WithCallback":17,"lodash":1}],17:[function(require,module,exports){
 'use strict';
 
 var _ = require('lodash');
-var Register = require('./base');
+var Register = require('./8Bit');
 
 var RegisterWithCallback = function(id, caller, callbackLoading, callbackStoring) {
 	Register.apply(this, arguments);
@@ -16384,30 +16497,7 @@ RegisterWithCallback.prototype.store = function(value, skip) {
 
 module.exports = RegisterWithCallback;
 
-},{"./base":14,"lodash":1}],14:[function(require,module,exports){
-'use strict';
-
-var util = require('../util');
-
-var Register = function() {
-	var buffer = new ArrayBuffer(this.WORD_SIZE);
-	this.uint8 = new Uint8Array(buffer);
-	this.uint8[0] = 0;
-};
-
-Register.prototype.WORD_SIZE = 1; // 1 byte
-
-
-Register.prototype.store = function(value) {
-	this.uint8[0] = value;
-	console.log(util.bit(value));
-};
-
-
-
-module.exports = Register;
-
-},{"../util":16}],15:[function(require,module,exports){
+},{"./8Bit":14,"lodash":1}],18:[function(require,module,exports){
 'use strict';
 
 var ROM = require('./ROM');
@@ -16457,7 +16547,7 @@ window.onload = function() {
 	request.send(null);
 };
 
-},{"./Display":4,"./NES":8,"./ROM":10}],16:[function(require,module,exports){
+},{"./Display":4,"./NES":8,"./ROM":11}],19:[function(require,module,exports){
 'use strict';
 
 var util = {};
@@ -16502,4 +16592,4 @@ util.getPartialBits = function(value, bit, mask) {
 
 module.exports = util;
 
-},{}]},{},[15]);
+},{}]},{},[18]);
