@@ -2,6 +2,7 @@
 
 var util = require('../util');
 
+// 8bit
 var Register = function() {
 	var buffer = new ArrayBuffer(this.WORD_SIZE);
 	this.uint8 = new Uint8Array(buffer);
