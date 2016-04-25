@@ -33,11 +33,14 @@ NES.prototype.init = function() {
 
 
 NES.prototype.handleKeyDown = function(e) {
-
+	this.pad1.pushKeyDown(e.keyCode);
+	e.preventDefault();
 };
 NES.prototype.handleKeyUp = function(e) {
-
+	this.pad1.pushKeyUp(e.keyCode);
+	e.preventDefault();
 };
+
 // 電源ON
 NES.prototype.bootup = function(e) {
 
