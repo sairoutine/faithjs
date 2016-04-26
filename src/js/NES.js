@@ -42,11 +42,41 @@ NES.prototype.handleKeyUp = function(e) {
 };
 
 // 電源ON
-NES.prototype.bootup = function(e) {
+NES.prototype.bootup = function() {
+	/* Status Register: 0b00110100 */
+	/* 4: BRK命令による割り込みが発生 */
+	/* 2: 割り込みが発生 */
+	this.cpu.p.store(0x34);
+	/* Stack Pointer: 0b11111101 */
+	this.cpu.sp.store(0xFD);
 
+	// RESET 割り込み
+	this.cpu.interrupt(CPU.prototype.INTERRUPT_RESET);
+
+	// 電源ON状態
+	this.state = this._STATE_RUN;
 };
-NES.prototype.run = function(e) {
 
+// 起動
+NES.prototype.run = function() {
+	// 経過フレーム数更新
+	this.count++;
+
+	// 1秒間のCPUクロック数
+	var cycles = 341*262 / 3;
+	for(var i = 0; i < cycles; i++) {
+		/*
+		this.cpu.runCycle();
+		this.ppu.runCycle();
+		this.ppu.runCycle();
+		this.ppu.runCycle();
+	   */
+	}
+
+	if(this.state === this._STATE_RUN) {
+		// 次の描画タイミングで再呼び出ししてループ
+		requestAnimationFrame(this.run.bind(this));
+	}
 };
 
 module.exports = NES;
