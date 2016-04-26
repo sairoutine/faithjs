@@ -10,7 +10,7 @@ var RAM = require('./RAM');
  * 6502 processor
  */
 
-function CPU(nes) {
+var CPU = function(nes) {
 	this.nes = nes;
 
 	// レジスタ
@@ -35,9 +35,40 @@ function CPU(nes) {
 	//this.handling = 0;
 };
 
+// CPUの割り込みの種類一覧
+CPU.prototype.INTERRUPT_RESET = 0;
+CPU.prototype.INTERRUPT_NMI   = 1;
+CPU.prototype.INTERRUPT_IRQ   = 2;
+CPU.prototype.INTERRUPT_BRK   = 3;
+
 CPU.prototype.init = function() {
 	this.ppu  = this.nes.ppu;
 	this.pad1 = this.nes.pad1;
 	this.rom  = this.nes.rom;
 };
+
+CPU.prototype.interrupt = function(interrupt_type) {
+	switch(interrupt_type) {
+		case this.INTERRUPT_IRQ:
+			// IRQ割り込み中のIRQ割り込みは無視
+			if(this.p.isI()) {
+				return;
+			}
+			/*
+			this._pushStack2Bytes(this.pc.load());
+			this._pushStack(this.p.load());
+			this.p.setI();
+			this._jumpToInterruptHandler(type);
+			*/
+			break;
+		case this.INTERRUPT_RESET:
+			break;
+		case this.INTERRUPT_NMI:
+			break;
+		case this.INTERRUPT_BRK:
+			break;
+	}
+};
+
+
 module.exports = CPU;
