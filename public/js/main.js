@@ -16060,7 +16060,7 @@ var RAM = require('./RAM');
  * 6502 processor
  */
 
-function CPU(nes) {
+var CPU = function(nes) {
 	this.nes = nes;
 
 	// レジスタ
@@ -16085,11 +16085,42 @@ function CPU(nes) {
 	//this.handling = 0;
 };
 
+// CPUの割り込みの種類一覧
+CPU.prototype.INTERRUPT_RESET = 0;
+CPU.prototype.INTERRUPT_NMI   = 1;
+CPU.prototype.INTERRUPT_IRQ   = 2;
+CPU.prototype.INTERRUPT_BRK   = 3;
+
 CPU.prototype.init = function() {
 	this.ppu  = this.nes.ppu;
 	this.pad1 = this.nes.pad1;
 	this.rom  = this.nes.rom;
 };
+
+CPU.prototype.interrupt = function(interrupt_type) {
+	switch(interrupt_type) {
+		case this.INTERRUPT_IRQ:
+			// IRQ割り込み中のIRQ割り込みは無視
+			if(this.p.isI()) {
+				return;
+			}
+			/*
+			this._pushStack2Bytes(this.pc.load());
+			this._pushStack(this.p.load());
+			this.p.setI();
+			this._jumpToInterruptHandler(type);
+			*/
+			break;
+		case this.INTERRUPT_RESET:
+			break;
+		case this.INTERRUPT_NMI:
+			break;
+		case this.INTERRUPT_BRK:
+			break;
+	}
+};
+
+
 module.exports = CPU;
 
 },{"./RAM":10,"./Register/16Bit":13,"./Register/8Bit":14,"./Register/CPUStatus":15}],4:[function(require,module,exports){
@@ -16108,11 +16139,82 @@ module.exports = Display;
 'use strict';
 
 var JoyPad = function() {
+	// キー押下フラグ
+	this.keyflag = 0x0;
+
+	// 一つ前のフレームで押下されたキー
+	this.before_keyflag = 0x0;
 };
+
+// キー押下フラグ
+JoyPad.prototype.BUTTON_LEFT   = 0x01;
+JoyPad.prototype.BUTTON_UP     = 0x02;
+JoyPad.prototype.BUTTON_RIGHT  = 0x04;
+JoyPad.prototype.BUTTON_DOWN   = 0x08;
+JoyPad.prototype.BUTTON_A      = 0x10;
+JoyPad.prototype.BUTTON_B      = 0x20;
+JoyPad.prototype.BUTTON_SELECT = 0x40;
+JoyPad.prototype.BUTTON_START  = 0x80;
+
 
 JoyPad.prototype.init = function() {
 
 };
+
+// キー押下
+JoyPad.prototype.pushKeyDown = function(keyCode){
+	this.keyflag |= this._keyCodeToBitCode(keyCode);
+};
+
+// キー押下解除
+JoyPad.prototype.pushKeyUp   = function(keyCode){
+	this.keyflag &= ~this._keyCodeToBitCode(keyCode);
+};
+
+// 指定のキーが押下状態か確認する
+JoyPad.prototype.isKeyDown = function(flag) {
+	return this.keyflag & flag;
+};
+
+// 指定のキーが押下されたか確認する
+JoyPad.prototype.isKeyPush = function(flag) {
+	// 1フレーム前に押下されておらず、現フレームで押下されてるなら true
+	return !(this.before_keyflag & flag) && this.keyflag & flag;
+};
+
+// キーコードをBitに変換
+JoyPad.prototype._keyCodeToBitCode = function(keyCode) {
+	var flag;
+	switch(keyCode) {
+		case 13: // enter
+			flag = this.BUTTON_START;
+			break;
+		case 32: // space
+			flag = this.BUTTON_SELECT;
+			break;
+		case 37: // left
+			flag = this.BUTTON_LEFT;
+			break;
+		case 38: // up
+			flag = this.BUTTON_UP;
+			break;
+		case 39: // right
+			flag = this.BUTTON_RIGHT;
+			break;
+		case 40: // down
+			flag = this.BUTTON_DOWN;
+			break;
+		case 88: // x
+			flag = this.BUTTON_B;
+			break;
+		case 90: // z
+			flag = this.BUTTON_A;
+			break;
+	}
+	return flag;
+};
+
+
 
 module.exports = JoyPad;
 
@@ -16204,17 +16306,50 @@ NES.prototype.init = function() {
 
 
 NES.prototype.handleKeyDown = function(e) {
-
+	this.pad1.pushKeyDown(e.keyCode);
+	e.preventDefault();
 };
 NES.prototype.handleKeyUp = function(e) {
-
+	this.pad1.pushKeyUp(e.keyCode);
+	e.preventDefault();
 };
+
 // 電源ON
-NES.prototype.bootup = function(e) {
+NES.prototype.bootup = function() {
+	/* Status Register: 0b00110100 */
+	/* 4: BRK命令による割り込みが発生 */
+	/* 2: 割り込みが発生 */
+	this.cpu.p.store(0x34);
+	/* Stack Pointer: 0b11111101 */
+	this.cpu.sp.store(0xFD);
 
+	// RESET 割り込み
+	this.cpu.interrupt(CPU.prototype.INTERRUPT_RESET);
+
+	// 電源ON状態
+	this.state = this._STATE_RUN;
 };
-NES.prototype.run = function(e) {
 
+// 起動
+NES.prototype.run = function() {
+	// 経過フレーム数更新
+	this.count++;
+
+	// 1秒間のCPUクロック数
+	var cycles = 341*262 / 3;
+	for(var i = 0; i < cycles; i++) {
+		/*
+		this.cpu.runCycle();
+		this.ppu.runCycle();
+		this.ppu.runCycle();
+		this.ppu.runCycle();
+	   */
+	}
+
+	if(this.state === this._STATE_RUN) {
+		// 次の描画タイミングで再呼び出ししてループ
+		requestAnimationFrame(this.run.bind(this));
+	}
 };
 
 module.exports = NES;
@@ -16425,13 +16560,27 @@ var Register = function() {
 
 Register.prototype.WORD_SIZE = 1; // 1 byte
 
-
+// レジスタに値を設定
 Register.prototype.store = function(value) {
 	this.uint8[0] = value;
 };
 
+// レジスタの値を取得
+Register.prototype.load = function(value) {
+	return this.uint8[0];
+};
 
 
+// レジスタの特定bitを取得(1 or 0)
+Register.prototype.loadBit = function(additive_expression) {
+	return (this.uint8[0] >> additive_expression) & 1;
+};
+
+// レジスタの特定bitに値を設定
+Register.prototype.storeBit = function(additive_expression, value) {
+	var flag = value ? 1 : 0;
+	this.uint8[0] = this.uint8[0] & ~(1 << additive_expression) | (flag << additive_expression);
+};
 module.exports = Register;
 
 },{"../util":19}],15:[function(require,module,exports){
@@ -16447,6 +16596,159 @@ var CPUStatusRegister = function() {
 // 基底クラスを継承
 _.extend(CPUStatusRegister.prototype, Register8Bit.prototype);
 _.extend(CPUStatusRegister, Register8Bit);
+
+// レジスタの各種bit
+CPUStatusRegister.prototype.N_BIT = 7;
+CPUStatusRegister.prototype.V_BIT = 6;
+CPUStatusRegister.prototype.A_BIT = 5;  // 使ってない
+CPUStatusRegister.prototype.B_BIT = 4;
+CPUStatusRegister.prototype.D_BIT = 3;
+CPUStatusRegister.prototype.I_BIT = 2;
+CPUStatusRegister.prototype.Z_BIT = 1;
+CPUStatusRegister.prototype.C_BIT = 0;
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// N（Negative flag）
+// 演算結果のビット7をストアします。 BIT命令ではメモリ値のビット7をストアします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isN = function() {
+	return this.loadBit(this.N_BIT);
+};
+
+CPUStatusRegister.prototype.setN = function() {
+	this.storeBit(this.N_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearN = function() {
+	this.storeBit(this.N_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// V（oVerflow flag）
+// 演算によって$7F-$80をまたぐときにセットし、そうでないならクリア（0をストア）します。
+// またBIT命令でメモリ値のビット6をストアし、CLV命令でクリアします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isV = function() {
+	return this.loadBit(this.V_BIT);
+};
+
+CPUStatusRegister.prototype.setV = function() {
+	this.storeBit(this.V_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearV = function() {
+	this.storeBit(this.V_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// B（Break flag）
+// BRK命令による割り込みが発生したときにセットします。 NMIやIRQの場合はクリアします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isB = function() {
+	return this.loadBit(this.B_BIT);
+};
+
+CPUStatusRegister.prototype.setB = function() {
+	this.storeBit(this.B_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearB = function() {
+	this.storeBit(this.B_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// D（Decimal flag）
+// オリジナルの6502ではこのフラグをセットすることによって、 演算命令で10進演算が使用されます。
+// NESでは10進演算は削除されているため、 このフラグは無視します。
+// ただし、SED、CLD命令によって操作は可能です。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isD = function() {
+	return this.loadBit(this.D_BIT);
+};
+
+CPUStatusRegister.prototype.setD = function() {
+	this.storeBit(this.D_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearD = function() {
+	this.storeBit(this.D_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// I（Interrupt flag）
+// 割り込みが発生するとセットします。 またCLI命令でクリア、SEI命令でセットします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isI = function() {
+	return this.loadBit(this.I_BIT);
+};
+
+
+CPUStatusRegister.prototype.setI = function() {
+	this.storeBit(this.I_BIT, 1);
+};
+
+
+CPUStatusRegister.prototype.clearI = function() {
+	this.storeBit(this.I_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// Z（Zero flag）
+// 演算結果がゼロであった場合にセットし、 そうでない場合はクリアします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isZ = function() {
+	return this.loadBit(this.Z_BIT);
+};
+
+
+CPUStatusRegister.prototype.setZ = function() {
+	this.storeBit(this.Z_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearZ = function() {
+	this.storeBit(this.Z_BIT, 0);
+};
+
+/////////////////////////////////////////////////////////////////////////////////
+//
+// C（Carry flag）
+// ADC命令によってビット7からの桁上げが発生したとき、
+// SBC、CMP、CPX、CPX命令によってビット7からの桁上げが
+// 発生しなかったときにセットします。 またASL、ROL命令ではAのビット7を、
+// LSR、ROR命令ではAのビット0をストアします。 CLC命令でクリア、SEC命令で
+// セットします。
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+CPUStatusRegister.prototype.isC = function() {
+	return this.loadBit(this.C_BIT);
+};
+
+CPUStatusRegister.prototype.setC = function() {
+	this.storeBit(this.C_BIT, 1);
+};
+
+CPUStatusRegister.prototype.clearC = function() {
+	this.storeBit(this.C_BIT, 0);
+};
 
 module.exports = CPUStatusRegister;
 
