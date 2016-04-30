@@ -26,13 +26,15 @@ var CPU = function(nes) {
 	// Status Register
 	this.p = new CPUStatusRegister();
 
-	// メモリ
+	// メモリ(work RAM)
 	this.ram = new RAM();
 
 	this.pad1 = null;
 	this.ppu = null;
 	this.rom = null;
-	//this.handling = 0;
+
+	// 前回実行したオペコードが消費するサイクル数
+	this.consume_cycle_num = 0;
 };
 
 // CPUの割り込みの種類一覧
@@ -48,6 +50,7 @@ CPU.prototype.init = function() {
 };
 
 CPU.prototype.interrupt = function(interrupt_type) {
+	// TODO: 
 	switch(interrupt_type) {
 		case this.INTERRUPT_IRQ:
 			// IRQ割り込み中のIRQ割り込みは無視
