@@ -21,4 +21,14 @@ PPU.prototype.init = function() {
 	this.sr.store(0x80);
 };
 
+PPU.prototype.runCycle = function() {
+	this._renderPixel();
+	this._shiftRegisters();
+	this._fetch();
+	this._countCycle();
+};
+
+
+
+
 module.exports = PPU;
