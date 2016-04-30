@@ -73,5 +73,24 @@ CPU.prototype.interrupt = function(interrupt_type) {
 	}
 };
 
+CPU.prototype.runCycle = function() {
+	// 前回のオペコード実行にかかるサイクル数を消費しきったら
+	if(this.consume_cycle_num <= 0) {
+
+		// プログラムカウンタの指すメモリの値を読み込み
+		var opc = this.load(this.pc.load());
+		this.pc.increment();
+
+		// オペコード実行
+		var op = this._OP[opc];
+		this._operate(op);
+
+		// オペコード実行にかかるサイクル数
+		this.consume_cycle_num = op.cycle;
+	}
+
+	this.consume_cycle_num--;
+};
+
 
 module.exports = CPU;
