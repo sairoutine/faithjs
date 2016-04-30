@@ -99,5 +99,168 @@ CPU.prototype.load = function(address) {
 	return map.target.load(map.addr);
 };
 
+// NESは Memory Mapped I/Oなので
+// メモリを通じて各種デバイスにアクセスする
+CPU.prototype._map = function(address) {
+	var addr = null;
+	var target = null;
+
+	// 2KB of work RAM and Mirror
+	if(address >= 0x0000 && address < 0x2000) {
+		target = this.ram;
+
+		// 0x0800 以降はwork RAMのMirror
+		addr = address & 0x07ff; // 0b011111111111
+	}
+	// PPU Ctrl Registers
+	else if(address >= 0x2000 && address < 0x4000) {
+		// 0x0008 以降は PPU Ctrl Registers のMirror
+		addr = address & 0x0007; // 0b000000000111
+
+		switch(addr) {
+			case 0x0000:
+				// PPUCTRL
+				target = this.ppu.ctrl1;
+				break;
+			case 0x0001:
+				// PPUMASK
+				target = this.ppu.ctrl2;
+				break;
+			case 0x0002:
+				// PPUSTATUS
+				target = this.ppu.sr;
+				break;
+			case 0x0003:
+				// OAMADDR
+				target = this.ppu.sprAddr;
+				break;
+			case 0x0004:
+				// OAMDATA
+				target = this.ppu.sprIO;
+				break;
+			case 0x0005:
+				// PPUSCROLL
+				target = this.ppu.vRAMAddr1;
+				break;
+			case 0x0006:
+				// PPUADDR
+				target = this.ppu.vRAMAddr2;
+				break;
+			case 0x0007:
+				// PPUDATA
+				target = this.ppu.vRAMIO;
+				break;
+		}
+		addr = null;
+	}
+	// Registers(Mostly APU)
+	else if(address >= 0x4000 && address < 0x4020) {
+		// TODO: imply APU
+		switch(address) {
+			case 0x4000:
+				break;
+			case 0x4001:
+				break;
+			case 0x4002:
+				break;
+			case 0x4003:
+				break;
+			case 0x4004:
+				break;
+			case 0x4005:
+				break;
+			case 0x4006:
+				break;
+			case 0x4007:
+				break;
+			case 0x4008:
+				break;
+			case 0x4009:
+				break;
+			case 0x400A:
+				break;
+			case 0x400B:
+				break;
+			case 0x400C:
+				break;
+			case 0x400D:
+				break;
+			case 0x400E:
+				break;
+			case 0x400F:
+				break;
+			case 0x4010:
+				break;
+			case 0x4011:
+				break;
+			case 0x4012:
+				break;
+			case 0x4013:
+				break;
+			case 0x4014:
+				// PPU OAMDMA
+				target = this.ppu.sprDMA;
+				break;
+			case 0x4015:
+				break;
+			case 0x4016:
+				// PAD I/O Register
+				target = this.pad1.register;
+				break;
+			case 0x4017:
+				break;
+			case 0x4018:
+				break;
+			case 0x4019:
+				break;
+			case 0x401A:
+				break;
+			case 0x401B:
+				break;
+			case 0x401C:
+				break;
+			case 0x401D:
+				break;
+			case 0x401E:
+				break;
+			case 0x401F:
+				break;
+		}
+		addr = null;
+
+		// APU未実装なので適当なレジスタに突っ込む
+		if(target === null) {
+			target = new Register();
+		}
+
+	}
+	// 拡張ROM
+	else if(address >= 0x4020 && address < 0x6000) {
+		// TODO: why?
+		target = this.ram;
+		addr = address;
+	}
+	// 拡張RAM
+	else if(address >= 0x6000 && address < 0x8000) {
+		target = this.ram;
+		addr = address;
+	}
+	// RPG-ROM
+	else if(address >= 0x8000 && address < 0x10000) {
+		target = this.rom;
+
+		// TODO: why?
+		// this address translation might should be done by ROM Memory mapper.
+		addr = address - 0x8000;
+	}
+
+	// return data
+	var result = {'target': null, 'addr': null};
+	result.target = target;
+	result.addr = addr;
+
+	return result;
+};
+
 
 module.exports = CPU;
