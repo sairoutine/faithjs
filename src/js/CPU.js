@@ -321,5 +321,85 @@ CPU.prototype._OP_TXA = {'opc': 54, 'name': 'txa'};
 CPU.prototype._OP_TXS = {'opc': 55, 'name': 'txs'};
 CPU.prototype._OP_TYA = {'opc': 56, 'name': 'tya'};
 
+//////////////////////////////////////////////////////////////////////
+// アドレッシングモード一覧
+//////////////////////////////////////////////////////////////////////
+
+// イミディエイト・アドレス指定（Immediate Addressing）
+// 2番目のバイトをデータそのものとして使用します。
+// * オペコード データ
+CPU.prototype._ADDRESSING_IMMEDIATE           = {'id':  0, 'pc': 2, 'name': 'immediate'};
+
+// アブソリュート・アドレス指定（Absolute Addressing）
+// 2番目のバイトを下位アドレス、 3番目のバイトを上位アドレスとして実効アドレスとします。
+// * オペコード 下位アドレス 上位アドレス
+CPU.prototype._ADDRESSING_ABSOLUTE            = {'id':  1, 'pc': 3, 'name': 'absolute'};
+
+// ゼロページ・インデックス・アドレス指定（Indexed Zero Page Addressing）
+// 上位アドレスとして$00、 下位アドレスとして2番目のバイトに
+// インデックスレジスタ（X or Y）を加算（8） した値を実効アドレスとします。
+// * オペコード 下位アドレス
+CPU.prototype._ADDRESSING_INDEXED_ABSOLUTE_X  = {'id':  2, 'pc': 3, 'name': 'indexed_absolute_x'};
+CPU.prototype._ADDRESSING_INDEXED_ABSOLUTE_Y  = {'id':  3, 'pc': 3, 'name': 'indexed_absolute_y'};
+
+// ゼロページ・アドレス指定（Zero Page Addressing）
+// 上位アドレスとして$00、下位アドレスとして2番目のバイトを使用し実効アドレスとします。
+// * オペコード 下位アドレス
+CPU.prototype._ADDRESSING_ZERO_PAGE           = {'id':  4, 'pc': 2, 'name': 'zero_page'};
+
+// ゼロページ・インデックス・アドレス指定（Indexed Zero Page Addressing）
+// 上位アドレスとして$00、 下位アドレスとして2番目のバイトに
+// インデックスレジスタ（X or Y）を加算（8） した値を実効アドレスとします。
+// * オペコード 下位アドレス
+CPU.prototype._ADDRESSING_INDEXED_ZERO_PAGE_X = {'id':  5, 'pc': 2, 'name': 'indexed_zero_page_x'};
+CPU.prototype._ADDRESSING_INDEXED_ZERO_PAGE_Y = {'id':  6, 'pc': 2, 'name': 'indexed_zero_page_y'};
+
+// インプライド・アドレス指定（Implied Addressing）
+// レジスタ類を操作する命令で使用され、アドレス指定はありません。
+// * オペコード
+CPU.prototype._ADDRESSING_IMPLIED             = {'id':  7, 'pc': 1, 'name': 'implied'};
+
+// アキュムレータ・アドレス指定（Accumulator Addressing）
+// アキュムレータ上での実行を意味します。
+// * オペコード
+CPU.prototype._ADDRESSING_ACCUMULATOR         = {'id':  8, 'pc': 1, 'name': 'accumulator'};
+
+// アブソリュート・インダイレクト・アドレス指定（Absolute Indirect Addressing）
+// 2、3番目のバイトで示されるアドレスに格納されている値を
+// 実効アドレスの下位バイト、 その次のアドレスに格納されている値を
+// 実効アドレスの上位バイトとします。
+// このインクリメントで下位バイトからのキャリーは無視します。
+// * オペコード 下位アドレス 上位アドレス
+CPU.prototype._ADDRESSING_INDIRECT            = {'id':  9, 'pc': 3, 'name': 'indirect'};
+
+// インデックス・インダイレクト・アドレス指定（Indexed Indirect Addressing）
+// 上位アドレスを$00とし、 また2番目のバイトに
+// インデックスレジスタXを加算（8）した値を下位アドレスとします。
+// このアドレスに格納されている値を実効アドレスの下位バイト、
+// そしてその次のアドレスに格納されている値を実効アドレスの上位バイトとします。
+// このインクリメントにおいてキャリーは無視します。
+// * オペコード 下位アドレス
+CPU.prototype._ADDRESSING_INDEXED_INDIRECT_X  = {'id': 10, 'pc': 2, 'name': 'indexed_indirect_x'};
+
+// インダイレクト・インデックス・アドレス指定（Indirect Indexed Addressing）
+// まず上位アドレスを$00とし、下位アドレスとして2番目のバイトを使用します。
+// このアドレスに格納されている値を次の上位アドレス、
+// その次のアドレスに格納されている値を次の下位アドレスとします。
+// このときのインクリメントにおけるキャリーは無視します。
+// 得られたアドレスにインデックスレジスタYを加算（16）したものを実効アドレスとします。
+// * オペコード 下位アドレス
+CPU.prototype._ADDRESSING_INDEXED_INDIRECT_Y  = {'id': 11, 'pc': 2, 'name': 'indexed_indirect_y'};
+
+// リラティブ・アドレス指定（Relative Addressing）
+// 条件分岐命令で使用されます。 次の命令を示すプログラムカウンタに
+// 2番目のバイトを加算（符号拡張）した値を実効アドレスとします。
+// オフセットとして、-128（$80）～+127（$7F）を指定できます。
+// * オペコード オフセット
+CPU.prototype._ADDRESSING_RELATIVE            = {'id': 12, 'pc': 2, 'name': 'relative'};
+
+
+
+
+
 
 module.exports = CPU;
