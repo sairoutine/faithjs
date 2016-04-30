@@ -8,6 +8,7 @@ var NES = function(rom, display) {
 	this.rom     = rom;
 	this.display = display;
 
+	// TODO: APU
 	this.ppu  = new PPU(this);
 	this.cpu  = new CPU(this);
 	this.pad1 = new Joypad(this);
@@ -59,6 +60,10 @@ NES.prototype.bootup = function() {
 
 // 起動
 NES.prototype.run = function() {
+	if(this.state !== this._STATE_RUN) {
+		return;
+	}
+
 	// 経過フレーム数更新
 	this.count++;
 
@@ -73,10 +78,8 @@ NES.prototype.run = function() {
 	   */
 	}
 
-	if(this.state === this._STATE_RUN) {
-		// 次の描画タイミングで再呼び出ししてループ
-		requestAnimationFrame(this.run.bind(this));
-	}
+	// 次の描画タイミングで再呼び出ししてループ
+	requestAnimationFrame(this.run.bind(this));
 };
 
 module.exports = NES;
