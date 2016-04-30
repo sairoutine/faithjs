@@ -92,5 +92,12 @@ CPU.prototype.runCycle = function() {
 	this.consume_cycle_num--;
 };
 
+// メモリからデータを読み込み
+CPU.prototype.load = function(address) {
+	// メモリから該当するデバイスにアクセス
+	var map = this._map(address);
+	return map.target.load(map.addr);
+};
+
 
 module.exports = CPU;
