@@ -262,5 +262,64 @@ CPU.prototype._map = function(address) {
 	return result;
 };
 
+// オペコード
+CPU.prototype._OP_INV = {'opc':  0, 'name': 'inv'}; // Invalid
+CPU.prototype._OP_ADC = {'opc':  1, 'name': 'adc'};
+CPU.prototype._OP_AND = {'opc':  2, 'name': 'and'};
+CPU.prototype._OP_ASL = {'opc':  3, 'name': 'asl'};
+CPU.prototype._OP_BCC = {'opc':  4, 'name': 'bcc'};
+CPU.prototype._OP_BCS = {'opc':  5, 'name': 'bcs'};
+CPU.prototype._OP_BEQ = {'opc':  6, 'name': 'beq'};
+CPU.prototype._OP_BIT = {'opc':  7, 'name': 'bit'};
+CPU.prototype._OP_BMI = {'opc':  8, 'name': 'bmi'};
+CPU.prototype._OP_BNE = {'opc':  9, 'name': 'bne'};
+CPU.prototype._OP_BPL = {'opc': 10, 'name': 'bpl'};
+CPU.prototype._OP_BRK = {'opc': 11, 'name': 'brk'};
+CPU.prototype._OP_BVC = {'opc': 12, 'name': 'bvc'};
+CPU.prototype._OP_BVS = {'opc': 13, 'name': 'bvs'};
+CPU.prototype._OP_CLC = {'opc': 14, 'name': 'clc'};
+CPU.prototype._OP_CLD = {'opc': 15, 'name': 'cld'};
+CPU.prototype._OP_CLI = {'opc': 16, 'name': 'cli'};
+CPU.prototype._OP_CLV = {'opc': 17, 'name': 'clv'};
+CPU.prototype._OP_CMP = {'opc': 18, 'name': 'cmp'};
+CPU.prototype._OP_CPX = {'opc': 19, 'name': 'cpx'};
+CPU.prototype._OP_CPY = {'opc': 20, 'name': 'cpy'};
+CPU.prototype._OP_DEC = {'opc': 21, 'name': 'dec'};
+CPU.prototype._OP_DEX = {'opc': 22, 'name': 'dex'};
+CPU.prototype._OP_DEY = {'opc': 23, 'name': 'dey'};
+CPU.prototype._OP_EOR = {'opc': 24, 'name': 'eor'};
+CPU.prototype._OP_INC = {'opc': 25, 'name': 'inc'};
+CPU.prototype._OP_INX = {'opc': 26, 'name': 'inx'};
+CPU.prototype._OP_INY = {'opc': 27, 'name': 'iny'};
+CPU.prototype._OP_JMP = {'opc': 28, 'name': 'jmp'};
+CPU.prototype._OP_JSR = {'opc': 29, 'name': 'jsr'};
+CPU.prototype._OP_LDA = {'opc': 30, 'name': 'lda'};
+CPU.prototype._OP_LDX = {'opc': 31, 'name': 'ldx'};
+CPU.prototype._OP_LDY = {'opc': 32, 'name': 'ldy'};
+CPU.prototype._OP_LSR = {'opc': 33, 'name': 'lsr'};
+CPU.prototype._OP_NOP = {'opc': 34, 'name': 'nop'};
+CPU.prototype._OP_ORA = {'opc': 35, 'name': 'ora'};
+CPU.prototype._OP_PHA = {'opc': 36, 'name': 'pha'};
+CPU.prototype._OP_PHP = {'opc': 37, 'name': 'php'};
+CPU.prototype._OP_PLA = {'opc': 38, 'name': 'pla'};
+CPU.prototype._OP_PLP = {'opc': 39, 'name': 'plp'};
+CPU.prototype._OP_ROL = {'opc': 40, 'name': 'rol'};
+CPU.prototype._OP_ROR = {'opc': 41, 'name': 'ror'};
+CPU.prototype._OP_RTI = {'opc': 42, 'name': 'rti'};
+CPU.prototype._OP_RTS = {'opc': 43, 'name': 'rts'};
+CPU.prototype._OP_SBC = {'opc': 44, 'name': 'sbc'};
+CPU.prototype._OP_SEC = {'opc': 45, 'name': 'sec'};
+CPU.prototype._OP_SED = {'opc': 46, 'name': 'sed'};
+CPU.prototype._OP_SEI = {'opc': 47, 'name': 'sei'};
+CPU.prototype._OP_STA = {'opc': 48, 'name': 'sta'};
+CPU.prototype._OP_STX = {'opc': 49, 'name': 'stx'};
+CPU.prototype._OP_STY = {'opc': 50, 'name': 'sty'};
+CPU.prototype._OP_TAX = {'opc': 51, 'name': 'tax'};
+CPU.prototype._OP_TAY = {'opc': 52, 'name': 'tay'};
+CPU.prototype._OP_TSX = {'opc': 53, 'name': 'tsx'};
+CPU.prototype._OP_TXA = {'opc': 54, 'name': 'txa'};
+CPU.prototype._OP_TXS = {'opc': 55, 'name': 'txs'};
+CPU.prototype._OP_TYA = {'opc': 56, 'name': 'tya'};
+
 
 module.exports = CPU;
