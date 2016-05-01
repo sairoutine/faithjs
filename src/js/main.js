@@ -1,41 +1,41 @@
 ﻿"use strict";
 
 // ファミコン本体クラス
-var FC = require('./FC');
+var nes = require('./NES');
 
-var fc = new FC();
-fc.SetCanvas("mainCanvas");
+var nes = new nes();
+nes.SetCanvas("mainCanvas");
 
 
 
-function fc_pause() {
-	if(fc.Pause()) {
+function nes_pause() {
+	if(nes.Pause()) {
 		document.getElementById("pause").disabled = true;
 		document.getElementById("start").disabled = false;
 	}
 }
 
 
-function fc_start() {
-	if(fc.Start()) {
+function nes_start() {
+	if(nes.Start()) {
 		document.getElementById("pause").disabled = false;
 		document.getElementById("start").disabled = true;
 	}
 }
 
 
-function fc_reset() {
-	if(fc.Reset()) {
+function nes_reset() {
+	if(nes.Reset()) {
 		document.getElementById("pause").disabled = false;
 		document.getElementById("start").disabled = true;
 	}
 }
 
-function fc_rom_change(arraybuffer) {
+function nes_rom_change(arraybuffer) {
 	// 実行中のNESを停止
-	fc_pause();
+	nes_pause();
 
-	if( ! fc.SetRom(arraybuffer)) {
+	if( ! nes.SetRom(arraybuffer)) {
 		console.error("Can't get rom data (perhaps you don't set ArrayBuffer arguments or it's not nes rom format)");
 		return;
 	}
@@ -46,19 +46,19 @@ function fc_rom_change(arraybuffer) {
 	document.getElementById("insert").disabled = true;
 	document.getElementById("eject").disabled = true;
 
-	if(fc.Init())
-		fc_start();
+	if(nes.Init())
+		nes_start();
 	disk_side_check();
 }
 
 function SramOut() {
-	var tmp = fc.Mapper.OutSRAM();
+	var tmp = nes.Mapper.OutSRAM();
 	document.getElementById("sramdata").value = tmp;
 }
 
 
 function SramIn() {
-	fc.Mapper.InSRAM(document.getElementById("sramdata").value);
+	nes.Mapper.InSRAM(document.getElementById("sramdata").value);
 }
 
 
@@ -67,10 +67,10 @@ function disk_side_check() {
 	document.getElementById("insert").disabled = true;
 	document.getElementById("eject").disabled = true;
 
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
+	if(nes.Mapper === null || nes.MapperNumber !== 20)
 		document.getElementById("diskside").innerHTML = " drop FDS BIOS ";
 	else {
-		var tmp = fc.Mapper.InDisk();
+		var tmp = nes.Mapper.InDisk();
 		tmp += 2;
 		document.getElementById("diskside").innerHTML = DiskSideString[tmp];
 
@@ -85,18 +85,18 @@ function disk_side_check() {
 
 
 function DiskInsert() {
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
+	if(nes.Mapper === null || nes.MapperNumber !== 20)
 		return;
 	var select = document.getElementById("diskselect");
-	fc.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
+	nes.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
 	disk_side_check();
 }
 
 
 function DiskEject() {
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
+	if(nes.Mapper === null || nes.MapperNumber !== 20)
 		return;
-	fc.Mapper.EjectDisk();
+	nes.Mapper.EjectDisk();
 	disk_side_check();
 }
 
@@ -139,18 +139,18 @@ var initialize_dom_events = function() {
 		window.addEventListener("drop",
 			function (e) {
 				e.preventDefault();
-				read_local_file(e.dataTransfer.files[0], fc_rom_change);
+				read_local_file(e.dataTransfer.files[0], nes_rom_change);
 			}, false);
 
 		// input type="file" から ROM読み込み
 		document.getElementById("file").addEventListener("change",
 			function (e) {
-				read_local_file(e.target.files[0], fc_rom_change);
+				read_local_file(e.target.files[0], nes_rom_change);
 			}, false);
 
-		document.getElementById("pause").addEventListener("click", fc_pause, false);
-		document.getElementById("start").addEventListener("click", fc_start, false);
-		document.getElementById("reset").addEventListener("click", fc_reset, false);
+		document.getElementById("pause").addEventListener("click", nes_pause, false);
+		document.getElementById("start").addEventListener("click", nes_start, false);
+		document.getElementById("reset").addEventListener("click", nes_reset, false);
 
 		document.getElementById("insert").addEventListener("click", DiskInsert, false);
 		document.getElementById("eject").addEventListener("click", DiskEject, false);
@@ -177,7 +177,7 @@ window.onload = function() {
 	// onload でデフォルトのゲームを読み込む
 	//var url = 'rom/mario.nes';
 	var url = "rom/bad_apple_2_5.nes";
-	read_url(url, fc_rom_change);
+	read_url(url, nes_rom_change);
 };
 
 
