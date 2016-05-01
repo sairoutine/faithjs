@@ -148,7 +148,7 @@ function fc_rom_change(changerom) {
 
 function fc_setup() {
 	fc = new FC();
-	if (!fc.SetCanvas("canvas0"))
+	if (!fc.SetCanvas("mainCanvas"))
 		return false;
 	return true;
 }
