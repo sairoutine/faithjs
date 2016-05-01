@@ -182,8 +182,8 @@ function DiskEject() {
 }
 
 
-
-window.onload = function() {
+// DOMのイベントを設定
+var initialize_dom_events = function() {
 	if(typeof window.FileReader !== "undefined") {
 		// ドラッグ&ドロップでファイル読み込み
 		window.addEventListener("dragenter",
@@ -221,7 +221,11 @@ window.onload = function() {
 		document.getElementById("eject").disabled = true;
 	}
 
-	// ROM読み込み
+};
+
+
+// ROM読み込み
+window.onload = function() {
 	// ROMのパス
 	//var url = 'rom/mario.nes';
 	var url = "rom/bad_apple_2_5.nes";
@@ -230,7 +234,15 @@ window.onload = function() {
 	request.responseType = 'arraybuffer';
 
 	request.onload = function() {
+		// 読み込んだROMのバイナリ
 		var rom_binary = request.response;
+
+		// DOMのイベントを設定
+		initialize_dom_events();
+
+		// DEBUG:
+		console.log("suceed to get rom binary");
+
 		fc_rom_change(rom_binary);
 		return;
 	};
@@ -242,4 +254,5 @@ window.onload = function() {
 	request.open('GET', url, true);
 	request.send(null);
 };
+
 
