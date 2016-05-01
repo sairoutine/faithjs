@@ -1,6 +1,6 @@
 "use strict";
 
-function NES() {
+var NES = function() {
 	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
 	this.Use_GetGamepads = typeof navigator.getGamepads !== "undefined";
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -129,7 +129,7 @@ function NES() {
 	this.RAM = new Array(0x800);
 
 	this.INNERSRAM = new Array(0x2000);
-	this.SRAM;
+	this.SRAM = null;
 
 	this.VRAM = new Array(16);
 
@@ -231,8 +231,8 @@ function NES() {
 	0x06A, 0x054, 0x048, 0x036];
 
 	this.WebAudioCtx = null;
-	this.WebAudioJsNode;
-	this.WebAudioGainNode;
+	this.WebAudioJsNode = null;
+	this.WebAudioGainNode = null;
 	this.WebAudioBufferSize = 4096;
 
 	this.ApuCpuClockCounter = 0;
@@ -422,7 +422,7 @@ NES.prototype.Init = function () {
 	this.ApuInit();
 
 	if(!this.MapperSelect()) {
-		alert("Unsupported Mapper : " + this.MapperNumber);
+		window.alert("Unsupported Mapper : " + this.MapperNumber);
 		return false;
 	}
 
@@ -979,7 +979,7 @@ NES.prototype.RLA = function (address) {
 NES.prototype.RRA = function (address) {
 	var tmp = this.Get(address);
 	var c = tmp & 0x01;
-	var tmp = (tmp >> 1) | ((this.P & 0x01) << 7)
+	tmp = (tmp >> 1) | ((this.P & 0x01) << 7);
 	this.P = (this.P & 0xFE) | c;
 	this.Adder(tmp);
 	this.Set(address, tmp);
@@ -1832,8 +1832,9 @@ NES.prototype.CpuRun = function () {
 			case 0xB2://JAM
 			case 0xD2://JAM
 			case 0xF2://JAM
+			/* falls through */
 			default:
-				alert("oops");
+				window.alert("oops");
 				this.PC--;
 				break;
 		}
@@ -1850,11 +1851,13 @@ NES.prototype.PpuInit = function () {
 	this.PPUAddressBuffer = 0;
 
 	this.Palette = new Array(33);
-	for(var i=0; i<this.Palette.length; i++)
+
+	var i;
+	for(i=0; i<this.Palette.length; i++)
 		this.Palette[i] = 0x0F;
 
 	this.SpriteLineBuffer = new Array(256);
-	for(var i=0; i<this.SpriteLineBuffer.length; i++)
+	for(i=0; i<this.SpriteLineBuffer.length; i++)
 		this.SpriteLineBuffer[i] = 0;
 
 	this.PPUReadBuffer = 0;
@@ -1975,6 +1978,9 @@ NES.prototype.PpuRun = function () {
 			var tmpImageData = this.ImageData.data;
 			var tmpBgLineBuffer = this.BgLineBuffer;
 
+			var p;
+			var tmpDist;
+			var tmpPal;
 			if(tmpIsScreenEnable || tmpIsSpriteEnable) {
 				this.PPUAddress = (this.PPUAddress & 0xFBE0) | (this.PPUAddressBuffer & 0x041F);
 
@@ -1982,16 +1988,16 @@ NES.prototype.PpuRun = function () {
 					this.BuildBGLine();
 					this.BuildSpriteLine();
 
-					var tmpDist = (this.PpuY - 8) << 10;
-					for(var p=0; p<256; p++, tmpDist+=4) {
-						var tmpPal = tmpPaletteTable[tmpPalette[tmpBgLineBuffer[p]]];
+					tmpDist = (this.PpuY - 8) << 10;
+					for(p=0; p<256; p++, tmpDist+=4) {
+						tmpPal = tmpPaletteTable[tmpPalette[tmpBgLineBuffer[p]]];
 						tmpImageData[tmpDist] = tmpPal[0];
 						tmpImageData[tmpDist + 1] = tmpPal[1];
 						tmpImageData[tmpDist + 2] = tmpPal[2];
 					}
 				} else {
-					var tmpBgLineBuffer = this.BgLineBuffer;
-					for(var p=0; p<264; p++)
+					tmpBgLineBuffer = this.BgLineBuffer;
+					for(p=0; p<264; p++)
 						tmpBgLineBuffer[p] = 0x10;
 					this.BuildSpriteLine();
 				}
@@ -2008,9 +2014,9 @@ NES.prototype.PpuRun = function () {
 					this.PPUAddress += 0x1000;
 
 			} else if(this.PpuY >= 8 && this.PpuY < 232) {
-				var tmpDist = (this.PpuY - 8) << 10;
-				var tmpPal = tmpPaletteTable[tmpPalette[0x10]];
-				for(var p=0; p<256; p++, tmpDist += 4) {
+				tmpDist = (this.PpuY - 8) << 10;
+				tmpPal = tmpPaletteTable[tmpPalette[0x10]];
+				for(p=0; p<256; p++, tmpDist += 4) {
 					tmpImageData[tmpDist] = tmpPal[0];
 					tmpImageData[tmpDist + 1] = tmpPal[1];
 					tmpImageData[tmpDist + 2] = tmpPal[2];
@@ -2032,9 +2038,10 @@ NES.prototype.PpuRun = function () {
 
 
 NES.prototype.BuildBGLine = function () {
+	var p;
 	var tmpBgLineBuffer = this.BgLineBuffer;
 	if((this.IO1[0x01] & 0x08) !== 0x08) {
-		for(var p=0; p<264; p++)
+		for(p=0; p<264; p++)
 			tmpBgLineBuffer[p] = 0x10;
 		return;
 	}
@@ -2042,7 +2049,7 @@ NES.prototype.BuildBGLine = function () {
 	this.Mapper.BuildBGLine();
 
 	if((this.IO1[0x01] & 0x02) !== 0x02) {
-		for(var p=0; p<8; p++)
+		for(p=0; p<8; p++)
 			tmpBgLineBuffer[p] = 0x10;
 	}
 };
@@ -2278,7 +2285,7 @@ NES.prototype.ParseHeader = function () {
 	if(this.Rom.length < 0x10 || this.Rom[0] !== 0x4E || this.Rom[1] !== 0x45 ||  this.Rom[2] !== 0x53 || this.Rom[3] !== 0x1A)
 		return false;
 
-	this.PrgRomPageCount = this.Rom[4]
+	this.PrgRomPageCount = this.Rom[4];
 	this.ChrRomPageCount = this.Rom[5];
 	this.HMirror  = (this.Rom[6] & 0x01) === 0;
 	this.VMirror  = (this.Rom[6] & 0x01) !== 0;
@@ -2332,7 +2339,7 @@ NES.prototype.StorageClear = function () {
 
 
 NES.prototype.SetRom = function (arraybuffer) {
-	if( ! arraybuffer instanceof ArrayBuffer) {
+	if( ! (arraybuffer instanceof ArrayBuffer)) {
 		return false;
 	}
 
@@ -2446,6 +2453,7 @@ NES.prototype.Set = function (address, data) {
 					this.WritePPUData(data);
 					return;
 			}
+			return;
 		case 0x4000:
 			if(address < 0x4020) {
 				this.IO2[address & 0x00FF] = data;
@@ -2701,15 +2709,16 @@ NES.prototype.CheckGamePad = function () {
 NES.prototype.WebAudioFunction = function (e) {
 	var output = e.outputBuffer.getChannelData(0);
 
+	var i;
 	var data;
 	if(this.WaveDatas.length === 0) {
-		var data = new Float32Array(this.WebAudioBufferSize);
-		for(var i=0; i<this.WebAudioBufferSize; i++)
+		data = new Float32Array(this.WebAudioBufferSize);
+		for(i=0; i<this.WebAudioBufferSize; i++)
 			data[i] = 0.0;
 	} else {
 		var len = this.WaveDatas.length > this.WebAudioBufferSize ? this.WebAudioBufferSize : this.WaveDatas.length;
 		data = new Float32Array(len);
-		for(var i=0; i<len; i++)
+		for(i=0; i<len; i++)
 			data[i] = this.WaveDatas[i] / (128 * 16);
 		this.WaveDatas = this.WaveDatas.slice(len);
 
@@ -2871,7 +2880,7 @@ NES.prototype.ApuInit = function () {
 
 	this.WaveFrameSequenceCounter = 0;
 
-	this.WaveDatas = new Array();
+	this.WaveDatas = [];
 
 	this.ApuCpuClockCounter = 0;
 
@@ -3107,11 +3116,12 @@ NES.prototype.EXSoundInit = function () {
 
 /* FDS */
 NES.prototype.Init_FDS = function () {
-	for(var i=0; i<this.FDS_WAVE_REG.length; i++)
+	var i;
+	for(i=0; i<this.FDS_WAVE_REG.length; i++)
 		this.FDS_WAVE_REG[i] = 0x00;
-	for(var i=0; i<this.FDS_LFO_REG.length; i++)
+	for(i=0; i<this.FDS_LFO_REG.length; i++)
 		this.FDS_LFO_REG[i] = 0x00;
-	for(var i=0; i<this.FDS_REG.length; i++)
+	for(i=0; i<this.FDS_REG.length; i++)
 		this.FDS_REG[i] = 0x00;
 
 	this.FDS_WaveIndexCounter = 0;
@@ -3180,8 +3190,9 @@ NES.prototype.Write_FDS_REG = function (no, data) {
 
 NES.prototype.Count_FDS = function (clock) {
 	if((this.FDS_REG[3] & 0x40) !== 0x40) {
+		var c;
 		if((this.FDS_REG[0] & 0xC0) < 0x80) {
-			var c = this.FDS_REG[10] * ((this.FDS_REG[0] & 0x3F) + 1) * 8;
+			c = this.FDS_REG[10] * ((this.FDS_REG[0] & 0x3F) + 1) * 8;
 			if(c > 0) {
 				this.FDS_VolumeEnvCounter += clock;
 				while(this.FDS_VolumeEnvCounter >= c) {
@@ -3200,7 +3211,7 @@ NES.prototype.Count_FDS = function (clock) {
 		}
 
 		if((this.FDS_REG[4] & 0xC0) < 0x80) {
-			var c = this.FDS_REG[10] * ((this.FDS_REG[4] & 0x3F) + 1) * 8;
+			c = this.FDS_REG[10] * ((this.FDS_REG[4] & 0x3F) + 1) * 8;
 			if(c > 0) {
 				this.FDS_SweepEnvCounter += clock;
 				while(this.FDS_SweepEnvCounter >= c) {
@@ -3345,11 +3356,13 @@ NES.prototype.Read_MMC5_REG = function (no) {
 
 NES.prototype.Count_MMC5 = function (clock) {
 	this.MMC5_FrameSequenceCounter += 240 * clock;
+
+	var i, tmp;
 	if(this.MMC5_FrameSequenceCounter >= this.MainClock) {
 		this.MMC5_FrameSequenceCounter -= this.MainClock;
 
-		for(var i=0; i<2; i++) {
-			var tmp = i << 2;
+		for(i=0; i<2; i++) {
+			tmp = i << 2;
 			if((this.MMC5_REG[tmp] & 0x10) === 0x00) {
 				if(++this.MMC5_Ch[i].Envelope === ((this.MMC5_REG[tmp] & 0x0F) + 1)) {
 					this.MMC5_Ch[i].Envelope = 0;
@@ -3363,8 +3376,8 @@ NES.prototype.Count_MMC5 = function (clock) {
 		}
 
 		if(this.MMC5_FrameSequence === 1 || this.MMC5_FrameSequence === 3) {
-			for(var i=0; i<2; i++) {
-				var tmp = i << 2;
+			for(i=0; i<2; i++) {
+				tmp = i << 2;
 
 				if((this.MMC5_REG[tmp] & 0x20) === 0x00 && this.MMC5_Ch[i].LengthCounter !== 0) {
 					if(--this.MMC5_Ch[i].LengthCounter === 0)
@@ -3457,9 +3470,10 @@ NES.prototype.Out_VRC6 = function () {
 
 /* N163 */
 NES.prototype.Init_N163 = function () {
-	for(var i=0; i<this.N163_RAM.length; i++)
+	var i;
+	for(i=0; i<this.N163_RAM.length; i++)
 		this.N163_RAM[i] = 0x00;
-	for(var i=0; i<this.N163_ch_data.length; i++)
+	for(i=0; i<this.N163_ch_data.length; i++)
 		this.N163_ch_data[i] = {"Freq" : 0, "Phase" : 0, "Length" : 0, "Address" : 0, "Vol" : 0};
 	this.N163_Address = 0x00;
 	this.N163_ch = 0;
@@ -3569,8 +3583,10 @@ NES.prototype.Write_AY_REG = function (data) {
 };
 
 
-NES.prototype.Read_AY_REG = function () {return 0;
-	return this.AY_REG[this.AY_REG_Select];
+NES.prototype.Read_AY_REG = function () {
+	// TODO: why?
+	return 0;
+	//return this.AY_REG[this.AY_REG_Select];
 };
 
 
