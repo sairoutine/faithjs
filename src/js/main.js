@@ -15,22 +15,22 @@ window.addEventListener('load', FCSet, false);
 
 
 function FCFileChange(e) {
-	FCFileRead(e.target.files[0]);
+	fc_file_read(e.target.files[0]);
 }
 
 
 var File = null;
-function FCFileRead(file) {
+function fc_file_read(file) {
 	File = file;
 	var reader = new FileReader();
 	reader.onload = function (e) {
-		FCRomChange(e.target.result);
+		fc_rom_change(e.target.result);
 	};
 	reader.readAsArrayBuffer(file);
 }
 
 
-function FCPause() {
+function fc_pause() {
 	if(fc.Pause()) {
 		document.getElementById("pause").disabled = true;
 		document.getElementById("start").disabled = false;
@@ -38,7 +38,7 @@ function FCPause() {
 }
 
 
-function FCStart() {
+function fc_start() {
 	if(fc.Start()) {
 		document.getElementById("pause").disabled = false;
 		document.getElementById("start").disabled = true;
@@ -54,7 +54,7 @@ function FCReset() {
 }
 
 
-function ParseRom(argrom) {
+function parse_rom(argrom) {
 	var rom = argrom.slice(0);
 	var head;
 	if(rom < 0x10)
@@ -97,8 +97,8 @@ function ParseRom(argrom) {
 }
 
 
-function FCRomChange(changerom) {
-	FCPause();
+function fc_rom_change(changerom) {
+	fc_pause();
 
 	var rom;
 	var i;
@@ -116,7 +116,7 @@ function FCRomChange(changerom) {
 	} else
 		return;
 
-	var tmp = ParseRom(rom);
+	var tmp = parse_rom(rom);
 
 	document.getElementById("start").disabled = true;
 	document.getElementById("pause").disabled = true;
@@ -131,8 +131,8 @@ function FCRomChange(changerom) {
 		if(fc.MapperNumber === 20) {
 			document.getElementById("disk_filename").innerHTML = File.name;
 			fc.Mapper.SetDisk(tmp.rom);
-			FCStart();
-			DiskSideCheck();
+			fc_start();
+			disk_side_check();
 		}
 		return;
 	}
@@ -141,12 +141,12 @@ function FCRomChange(changerom) {
 	document.getElementById("disk_filename").innerHTML = "";
 	fc.SetRom(tmp.rom);
 	if(fc.Init())
-		FCStart();
-	DiskSideCheck();
+		fc_start();
+	disk_side_check();
 }
 
 
-function FCSetUp() {
+function fc_setup() {
 	fc = new FC();
 	if (!fc.SetCanvas("canvas0"))
 		return false;
@@ -155,7 +155,7 @@ function FCSetUp() {
 
 
 function FCSet() {
-	if(!FCSetUp())
+	if(!fc_setup())
 		return;
 
 	FCUse_FileReader = typeof window.FileReader !== "undefined";
@@ -173,13 +173,13 @@ function FCSet() {
 		window.addEventListener("drop",
 			function (e) {
 				e.preventDefault();
-				FCFileRead(e.dataTransfer.files[0]);
+				fc_file_read(e.dataTransfer.files[0]);
 			}, false);
 
 		document.getElementById("file").addEventListener("change", FCFileChange, false);
 
-		document.getElementById("pause").addEventListener("click", FCPause, false);
-		document.getElementById("start").addEventListener("click", FCStart, false);
+		document.getElementById("pause").addEventListener("click", fc_pause, false);
+		document.getElementById("start").addEventListener("click", fc_start, false);
 		document.getElementById("reset").addEventListener("click", FCReset, false);
 
 		window.addEventListener("gamepadconnected", function(e) {
@@ -226,7 +226,7 @@ function FCSet() {
 		var rom_binary = request.response;
 		File = {};
 		File.name = url;
-		FCRomChange(rom_binary);
+		fc_rom_change(rom_binary);
 		return;
 	};
 
@@ -261,7 +261,7 @@ function SramIn() {
 
 
 var DiskSideString = [" drop FDS Disk ", " EJECT ", " SIDE 1-A ", " SIDE 1-B ", " SIDE 2-A ", " SIDE 2-B "];
-function DiskSideCheck() {
+function disk_side_check() {
 	document.getElementById("insert").disabled = true;
 	document.getElementById("eject").disabled = true;
 
@@ -287,7 +287,7 @@ function DiskInsert() {
 		return;
 	var select = document.getElementById("diskselect");
 	fc.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
-	DiskSideCheck();
+	disk_side_check();
 }
 
 
@@ -295,5 +295,5 @@ function DiskEject() {
 	if(fc.Mapper === null || fc.MapperNumber !== 20)
 		return;
 	fc.Mapper.EjectDisk();
-	DiskSideCheck();
+	disk_side_check();
 }
