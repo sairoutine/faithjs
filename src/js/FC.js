@@ -448,7 +448,7 @@ FC.prototype.Reset = function () {
 	return false;
 }
 
-
+/* Non-Need methods
 FC.prototype.GetState = function () {
 	if(this.Mapper == null)
 		return false;
@@ -586,7 +586,7 @@ FC.prototype.SetState = function () {
 
 	return true;
 }
-
+*/
 
 /* **** FC CPU **** */
 FC.prototype.CpuInit = function () {

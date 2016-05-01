@@ -1,14 +1,12 @@
 ﻿"use strict";
 
+// ファミコン本体クラス
 var FC = require('./FC');
 
 var fc = null;
-
-
 var FCUse_FileReader;
 
 
-window.addEventListener('load', FCSet, false);
 
 
 
@@ -145,6 +143,56 @@ function fc_rom_change(changerom) {
 	disk_side_check();
 }
 
+function SramOut() {
+	var tmp = fc.Mapper.OutSRAM();
+	document.getElementById("sramdata").value = tmp;
+}
+
+
+function SramIn() {
+	fc.Mapper.InSRAM(document.getElementById("sramdata").value);
+}
+
+
+var DiskSideString = [" drop FDS Disk ", " EJECT ", " SIDE 1-A ", " SIDE 1-B ", " SIDE 2-A ", " SIDE 2-B "];
+function disk_side_check() {
+	document.getElementById("insert").disabled = true;
+	document.getElementById("eject").disabled = true;
+
+	if(fc.Mapper === null || fc.MapperNumber !== 20)
+		document.getElementById("diskside").innerHTML = " drop FDS BIOS ";
+	else {
+		var tmp = fc.Mapper.InDisk();
+		tmp += 2;
+		document.getElementById("diskside").innerHTML = DiskSideString[tmp];
+
+		if(tmp !== 0) {
+			if(tmp === 1)
+				document.getElementById("insert").disabled = false;
+			else
+				document.getElementById("eject").disabled = false;
+		}
+	}
+}
+
+
+function DiskInsert() {
+	if(fc.Mapper === null || fc.MapperNumber !== 20)
+		return;
+	var select = document.getElementById("diskselect");
+	fc.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
+	disk_side_check();
+}
+
+
+function DiskEject() {
+	if(fc.Mapper === null || fc.MapperNumber !== 20)
+		return;
+	fc.Mapper.EjectDisk();
+	disk_side_check();
+}
+
+
 
 function fc_setup() {
 	fc = new FC();
@@ -153,8 +201,7 @@ function fc_setup() {
 	return true;
 }
 
-
-function FCSet() {
+window.onload = function() {
 	if(!fc_setup())
 		return;
 
@@ -204,9 +251,6 @@ function FCSet() {
 		document.getElementById("sramout").addEventListener("click", SramOut, false);
 		document.getElementById("sramin").addEventListener("click", SramIn, false);
 
-		//document.getElementById("statesave").addEventListener("click", StateSave, false);
-		//document.getElementById("stateload").addEventListener("click", StateLoad, false);
-
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
 
@@ -236,64 +280,5 @@ function FCSet() {
 
 	request.open('GET', url, true);
 	request.send(null);
-}
+};
 
-
-function StateSave() {
-	fc.GetState();
-}
-
-
-function StateLoad() {
-	fc.SetState();
-}
-
-
-function SramOut() {
-	var tmp = fc.Mapper.OutSRAM();
-	document.getElementById("sramdata").value = tmp;
-}
-
-
-function SramIn() {
-	fc.Mapper.InSRAM(document.getElementById("sramdata").value);
-}
-
-
-var DiskSideString = [" drop FDS Disk ", " EJECT ", " SIDE 1-A ", " SIDE 1-B ", " SIDE 2-A ", " SIDE 2-B "];
-function disk_side_check() {
-	document.getElementById("insert").disabled = true;
-	document.getElementById("eject").disabled = true;
-
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
-		document.getElementById("diskside").innerHTML = " drop FDS BIOS ";
-	else {
-		var tmp = fc.Mapper.InDisk();
-		tmp += 2;
-		document.getElementById("diskside").innerHTML = DiskSideString[tmp];
-
-		if(tmp !== 0) {
-			if(tmp === 1)
-				document.getElementById("insert").disabled = false;
-			else
-				document.getElementById("eject").disabled = false;
-		}
-	}
-}
-
-
-function DiskInsert() {
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
-		return;
-	var select = document.getElementById("diskselect");
-	fc.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
-	disk_side_check();
-}
-
-
-function DiskEject() {
-	if(fc.Mapper === null || fc.MapperNumber !== 20)
-		return;
-	fc.Mapper.EjectDisk();
-	disk_side_check();
-}
