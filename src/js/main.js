@@ -11,9 +11,7 @@ function FCFileChange(e) {
 }
 
 
-var File = null;
 function fc_file_read(file) {
-	File = file;
 	var reader = new FileReader();
 	reader.onload = function (e) {
 		fc_rom_change(e.target.result);
@@ -121,7 +119,6 @@ function fc_rom_change(changerom) {
 
 	if(tmp.type === 3) {
 		if(fc.MapperNumber === 20) {
-			document.getElementById("disk_filename").innerHTML = File.name;
 			fc.Mapper.SetDisk(tmp.rom);
 			fc_start();
 			disk_side_check();
@@ -129,8 +126,6 @@ function fc_rom_change(changerom) {
 		return;
 	}
 
-	document.getElementById("rom_filename").innerHTML = File.name;
-	document.getElementById("disk_filename").innerHTML = "";
 	fc.SetRom(tmp.rom);
 	if(fc.Init())
 		fc_start();
@@ -236,8 +231,6 @@ window.onload = function() {
 
 	request.onload = function() {
 		var rom_binary = request.response;
-		File = {};
-		File.name = url;
 		fc_rom_change(rom_binary);
 		return;
 	};
