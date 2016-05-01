@@ -7,65 +7,65 @@ var NES = require('./NES');
 NES.prototype.MapperProto = function(core) {
 	this.Core = core;
 	this.MAPPER_REG = null;
-}
+};
 
 NES.prototype.MapperProto.prototype.Init = function() {
-}
+};
 
 NES.prototype.MapperProto.prototype.ReadLow = function(address) {
 	return 0x40;
-}
+};
 
 NES.prototype.MapperProto.prototype.WriteLow = function(address, data) {
-}
+};
 
 NES.prototype.MapperProto.prototype.ReadPPUData = function () {
 	return this.Core.ReadPPUData_SUB();
-}
+};
 
 NES.prototype.MapperProto.prototype.WritePPUData = function (value) {
 	this.Core.WritePPUData_SUB(value);
-}
+};
 
 NES.prototype.MapperProto.prototype.BuildBGLine = function () {
 	this.Core.BuildBGLine_SUB();
-}
+};
 
 NES.prototype.MapperProto.prototype.BuildSpriteLine = function () {
 	this.Core.BuildSpriteLine_SUB();
-}
+};
 
 NES.prototype.MapperProto.prototype.ReadSRAM = function(address) {
 	return this.Core.SRAM[address & 0x1FFF];
-}
+};
 
 NES.prototype.MapperProto.prototype.WriteSRAM = function(address, data) {
 	this.Core.SRAM[address & 0x1FFF] = data;
-}
+};
 
 NES.prototype.MapperProto.prototype.Write = function(address, data) {
-}
+};
 
 NES.prototype.MapperProto.prototype.HSync = function(y) {
-}
+};
 
 NES.prototype.MapperProto.prototype.CPUSync = function(clock) {
-}
+};
 
 NES.prototype.MapperProto.prototype.SetIRQ = function() {
 	this.Core.toIRQ |= 0x04;
-}
+};
 
 NES.prototype.MapperProto.prototype.ClearIRQ = function() {
 	this.Core.toIRQ &= ~0x04;
-}
+};
 
 NES.prototype.MapperProto.prototype.OutEXSound = function(soundin) {
 	return soundin;
-}
+};
 
 NES.prototype.MapperProto.prototype.EXSoundSync = function(clock) {
-}
+};
 
 NES.prototype.MapperProto.prototype.OutSRAM = function() {
 	var ret = "";
@@ -73,7 +73,7 @@ NES.prototype.MapperProto.prototype.OutSRAM = function() {
 		ret += (this.Core.SRAM[i] < 0x10 ? "0" : "") + this.Core.SRAM[i].toString(16);
 	}
 	return ret.toUpperCase();
-}
+};
 
 NES.prototype.MapperProto.prototype.InSRAM = function(sram) {
 	for(var i=0; i<this.Core.SRAM.length; i++)
@@ -86,7 +86,7 @@ NES.prototype.MapperProto.prototype.InSRAM = function(sram) {
 		return false;
 	}
 	return true;
-}
+};
 
 NES.prototype.MapperProto.prototype.GetState = function() {
 	if(this.MAPPER_REG == null)
@@ -94,7 +94,7 @@ NES.prototype.MapperProto.prototype.GetState = function() {
 
 	this.Core.StateData.Mapper = new Object();
 	this.Core.StateData.Mapper.MAPPER_REG = this.MAPPER_REG.slice(0);
-}
+};
 
 NES.prototype.MapperProto.prototype.SetState = function() {
 	if(this.MAPPER_REG == null)
@@ -102,13 +102,13 @@ NES.prototype.MapperProto.prototype.SetState = function() {
 
 	for(var i=0; i<this.Core.StateData.Mapper.MAPPER_REG.length; i++)
 		this.MAPPER_REG[i] = this.Core.StateData.Mapper.MAPPER_REG[i];
-}
+};
 
 
 /**** Mapper0 ****/
 NES.prototype.Mapper0 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper0.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -116,14 +116,14 @@ NES.prototype.Mapper0.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 
 /**** Mapper1 ****/
 NES.prototype.Mapper1 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
-}
+};
 
 NES.prototype.Mapper1.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -163,7 +163,7 @@ NES.prototype.Mapper1.prototype.Init = function() {
 	this.MAPPER_REG[7] = this.MAPPER_REG[9];
 
 	this.Core.SetPrgRomPages8K(this.MAPPER_REG[4], this.MAPPER_REG[5], this.MAPPER_REG[6], this.MAPPER_REG[7]);
-}
+};
 
 NES.prototype.Mapper1.prototype.Write = function(address, data) {
 	var reg_num;
@@ -322,20 +322,20 @@ NES.prototype.Mapper1.prototype.Write = function(address, data) {
 			this.SetPrgRomPages8K_Mapper01();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper1.prototype.SetPrgRomPages8K_Mapper01 = function (){
 	this.Core.SetPrgRomPage8K(0, (this.MAPPER_REG[11] << 5) + (this.MAPPER_REG[4] & 31));
 	this.Core.SetPrgRomPage8K(1, (this.MAPPER_REG[11] << 5) + (this.MAPPER_REG[5] & 31));
 	this.Core.SetPrgRomPage8K(2, (this.MAPPER_REG[11] << 5) + (this.MAPPER_REG[6] & 31));
 	this.Core.SetPrgRomPage8K(3, (this.MAPPER_REG[11] << 5) + (this.MAPPER_REG[7] & 31));
-}
+};
 
 
 /**** Mapper2 ****/
 NES.prototype.Mapper2 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper2.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -343,17 +343,17 @@ NES.prototype.Mapper2.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper2.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(0, data);
-}
+};
 
 
 /**** Mapper3 ****/
 NES.prototype.Mapper3 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper3.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -361,18 +361,18 @@ NES.prototype.Mapper3.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper3.prototype.Write = function(address, data) {
 	this.Core.SetChrRomPage(data & 0x0F);
-}
+};
 
 
 /**** Mapper4 ****/
 NES.prototype.Mapper4 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
-}
+};
 
 NES.prototype.Mapper4.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -397,7 +397,7 @@ NES.prototype.Mapper4.prototype.Init = function() {
 	this.MAPPER_REG[15] = 7;
 	this.Core.SetChrRomPages1K(this.MAPPER_REG[8], this.MAPPER_REG[9], this.MAPPER_REG[10], this.MAPPER_REG[11],
 				this.MAPPER_REG[12], this.MAPPER_REG[13], this.MAPPER_REG[14], this.MAPPER_REG[15]);
-}
+};
 
 NES.prototype.Mapper4.prototype.Write = function(address, data) {
 	switch (address & 0xE001) {
@@ -492,7 +492,7 @@ NES.prototype.Mapper4.prototype.Write = function(address, data) {
 			this.MAPPER_REG[7] = 1;
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper4.prototype.HSync = function(y) {
 	if(this.MAPPER_REG[7] == 1 && y < 240 && (this.Core.IO1[0x01] & 0x08) == 0x08) {
@@ -500,7 +500,7 @@ NES.prototype.Mapper4.prototype.HSync = function(y) {
 			this.SetIRQ();
 		this.MAPPER_REG[4] &= 0xFF;
 	}
-}
+};
 
 
 /**** Mapper5 ****/
@@ -515,7 +515,7 @@ NES.prototype.Mapper5 = function(core) {
 
 	this.MAPPER_IRQ = 0;
 	this.MAPPER_IRQ_STATUS = 0;
-}
+};
 
 NES.prototype.Mapper5.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -552,7 +552,7 @@ NES.prototype.Mapper5.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(tmp, tmp, tmp, tmp);
 	tmp = 0;
 	this.Core.SetChrRomPages1K(tmp, tmp + 1, tmp + 2, tmp + 3, tmp + 4, tmp + 5, tmp + 6, tmp + 7);
-}
+};
 
 NES.prototype.Mapper5.prototype.HSync = function(y) {
 	if(y < 240) {
@@ -567,7 +567,7 @@ NES.prototype.Mapper5.prototype.HSync = function(y) {
 	} else {
 		this.MAPPER_IRQ_STATUS &= 0xBF;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.ReadLow = function(address) {
 	if(address >= 0x5C00) {
@@ -588,7 +588,7 @@ NES.prototype.Mapper5.prototype.ReadLow = function(address) {
 	if (address == 0x5206) {
 		return (this.MAPPER_REG[0x0205] * this.MAPPER_REG[0x0206]) >>> 8;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.WriteLow = function(address, data) {
 	if(address >= 0x5C00) {
@@ -667,7 +667,7 @@ NES.prototype.Mapper5.prototype.WriteLow = function(address, data) {
 		this.SetChrRomPages1K_Mapper05_B();
 		return;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.SetChrRomPages1K_Mapper05_A = function (){
 	var tmp;
@@ -724,7 +724,7 @@ NES.prototype.Mapper5.prototype.SetChrRomPages1K_Mapper05_A = function (){
 			this.MAPPER_CHR_REG[0][7] = this.MAPPER_REG[0x0127];
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.SetChrRomPages1K_Mapper05_B = function (){
 	var tmp;
@@ -782,7 +782,7 @@ NES.prototype.Mapper5.prototype.SetChrRomPages1K_Mapper05_B = function (){
 			this.MAPPER_CHR_REG[1][7] = tmp;
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.SetPrgRomPages8K_Mapper05 = function (no){
 	switch(this.MAPPER_REG[0x0100] & 0x03) {
@@ -849,7 +849,7 @@ NES.prototype.Mapper5.prototype.SetPrgRomPages8K_Mapper05 = function (no){
 				this.Core.SetPrgRomPage8K(3, this.MAPPER_REG[0x0117] & 0x7F);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.BuildBGLine = function () {
 	this.Core.SetChrRomPages1K(this.MAPPER_CHR_REG[1][0], this.MAPPER_CHR_REG[1][1], this.MAPPER_CHR_REG[1][2], this.MAPPER_CHR_REG[1][3],
@@ -898,39 +898,39 @@ NES.prototype.Mapper5.prototype.BuildBGLine = function () {
 			}
 		}
 	}
-}
+};
 
 NES.prototype.Mapper5.prototype.BuildSpriteLine = function () {
 	this.Core.SetChrRomPages1K(this.MAPPER_CHR_REG[0][0], this.MAPPER_CHR_REG[0][1], this.MAPPER_CHR_REG[0][2], this.MAPPER_CHR_REG[0][3],
 				   this.MAPPER_CHR_REG[0][4], this.MAPPER_CHR_REG[0][5], this.MAPPER_CHR_REG[0][6], this.MAPPER_CHR_REG[0][7]);
 	this.Core.BuildSpriteLine_SUB();
-}
+};
 
 NES.prototype.Mapper5.prototype.ReadPPUData = function () {
 	this.Core.SetChrRomPages1K(this.MAPPER_CHR_REG[0][0], this.MAPPER_CHR_REG[0][1], this.MAPPER_CHR_REG[0][2], this.MAPPER_CHR_REG[0][3],
 				   this.MAPPER_CHR_REG[0][4], this.MAPPER_CHR_REG[0][5], this.MAPPER_CHR_REG[0][6], this.MAPPER_CHR_REG[0][7]);
 	return this.Core.ReadPPUData_SUB();
-}
+};
 
 NES.prototype.Mapper5.prototype.WritePPUData = function (value) {
 	this.Core.SetChrRomPages1K(this.MAPPER_CHR_REG[0][0], this.MAPPER_CHR_REG[0][1], this.MAPPER_CHR_REG[0][2], this.MAPPER_CHR_REG[0][3],
 				   this.MAPPER_CHR_REG[0][4], this.MAPPER_CHR_REG[0][5], this.MAPPER_CHR_REG[0][6], this.MAPPER_CHR_REG[0][7]);
 	this.Core.WritePPUData_SUB(value);
-}
+};
 
 NES.prototype.Mapper5.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_MMC5() >> 1);
-}
+};
 
 NES.prototype.Mapper5.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_MMC5(clock);
-}
+};
 
 
 /**** Mapper7 ****/
 NES.prototype.Mapper7 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper7.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -938,7 +938,7 @@ NES.prototype.Mapper7.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper7.prototype.Write = function(address, data) {
 	var tmp = (data & 0x07) << 1;
@@ -949,7 +949,7 @@ NES.prototype.Mapper7.prototype.Write = function(address, data) {
 		this.Core.SetMirrors(0,0,0,0);
 	else
 		this.Core.SetMirrors(1,1,1,1);
-}
+};
 
 
 /**** Mapper9 ****/
@@ -959,7 +959,7 @@ NES.prototype.Mapper9 = function(core) {//<--
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
-}
+};
 
 NES.prototype.Mapper9.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -972,7 +972,7 @@ NES.prototype.Mapper9.prototype.Init = function() {
 	this.MAPPER_Latch1 = true;
 	//this.MAPPER_REG[4] = true;
 	//this.MAPPER_REG[5] = true;
-}
+};
 
 NES.prototype.Mapper9.prototype.Write = function(address, data) {
 	switch(address & 0xF000) {
@@ -998,7 +998,7 @@ NES.prototype.Mapper9.prototype.Write = function(address, data) {
 				this.Core.SetMirror(true);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper9.prototype.BuildBGLine = function () {
 	var tmpBgLineBuffer = this.Core.BgLineBuffer;
@@ -1037,7 +1037,7 @@ NES.prototype.Mapper9.prototype.BuildBGLine = function () {
 		} else
 			nameAddrLow++;
 	}
-}
+};
 
 NES.prototype.Mapper9.prototype.SetLatch = function (addr) {
 	addr &= 0x1FF0;
@@ -1053,7 +1053,7 @@ NES.prototype.Mapper9.prototype.SetLatch = function (addr) {
 	if(addr == 0x1FE0)
 		this.MAPPER_Latch1 = true;
 		//this.MAPPER_REG[5] = true;
-}
+};
 
 NES.prototype.Mapper9.prototype.SetChrRom = function (addr) {
 	if((addr & 0x1000) == 0x0000) {
@@ -1083,7 +1083,7 @@ NES.prototype.Mapper9.prototype.SetChrRom = function (addr) {
 			this.Core.SetChrRomPage1K(7, this.MAPPER_REG[3] * 4 + 3);
 		}
 	}
-}
+};
 
 NES.prototype.Mapper9.prototype.BuildSpriteLine = function () {
 	var tmpBgLineBuffer = this.Core.BgLineBuffer;
@@ -1165,7 +1165,7 @@ NES.prototype.Mapper9.prototype.BuildSpriteLine = function () {
 		else
 			this.Core.IO1[0x02] &= 0xDF;
 	}
-}
+};
 
 NES.prototype.Mapper9.prototype.GetState = function() {
 	this.Core.StateData.Mapper = new Object();
@@ -1173,7 +1173,7 @@ NES.prototype.Mapper9.prototype.GetState = function() {
 
 	this.Core.StateData.Mapper.MAPPER_Latch0 = this.MAPPER_Latch0;
 	this.Core.StateData.Mapper.MAPPER_Latch1 = this.MAPPER_Latch1;
-}
+};
 
 NES.prototype.Mapper9.prototype.SetState = function() {
 	for(var i=0; i<this.Core.StateData.Mapper.MAPPER_REG.length; i++)
@@ -1181,7 +1181,7 @@ NES.prototype.Mapper9.prototype.SetState = function() {
 
 	this.MAPPER_Latch0 = this.Core.StateData.Mapper.MAPPER_Latch0;
 	this.MAPPER_Latch1 = this.Core.StateData.Mapper.MAPPER_Latch1;
-}
+};
 
 
 /**** Mapper10 ****/
@@ -1191,7 +1191,7 @@ NES.prototype.Mapper10 = function(core) {//<--
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
-}
+};
 
 NES.prototype.Mapper10.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -1204,7 +1204,7 @@ NES.prototype.Mapper10.prototype.Init = function() {
 	this.MAPPER_Latch1 = true;
 	//this.MAPPER_REG[4] = true;
 	//this.MAPPER_REG[5] = true;
-}
+};
 
 NES.prototype.Mapper10.prototype.Write = function(address, data) {
 	switch(address & 0xF000) {
@@ -1231,7 +1231,7 @@ NES.prototype.Mapper10.prototype.Write = function(address, data) {
 				this.Core.SetMirror(true);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper10.prototype.BuildBGLine = function () {
 	var tmpBgLineBuffer = this.Core.BgLineBuffer;
@@ -1270,7 +1270,7 @@ NES.prototype.Mapper10.prototype.BuildBGLine = function () {
 		} else
 			nameAddrLow++;
 	}
-}
+};
 
 NES.prototype.Mapper10.prototype.SetLatch = function (addr) {
 	addr &= 0x1FF0;
@@ -1286,7 +1286,7 @@ NES.prototype.Mapper10.prototype.SetLatch = function (addr) {
 	if(addr == 0x1FE0)
 		this.MAPPER_Latch1 = true;
 		//this.MAPPER_REG[5] = true;
-}
+};
 
 NES.prototype.Mapper10.prototype.SetChrRom = function (addr) {
 	if((addr & 0x1000) == 0x0000) {
@@ -1316,7 +1316,7 @@ NES.prototype.Mapper10.prototype.SetChrRom = function (addr) {
 			this.Core.SetChrRomPage1K(7, this.MAPPER_REG[3] * 4 + 3);
 		}
 	}
-}
+};
 
 NES.prototype.Mapper10.prototype.BuildSpriteLine = function () {
 	var tmpBgLineBuffer = this.Core.BgLineBuffer;
@@ -1398,7 +1398,7 @@ NES.prototype.Mapper10.prototype.BuildSpriteLine = function () {
 		else
 			this.Core.IO1[0x02] &= 0xDF;
 	}
-}
+};
 
 NES.prototype.Mapper10.prototype.GetState = function() {
 	this.Core.StateData.Mapper = new Object();
@@ -1406,7 +1406,7 @@ NES.prototype.Mapper10.prototype.GetState = function() {
 
 	this.Core.StateData.Mapper.MAPPER_Latch0 = this.MAPPER_Latch0;
 	this.Core.StateData.Mapper.MAPPER_Latch1 = this.MAPPER_Latch1;
-}
+};
 
 NES.prototype.Mapper10.prototype.SetState = function() {
 	for(var i=0; i<this.Core.StateData.Mapper.MAPPER_REG.length; i++)
@@ -1414,7 +1414,7 @@ NES.prototype.Mapper10.prototype.SetState = function() {
 
 	this.MAPPER_Latch0 = this.Core.StateData.Mapper.MAPPER_Latch0;
 	this.MAPPER_Latch1 = this.Core.StateData.Mapper.MAPPER_Latch1;
-}
+};
 
 
 /**** Mapper16 ****/
@@ -1437,7 +1437,7 @@ NES.prototype.Mapper16 = function(core) {
 	this.EEPROM = new Array(256);
 	for(var i=0; i<this.EEPROM.length; i++)
 		this.EEPROM[i] = 0x00;
-}
+};
 
 NES.prototype.Mapper16.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -1458,7 +1458,7 @@ NES.prototype.Mapper16.prototype.Init = function() {
 	this.SDA_OLD = false;
 	this.SDA = false;
 	this.STATE = 0;
-}
+};
 
 NES.prototype.Mapper16.prototype.Write = function(address, data) {
 	switch (address & 0x000F) {
@@ -1567,7 +1567,7 @@ NES.prototype.Mapper16.prototype.Write = function(address, data) {
 			}
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper16.prototype.BIT_OUT = function () {
 	if(this.BIT_COUNTER == 8) {
@@ -1580,7 +1580,7 @@ NES.prototype.Mapper16.prototype.BIT_OUT = function () {
 		this.BIT_COUNTER++;
 	}
 	return false;
-}
+};
 
 NES.prototype.Mapper16.prototype.BIT_IN = function () {
 	if(this.BIT_COUNTER == 8) {
@@ -1592,15 +1592,15 @@ NES.prototype.Mapper16.prototype.BIT_IN = function () {
 		this.BIT_COUNTER++;
 	}
 	return false;
-}
+};
 
 NES.prototype.Mapper16.prototype.ReadSRAM = function(address) {
 	return this.OUT_DATA;
-}
+};
 
 NES.prototype.Mapper16.prototype.WriteSRAM = function(address, data) {
 	this.Write(address, data);
-}
+};
 
 NES.prototype.Mapper16.prototype.CPUSync = function(clock) {
 	if(this.MAPPER_REG[0] == 0x01) {
@@ -1615,7 +1615,7 @@ NES.prototype.Mapper16.prototype.CPUSync = function(clock) {
 			this.MAPPER_REG[1] = 0x0000;
 		}
 	}
-}
+};
 
 
 /**** Mapper18 ****/
@@ -1623,7 +1623,7 @@ NES.prototype.Mapper18 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.IRQ_Counter = 0;
-}
+};
 
 NES.prototype.Mapper18.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -1634,7 +1634,7 @@ NES.prototype.Mapper18.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper18.prototype.Write = function(address, data) {
 	if(address >= 0x8000 && address < 0xE000) {
@@ -1680,7 +1680,7 @@ NES.prototype.Mapper18.prototype.Write = function(address, data) {
 			}
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper18.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[13] & 0x01) == 0x01) {
@@ -1711,7 +1711,7 @@ NES.prototype.Mapper18.prototype.CPUSync = function(clock) {
 
 		this.IRQ_Counter = (this.IRQ_Counter & ~mask) | (tmp & mask);
 	}
-}
+};
 
 
 /**** Mapper19 ****/
@@ -1719,7 +1719,7 @@ NES.prototype.Mapper19 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(5);
 	this.EX_VRAM = new Array(32);
-}
+};
 
 NES.prototype.Mapper19.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -1742,7 +1742,7 @@ NES.prototype.Mapper19.prototype.Init = function() {
 						this.Core.ChrRomPageCount * 8 - 2, this.Core.ChrRomPageCount * 8 - 1);
 	}
 
-}
+};
 
 NES.prototype.Mapper19.prototype.ReadLow = function(address) {
 	switch(address & 0xF800) {
@@ -1756,7 +1756,7 @@ NES.prototype.Mapper19.prototype.ReadLow = function(address) {
 			return (this.MAPPER_REG[3] << 7) | ((this.MAPPER_REG[4] & 0x7F00) >> 8);
 	}
 	return 0x00;
-}
+};
 
 NES.prototype.Mapper19.prototype.WriteLow = function(address, data) {
 	switch (address & 0xF800) {
@@ -1777,7 +1777,7 @@ NES.prototype.Mapper19.prototype.WriteLow = function(address, data) {
 			this.ClearIRQ();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper19.prototype.Write = function(address, data) {
 	switch (address & 0xF800) {
@@ -1897,7 +1897,7 @@ NES.prototype.Mapper19.prototype.Write = function(address, data) {
 			}
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper19.prototype.CPUSync = function(clock) {
 	if(this.MAPPER_REG[3] != 0) {
@@ -1907,15 +1907,15 @@ NES.prototype.Mapper19.prototype.CPUSync = function(clock) {
 			this.SetIRQ();
 		}
 	}
-}
+};
 
 NES.prototype.Mapper19.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_N163() >> 1);
-}
+};
 
 NES.prototype.Mapper19.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_N163(clock);
-}
+};
 
 
 /**** Mapper20 ****/
@@ -1939,7 +1939,7 @@ NES.prototype.Mapper20 = function(core) {
 
 	this.IrqWait = 0;
 	this.WriteSkip = 0;
-}
+};
 
 NES.prototype.Mapper20.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -1948,7 +1948,7 @@ NES.prototype.Mapper20.prototype.Init = function() {
 		this.MAPPER_REG[i] = 0;
 
 	this.Core.SetPrgRomPage8K(3, 3);
-}
+};
 
 NES.prototype.Mapper20.prototype.Write = function(address, data) {
 	switch(address & 0xE000) {
@@ -1962,17 +1962,17 @@ NES.prototype.Mapper20.prototype.Write = function(address, data) {
 			this.Core.ROM[2][address & 0x1FFF] = data;
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper20.prototype.InDisk = function() {
 	if(this.DISK_PAGES_COUNT == 0)
 		return -2;
 	return this.Side;
-}
+};
 
 NES.prototype.Mapper20.prototype.GetDiskPagesCount = function() {
 	return this.DISK_PAGES_COUNT;
-}
+};
 
 NES.prototype.Mapper20.prototype.InsertDisk = function(side) {
 	if(this.DISK_PAGES_COUNT > 0 && side < this.DISK_PAGES_COUNT && this.Side == -1) {
@@ -1981,11 +1981,11 @@ NES.prototype.Mapper20.prototype.InsertDisk = function(side) {
 		return true;
 	}
 	return false;
-}
+};
 
 NES.prototype.Mapper20.prototype.EjectDisk = function() {
 	this.Side = -1;
-}
+};
 
 NES.prototype.Mapper20.prototype.SetDisk = function(disk) {
 	this.Disk = disk.concat(0);
@@ -2002,7 +2002,7 @@ NES.prototype.Mapper20.prototype.SetDisk = function(disk) {
 
 	this.Side = -1;
 	this.Position = 0;
-}
+};
 
 NES.prototype.Mapper20.prototype.ReadLow = function(address) {
 	switch (address) {
@@ -2028,7 +2028,7 @@ NES.prototype.Mapper20.prototype.ReadLow = function(address) {
 			return 0x80;
 	}
 	return 0x00;
-}
+};
 
 NES.prototype.Mapper20.prototype.WriteLow = function(address, data) {
 	if(address >= 0x4040 && address <= 0x407F) {
@@ -2091,15 +2091,15 @@ NES.prototype.Mapper20.prototype.WriteLow = function(address, data) {
 			break;
 	}
 	this.MAPPER_REG[address & 0x0007] = data;
-}
+};
 
 NES.prototype.Mapper20.prototype.SetSeekIRQ = function() {
 	this.Core.toIRQ |= 0x08;
-}
+};
 
 NES.prototype.Mapper20.prototype.ClearSeekIRQ = function() {
 	this.Core.toIRQ &= ~0x08;
-}
+};
 
 NES.prototype.Mapper20.prototype.CPUSync = function(clock) {
 	if ((this.IrqEnable & 0x02) == 0x02 && this.IrqCounter > 0) {
@@ -2123,22 +2123,22 @@ NES.prototype.Mapper20.prototype.CPUSync = function(clock) {
 			}
 		}
 	}
-}
+};
 
 NES.prototype.Mapper20.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_FDS() >> 1);
-}
+};
 
 NES.prototype.Mapper20.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_FDS(clock);
-}
+};
 
 
 /**** Mapper22 ****/
 NES.prototype.Mapper22 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
-}
+};
 
 NES.prototype.Mapper22.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2152,7 +2152,7 @@ NES.prototype.Mapper22.prototype.Init = function() {
 	if(this.Core.ChrRomPageCount != 0) {
 		this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
 	}
-}
+};
 
 NES.prototype.Mapper22.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -2278,14 +2278,14 @@ NES.prototype.Mapper22.prototype.Write = function(address, data) {
 			this.Core.SetChrRomPage1K(7, this.MAPPER_REG[7] >> 1);
 			break;
 	}
-}
+};
 
 
 /**** Mapper23 ****/
 NES.prototype.Mapper23 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
-}
+};
 
 NES.prototype.Mapper23.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2299,7 +2299,7 @@ NES.prototype.Mapper23.prototype.Init = function() {
 	if(this.Core.ChrRomPageCount != 0) {
 		this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
 	}
-}
+};
 
 NES.prototype.Mapper23.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -2452,7 +2452,7 @@ NES.prototype.Mapper23.prototype.Write = function(address, data) {
 			this.ClearIRQ();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper23.prototype.HSync = function(y) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x02) {
@@ -2462,7 +2462,7 @@ NES.prototype.Mapper23.prototype.HSync = function(y) {
 		} else
 			this.MAPPER_REG[12]++;
 	}
-}
+};
 
 NES.prototype.Mapper23.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x06) {
@@ -2472,14 +2472,14 @@ NES.prototype.Mapper23.prototype.CPUSync = function(clock) {
 		} else
 			this.MAPPER_REG[12] += clock;
 	}
-}
+};
 
 
 /**** Mapper24 ****/
 NES.prototype.Mapper24 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
-}
+};
 
 NES.prototype.Mapper24.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2489,7 +2489,7 @@ NES.prototype.Mapper24.prototype.Init = function() {
 	this.MAPPER_REG[2] = 0x00;
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper24.prototype.Write = function(address, data) {
 	switch(address & 0xF003) {
@@ -2577,7 +2577,7 @@ NES.prototype.Mapper24.prototype.Write = function(address, data) {
 			this.ClearIRQ();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper24.prototype.HSync = function(y) {
 	if((this.MAPPER_REG[1] & 0x06) == 0x02) {
@@ -2587,7 +2587,7 @@ NES.prototype.Mapper24.prototype.HSync = function(y) {
 		} else
 			this.MAPPER_REG[2]++;
 	}
-}
+};
 
 NES.prototype.Mapper24.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[1] & 0x06) == 0x06) {
@@ -2597,22 +2597,22 @@ NES.prototype.Mapper24.prototype.CPUSync = function(clock) {
 		} else
 			this.MAPPER_REG[2] += clock;
 	}
-}
+};
 
 NES.prototype.Mapper24.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_VRC6() >> 1);
-}
+};
 
 NES.prototype.Mapper24.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_VRC6(clock);
-}
+};
 
 
 /**** Mapper25 ****/
 NES.prototype.Mapper25 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
-}
+};
 
 NES.prototype.Mapper25.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2627,7 +2627,7 @@ NES.prototype.Mapper25.prototype.Init = function() {
 		this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
 	}
 	this.MAPPER_REG[9] = this.Core.PrgRomPageCount * 2 - 2;
-}
+};
 
 NES.prototype.Mapper25.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -2791,7 +2791,7 @@ NES.prototype.Mapper25.prototype.Write = function(address, data) {
 			this.ClearIRQ();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper25.prototype.HSync = function(y) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x02) {
@@ -2801,7 +2801,7 @@ NES.prototype.Mapper25.prototype.HSync = function(y) {
 		} else
 			this.MAPPER_REG[12]++;
 	}
-}
+};
 
 NES.prototype.Mapper25.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x06) {
@@ -2811,14 +2811,14 @@ NES.prototype.Mapper25.prototype.CPUSync = function(clock) {
 		} else
 			this.MAPPER_REG[12] += clock;
 	}
-}
+};
 
 
 /**** Mapper26 ****/
 NES.prototype.Mapper26 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
-}
+};
 
 NES.prototype.Mapper26.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2828,7 +2828,7 @@ NES.prototype.Mapper26.prototype.Init = function() {
 	this.MAPPER_REG[2] = 0x00;
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper26.prototype.Write = function(address, data) {
 	address = (address & 0xFFFC) | ((address & 0x0002) >> 1) | ((address & 0x0001) << 1);
@@ -2918,7 +2918,7 @@ NES.prototype.Mapper26.prototype.Write = function(address, data) {
 			}
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper26.prototype.HSync = function(y) {
 	if((this.MAPPER_REG[1] & 0x06) == 0x02) {
@@ -2928,7 +2928,7 @@ NES.prototype.Mapper26.prototype.HSync = function(y) {
 		} else
 			this.MAPPER_REG[2]++;
 	}
-}
+};
 
 NES.prototype.Mapper26.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[1] & 0x06) == 0x06) {
@@ -2938,22 +2938,22 @@ NES.prototype.Mapper26.prototype.CPUSync = function(clock) {
 		} else
 			this.MAPPER_REG[2] += clock;
 	}
-}
+};
 
 NES.prototype.Mapper26.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_VRC6() >> 1);
-}
+};
 
 NES.prototype.Mapper26.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_VRC6(clock);
-}
+};
 
 
 /**** Mapper32 ****/
 NES.prototype.Mapper32 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
-}
+};
 
 NES.prototype.Mapper32.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -2963,7 +2963,7 @@ NES.prototype.Mapper32.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper32.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -2999,20 +2999,20 @@ NES.prototype.Mapper32.prototype.Write = function(address, data) {
 			this.Core.SetChrRomPage1K(tmp, data);
 			break;
 	}
-}
+};
 
 
 /**** Mapper33 ****/
 NES.prototype.Mapper33 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper33.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
 NES.prototype.Mapper33.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper33.prototype.Write = function(address, data) {
 	switch (address & 0xA003) {
@@ -3047,13 +3047,13 @@ NES.prototype.Mapper33.prototype.Write = function(address, data) {
 			this.Core.SetChrRomPage1K(7, data);
 			break;
 	}
-}
+};
 
 
 /**** Mapper34 ****/
 NES.prototype.Mapper34 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper34.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3061,21 +3061,21 @@ NES.prototype.Mapper34.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper34.prototype.Write = function(address, data) {
 	var tmp = (data & 0x03) << 1;
 
 	this.Core.SetPrgRomPage(0, tmp);
 	this.Core.SetPrgRomPage(1, tmp + 1);
-}
+};
 
 
 /**** Mapper48 ****/
 NES.prototype.Mapper48 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
-}
+};
 
 NES.prototype.Mapper48.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3085,7 +3085,7 @@ NES.prototype.Mapper48.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper48.prototype.Write = function(address, data) {
 	switch (address & 0xE003) {
@@ -3133,7 +3133,7 @@ NES.prototype.Mapper48.prototype.Write = function(address, data) {
 				this.Core.SetMirror(true);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper48.prototype.HSync = function(y) {
 	if(this.MAPPER_REG[0] == 1 && y < 240 && (this.Core.IO1[0x01] & 0x08) == 0x08) {
@@ -3143,7 +3143,7 @@ NES.prototype.Mapper48.prototype.HSync = function(y) {
 		}
 		this.MAPPER_REG[1]++;
 	}
-}
+};
 
 
 /**** Mapper65 ****/
@@ -3152,7 +3152,7 @@ NES.prototype.Mapper65 = function(core) {
 	this.IRQ_Counter = 0;
 	this.IRQ_Value = 0;
 	this.IRQ_Flag = false;
-}
+};
 
 NES.prototype.Mapper65.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3160,7 +3160,7 @@ NES.prototype.Mapper65.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
 	this.IRQ_Counter = 0;
-}
+};
 
 NES.prototype.Mapper65.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -3209,7 +3209,7 @@ NES.prototype.Mapper65.prototype.Write = function(address, data) {
 			this.Core.SetPrgRomPage8K(2, data);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper65.prototype.CPUSync = function(clock) {
 	if(this.IRQ_Flag) {
@@ -3222,13 +3222,13 @@ NES.prototype.Mapper65.prototype.CPUSync = function(clock) {
 			}
 		}
 	}
-}
+};
 
 
 /**** Mapper66 ****/
 NES.prototype.Mapper66 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper66.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3236,7 +3236,7 @@ NES.prototype.Mapper66.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper66.prototype.Write = function(address, data) {
 	var tmp = (data & 0x30) >> 3;
@@ -3244,7 +3244,7 @@ NES.prototype.Mapper66.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(1, tmp + 1);
 
 	this.Core.SetChrRomPage(data & 0x03);
-}
+};
 
 
 /**** Mapper67 ****/
@@ -3252,7 +3252,7 @@ NES.prototype.Mapper67 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
 	this.IRQ_Toggle = 0x00;
-}
+};
 
 NES.prototype.Mapper67.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3264,7 +3264,7 @@ NES.prototype.Mapper67.prototype.Init = function() {
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, this.Core.ChrRomPageCount * 8 - 4, this.Core.ChrRomPageCount * 8 - 3, this.Core.ChrRomPageCount * 8 - 2, this.Core.ChrRomPageCount * 8 - 1);
 
 	this.IRQ_Toggle = 0x00;
-}
+};
 
 NES.prototype.Mapper67.prototype.Write = function(address, data) {
 	switch (address & 0xF800) {
@@ -3319,7 +3319,7 @@ NES.prototype.Mapper67.prototype.Write = function(address, data) {
 			this.Core.SetPrgRomPage8K(1, (data << 1) + 1);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper67.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[5] & 0x10) == 0x10) {
@@ -3330,14 +3330,14 @@ NES.prototype.Mapper67.prototype.CPUSync = function(clock) {
 			this.SetIRQ();
 		}
 	}
-}
+};
 
 
 /**** Mapper68 ****/
 NES.prototype.Mapper68 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
-}
+};
 
 NES.prototype.Mapper68.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3347,7 +3347,7 @@ NES.prototype.Mapper68.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper68.prototype.Write = function(address, data) {
 	switch (address & 0xF000) {
@@ -3389,7 +3389,7 @@ NES.prototype.Mapper68.prototype.Write = function(address, data) {
 			this.Core.SetPrgRomPage8K(1, (data << 1) + 1);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper68.prototype.SetMirror = function() {
 	switch (this.MAPPER_REG[6] & 0x11) {
@@ -3412,7 +3412,7 @@ NES.prototype.Mapper68.prototype.SetMirror = function() {
 			this.Core.SetChrRomPage1K(11, this.MAPPER_REG[5] | 0x80);
 			break;
 	}
-}
+};
 
 
 /**** Mapper69 ****/
@@ -3422,7 +3422,7 @@ NES.prototype.Mapper69 = function(core) {
 	this.MAPPER_REG_Select = 0x00;
 	this.R8_ROM = null;
 	this.IRQ_Counter = 0;
-}
+};
 
 NES.prototype.Mapper69.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3433,7 +3433,7 @@ NES.prototype.Mapper69.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper69.prototype.Write = function(address, data) {
 	switch (address & 0xE000) {
@@ -3496,19 +3496,19 @@ NES.prototype.Mapper69.prototype.Write = function(address, data) {
 			this.Core.Write_AY_REG(data);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper69.prototype.ReadSRAM = function(address) {
 	if((this.MAPPER_REG[0x08] & 0x40) == 0x00)
 		return this.R8_ROM[address & 0x1FFF];
 	else
 		return this.Core.SRAM[address & 0x1FFF];
-}
+};
 
 NES.prototype.Mapper69.prototype.WriteSRAM = function(address, data) {
 	if((this.MAPPER_REG[0x08] & 0x40) == 0x40)
 		this.Core.SRAM[address & 0x1FFF] = data;
-}
+};
 
 NES.prototype.Mapper69.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[0x0D] & 0x80) == 0x80) {
@@ -3519,21 +3519,21 @@ NES.prototype.Mapper69.prototype.CPUSync = function(clock) {
 				this.SetIRQ();
 		}
 	}
-}
+};
 
 NES.prototype.Mapper69.prototype.OutEXSound = function(soundin) {
 	return (soundin >> 1) + (this.Core.Out_AY() >> 1);
-}
+};
 
 NES.prototype.Mapper69.prototype.EXSoundSync = function(clock) {
 	this.Core.Count_AY(clock);
-}
+};
 
 
 /**** Mapper70 ****/
 NES.prototype.Mapper70 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper70.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3541,7 +3541,7 @@ NES.prototype.Mapper70.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper70.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(0, (data & 0x70)>> 4);
@@ -3551,14 +3551,14 @@ NES.prototype.Mapper70.prototype.Write = function(address, data) {
 		this.Core.SetMirrors(0,0,0,0);
 	else
 		this.Core.SetMirrors(1,1,1,1);
-}
+};
 
 
 /**** Mapper72 ****/
 NES.prototype.Mapper72 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
-}
+};
 
 NES.prototype.Mapper72.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3567,7 +3567,7 @@ NES.prototype.Mapper72.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper72.prototype.Write = function(address, data) {
 	if((this.MAPPER_REG[0] & 0xC0) == 0x00) {
@@ -3582,14 +3582,14 @@ NES.prototype.Mapper72.prototype.Write = function(address, data) {
 		}
 	}
 	this.MAPPER_REG[0] = data;
-}
+};
 
 
 /**** Mapper73 ****/
 NES.prototype.Mapper73 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
-}
+};
 
 NES.prototype.Mapper73.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3598,7 +3598,7 @@ NES.prototype.Mapper73.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0;
 	this.MAPPER_REG[1] = 0;
 	this.MAPPER_REG[2] = 0;
-}
+};
 
 NES.prototype.Mapper73.prototype.Write = function(address, data) {
 	switch (address) {
@@ -3643,7 +3643,7 @@ NES.prototype.Mapper73.prototype.Write = function(address, data) {
 			this.Core.SetPrgRomPage8K(1, data * 2 + 1);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper73.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[1] & 0x02) != 0) {
@@ -3661,14 +3661,14 @@ NES.prototype.Mapper73.prototype.CPUSync = function(clock) {
 			}
 		}
 	}
-}
+};
 
 
 /**** Mapper75 ****/
 NES.prototype.Mapper75 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
-}
+};
 
 NES.prototype.Mapper75.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3676,7 +3676,7 @@ NES.prototype.Mapper75.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, 0, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 0, 0, 0, 0, 0, 0, 0);
 	this.MAPPER_REG[0] = 0x00;
-}
+};
 
 NES.prototype.Mapper75.prototype.Write = function(address, data) {
 	switch (address) {
@@ -3716,14 +3716,14 @@ NES.prototype.Mapper75.prototype.Write = function(address, data) {
 			this.Core.SetChrRomPage1K(7, tmp + 3);
 			break;
 	}
-}
+};
 
 
 /**** Mapper76 ****/
 NES.prototype.Mapper76 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
-}
+};
 
 NES.prototype.Mapper76.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3731,7 +3731,7 @@ NES.prototype.Mapper76.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 0, 0, 0, 0, 0, 0, 0);
 	this.MAPPER_REG[0] = 0x00;
-}
+};
 
 NES.prototype.Mapper76.prototype.Write = function(address, data) {
 	if(address == 0x8000)
@@ -3763,13 +3763,13 @@ NES.prototype.Mapper76.prototype.Write = function(address, data) {
 				break;
 		}
 	}
-}
+};
 
 
 /**** Mapper77 ****/
 NES.prototype.Mapper77 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper77.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3785,7 +3785,7 @@ NES.prototype.Mapper77.prototype.Init = function() {
 	this.Core.SetChrRomPage1K(5, 5 + 0x0100);
 	this.Core.SetChrRomPage1K(6, 6 + 0x0100);
 	this.Core.SetChrRomPage1K(7, 7 + 0x0100);
-}
+};
 
 NES.prototype.Mapper77.prototype.Write = function(address, data) {
 	var tmp = (data & 0x0F) << 1;
@@ -3795,13 +3795,13 @@ NES.prototype.Mapper77.prototype.Write = function(address, data) {
 	tmp = (data & 0xF0) >> 3;
 	this.Core.SetChrRomPage1K(0, tmp);
 	this.Core.SetChrRomPage1K(1, tmp + 1);
-}
+};
 
 
 /**** Mapper78 ****/
 NES.prototype.Mapper78 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper78.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3810,7 +3810,7 @@ NES.prototype.Mapper78.prototype.Init = function() {
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper78.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(0, data & 0x07);
@@ -3820,7 +3820,7 @@ NES.prototype.Mapper78.prototype.Write = function(address, data) {
 		this.Core.SetMirror(false);
 	else
 		this.Core.SetMirror(true);
-}
+};
 
 
 /**** Mapper80 ****/
@@ -3828,7 +3828,7 @@ NES.prototype.Mapper80 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
-}
+};
 
 NES.prototype.Mapper80.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3842,7 +3842,7 @@ NES.prototype.Mapper80.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper80.prototype.ReadSRAM = function(address) {
 	if(address >= 0x7F00 && address <= 0x7FFF)
@@ -3879,7 +3879,7 @@ NES.prototype.Mapper80.prototype.ReadSRAM = function(address) {
 	}
 
 	return 0x00;
-}
+};
 
 NES.prototype.Mapper80.prototype.WriteSRAM = function(address, data) {
 	if(address >= 0x7F00 && address <= 0x7FFF) {
@@ -3942,7 +3942,7 @@ NES.prototype.Mapper80.prototype.WriteSRAM = function(address, data) {
 			this.Core.SetPrgRomPage8K(2, data);
 			break;
 	}
-}
+};
 
 
 /**** Mapper82 ****/
@@ -3950,7 +3950,7 @@ NES.prototype.Mapper82 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(13);
 	this.EX_RAM = new Array(0x1400);
-}
+};
 
 NES.prototype.Mapper82.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -3964,7 +3964,7 @@ NES.prototype.Mapper82.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper82.prototype.ReadSRAM = function(address) {
 	if(address >= 0x6000 && address <= 0x73FF)
@@ -3972,7 +3972,7 @@ NES.prototype.Mapper82.prototype.ReadSRAM = function(address) {
 
 	if(address >= 0x7EF0 && address <= 0x7EFC)
 		return this.MAPPER_REG[address - 0x7EF0];
-}
+};
 
 NES.prototype.Mapper82.prototype.WriteSRAM = function(address, data) {
 	if(address >= 0x6000 && address <= 0x73FF) {
@@ -4035,7 +4035,7 @@ NES.prototype.Mapper82.prototype.WriteSRAM = function(address, data) {
 			this.Core.SetPrgRomPage8K(2, data >>> 2);
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper82.prototype.SetChr = function() {
 	if((this.MAPPER_REG[6] & 0x02) == 0x00) {
@@ -4057,7 +4057,7 @@ NES.prototype.Mapper82.prototype.SetChr = function() {
 		this.Core.SetChrRomPage1K(2, this.MAPPER_REG[4]);
 		this.Core.SetChrRomPage1K(3, this.MAPPER_REG[5]);
 	}
-}
+};
 
 
 /**** Mapper85 ****/
@@ -4065,7 +4065,7 @@ NES.prototype.Mapper85 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.MAPPER_EXVRAM = new Array(8);
-}
+};
 
 NES.prototype.Mapper85.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4093,7 +4093,7 @@ NES.prototype.Mapper85.prototype.Init = function() {
 	} else
 		this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
 
-}
+};
 
 NES.prototype.Mapper85.prototype.Write = function(address, data) {
 	switch(address & 0xF038) {
@@ -4207,7 +4207,7 @@ NES.prototype.Mapper85.prototype.Write = function(address, data) {
 			this.ClearIRQ();
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper85.prototype.HSync = function(y) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x02) {
@@ -4217,7 +4217,7 @@ NES.prototype.Mapper85.prototype.HSync = function(y) {
 		} else
 			this.MAPPER_REG[12]++;
 	}
-}
+};
 
 NES.prototype.Mapper85.prototype.CPUSync = function(clock) {
 	if((this.MAPPER_REG[11] & 0x06) == 0x06) {
@@ -4227,20 +4227,20 @@ NES.prototype.Mapper85.prototype.CPUSync = function(clock) {
 		} else
 			this.MAPPER_REG[12] += clock;
 	}
-}
+};
 
 
 /**** Mapper86 ****/
 NES.prototype.Mapper86 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper86.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
 NES.prototype.Mapper86.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(this.Core.PrgRomPageCount * 2 - 4, this.Core.PrgRomPageCount * 2 - 3, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper86.prototype.WriteSRAM = function(address, data) {
 	if(address >= 0x6000 && address < 0x6FFF) {
@@ -4249,13 +4249,13 @@ NES.prototype.Mapper86.prototype.WriteSRAM = function(address, data) {
 		this.Core.SetPrgRomPages8K(prg, prg + 1, prg + 2, prg + 3);
 		this.Core.SetChrRomPages1K(chr, chr + 1, chr + 2, chr + 3, chr + 4, chr + 5, chr + 6, chr + 7);
 	}
-}
+};
 
 
 /**** Mapper87 ****/
 NES.prototype.Mapper87 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper87.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4263,19 +4263,19 @@ NES.prototype.Mapper87.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper87.prototype.WriteSRAM = function(address, data) {
 	var chr = ((data & 0x02) >>> 1) | ((data & 0x01) << 1);
 	this.Core.SetChrRomPage(chr);
-}
+};
 
 
 /**** Mapper88 ****/
 NES.prototype.Mapper88 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
-}
+};
 
 NES.prototype.Mapper88.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4283,7 +4283,7 @@ NES.prototype.Mapper88.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 0, 0, 0, 0, 0, 0, 0);
 	this.MAPPER_REG[0] = 0x00;
-}
+};
 
 NES.prototype.Mapper88.prototype.Write = function(address, data) {
 	if(address == 0x8000)
@@ -4319,13 +4319,13 @@ NES.prototype.Mapper88.prototype.Write = function(address, data) {
 				break;
 		}
 	}
-}
+};
 
 
 /**** Mapper89 ****/
 NES.prototype.Mapper89 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper89.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4334,7 +4334,7 @@ NES.prototype.Mapper89.prototype.Init = function() {
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper89.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(0, (data & 0x70) >> 4);
@@ -4344,13 +4344,13 @@ NES.prototype.Mapper89.prototype.Write = function(address, data) {
 		this.Core.SetMirrors(0, 0, 0, 0);
 	else
 		this.Core.SetMirrors(1, 1, 1, 1);
-}
+};
 
 
 /**** Mapper92 ****/
 NES.prototype.Mapper92 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper92.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4358,7 +4358,7 @@ NES.prototype.Mapper92.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper92.prototype.Write = function(address, data) {
 	var prg = (address & 0x0F) << 1;
@@ -4376,33 +4376,33 @@ NES.prototype.Mapper92.prototype.Write = function(address, data) {
 			this.Core.SetChrRomPages1K(chr, chr + 1, chr + 2, chr + 3, chr + 4, chr + 5, chr + 6, chr + 7);
 		}
 	}
-}
+};
 
 
 /**** Mapper93 ****/
 NES.prototype.Mapper93 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper93.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
 NES.prototype.Mapper93.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper93.prototype.WriteSRAM = function(address, data) {
 	if(address == 0x6000) {
 		this.Core.SetPrgRomPage8K(0, data * 2);
 		this.Core.SetPrgRomPage8K(1, data * 2 + 1);
 	}
-}
+};
 
 
 /**** Mapper94 ****/
 NES.prototype.Mapper94 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper94.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4410,18 +4410,18 @@ NES.prototype.Mapper94.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper94.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(0, data >> 2);
-}
+};
 
 
 /**** Mapper95 ****/
 NES.prototype.Mapper95 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
-}
+};
 
 NES.prototype.Mapper95.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4429,7 +4429,7 @@ NES.prototype.Mapper95.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 0, 0, 0, 0, 0, 0, 0);
 	this.MAPPER_REG[0] = 0x00;
-}
+};
 
 NES.prototype.Mapper95.prototype.Write = function(address, data) {
 	if((address & 0x0001) == 0x0000)
@@ -4472,13 +4472,13 @@ NES.prototype.Mapper95.prototype.Write = function(address, data) {
 				break;
 		}
 	}
-}
+};
 
 
 /**** Mapper97 ****/
 NES.prototype.Mapper97 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper97.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4487,7 +4487,7 @@ NES.prototype.Mapper97.prototype.Init = function() {
 	this.Core.SetPrgRomPage(1, 0);
 
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper97.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(1, data & 0x0F);
@@ -4506,13 +4506,13 @@ NES.prototype.Mapper97.prototype.Write = function(address, data) {
 			this.Core.SetMirrors(1, 1, 1, 1);
 			break;
 	}
-}
+};
 
 
 /**** Mapper101 ****/
 NES.prototype.Mapper101 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper101.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4520,18 +4520,18 @@ NES.prototype.Mapper101.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper101.prototype.WriteSRAM = function(address, data) {
 	this.Core.SetChrRomPage(data & 0x03);
-}
+};
 
 
 /**** Mapper118 ****/
 NES.prototype.Mapper118 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
-}
+};
 
 NES.prototype.Mapper118.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4556,7 +4556,7 @@ NES.prototype.Mapper118.prototype.Init = function() {
 	this.MAPPER_REG[15] = 7;
 	this.Core.SetChrRomPages1K(this.MAPPER_REG[8], this.MAPPER_REG[9], this.MAPPER_REG[10], this.MAPPER_REG[11],
 				this.MAPPER_REG[12], this.MAPPER_REG[13], this.MAPPER_REG[14], this.MAPPER_REG[15]);
-}
+};
 
 NES.prototype.Mapper118.prototype.Write = function(address, data) {
 	switch (address & 0xE001) {
@@ -4664,7 +4664,7 @@ NES.prototype.Mapper118.prototype.Write = function(address, data) {
 			this.MAPPER_REG[7] = 1;
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper118.prototype.HSync = function(y) {
 	if(this.MAPPER_REG[7] == 1 && y < 240 && (this.Core.IO1[0x01] & 0x08) == 0x08) {
@@ -4672,14 +4672,14 @@ NES.prototype.Mapper118.prototype.HSync = function(y) {
 			this.SetIRQ();
 		this.MAPPER_REG[4] &= 0xFF;
 	}
-}
+};
 
 
 /**** Mapper119 ****/
 NES.prototype.Mapper119 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
-}
+};
 
 NES.prototype.Mapper119.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4704,7 +4704,7 @@ NES.prototype.Mapper119.prototype.Init = function() {
 	this.MAPPER_REG[15] = 7;
 	this.Core.SetChrRomPages1K(this.MAPPER_REG[8], this.MAPPER_REG[9], this.MAPPER_REG[10], this.MAPPER_REG[11],
 				this.MAPPER_REG[12], this.MAPPER_REG[13], this.MAPPER_REG[14], this.MAPPER_REG[15]);
-}
+};
 
 NES.prototype.Mapper119.prototype.SetChrRomPages1K = function(page0, page1, page2, page3, page4, page5, page6, page7) {
 	if((page0 & 0x40) == 0x00)
@@ -4746,7 +4746,7 @@ NES.prototype.Mapper119.prototype.SetChrRomPages1K = function(page0, page1, page
 		this.Core.SetChrRomPage1K(7, page7 & 0x3F);
 	else
 		this.Core.VRAM[7] = this.Core.VRAMS[page7 & 0x07];
-}
+};
 
 NES.prototype.Mapper119.prototype.Write = function(address, data) {
 	switch (address & 0xE001) {
@@ -4841,7 +4841,7 @@ NES.prototype.Mapper119.prototype.Write = function(address, data) {
 			this.MAPPER_REG[7] = 1;
 			break;
 	}
-}
+};
 
 NES.prototype.Mapper119.prototype.HSync = function(y) {
 	if(this.MAPPER_REG[7] == 1 && y < 240 && (this.Core.IO1[0x01] & 0x08) == 0x08) {
@@ -4849,13 +4849,13 @@ NES.prototype.Mapper119.prototype.HSync = function(y) {
 			this.SetIRQ();
 		this.MAPPER_REG[4] &= 0xFF;
 	}
-}
+};
 
 
 /**** Mapper140 ****/
 NES.prototype.Mapper140 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper140.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4863,20 +4863,20 @@ NES.prototype.Mapper140.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper140.prototype.WriteSRAM = function(address, data) {
 	var tmp = (data & 0x30) >> 3;
 	this.Core.SetPrgRomPage(0, tmp);
 	this.Core.SetPrgRomPage(1, tmp + 1);
 	this.Core.SetChrRomPage(data & 0x0F);
-}
+};
 
 
 /**** Mapper152 ****/
 NES.prototype.Mapper152 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper152.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4884,7 +4884,7 @@ NES.prototype.Mapper152.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper152.prototype.WriteSRAM = function(address, data) {
 	this.Core.SetPrgRomPage(0, (data & 0x70) >> 4);
@@ -4894,13 +4894,13 @@ NES.prototype.Mapper152.prototype.WriteSRAM = function(address, data) {
 		this.Core.SetMirrors(0, 0, 0, 0);
 	else
 		this.Core.SetMirrors(1, 1, 1, 1);
-}
+};
 
 
 /**** Mapper180 ****/
 NES.prototype.Mapper180 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper180.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4908,24 +4908,24 @@ NES.prototype.Mapper180.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
 	this.Core.SetChrRomPage(0);
-}
+};
 
 NES.prototype.Mapper180.prototype.Write = function(address, data) {
 	this.Core.SetPrgRomPage(1, data);
-}
+};
 
 
 /**** Mapper184 ****/
 NES.prototype.Mapper184 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
-}
+};
 
 NES.prototype.Mapper184.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
 NES.prototype.Mapper184.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
 	this.Core.SetPrgRomPage(1, this.Core.PrgRomPageCount - 1);
-}
+};
 
 NES.prototype.Mapper184.prototype.WriteSRAM = function(address, data) {
 	var chrpage = this.Core.ChrRomPageCount * 2 - 1;
@@ -4941,7 +4941,7 @@ NES.prototype.Mapper184.prototype.WriteSRAM = function(address, data) {
 	this.Core.SetChrRomPage1K(5, tmp + 1);
 	this.Core.SetChrRomPage1K(6, tmp + 2);
 	this.Core.SetChrRomPage1K(7, tmp + 3);
-}
+};
 
 
 /**** Mapper185 ****/
@@ -4949,7 +4949,7 @@ NES.prototype.Mapper185 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = 0;
 	this.EX_ChrRom = new Array(0x0400);
-}
+};
 
 NES.prototype.Mapper185.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -4967,7 +4967,7 @@ NES.prototype.Mapper185.prototype.Init = function() {
 	this.Core.VRAM[5] = this.EX_ChrRom;
 	this.Core.VRAM[6] = this.EX_ChrRom;
 	this.Core.VRAM[7] = this.EX_ChrRom;
-}
+};
 
 NES.prototype.Mapper185.prototype.Write = function(address, data) {
 	this.MAPPER_REG = data;
@@ -4984,7 +4984,7 @@ NES.prototype.Mapper185.prototype.Write = function(address, data) {
 		this.Core.VRAM[6] = this.EX_ChrRom;
 		this.Core.VRAM[7] = this.EX_ChrRom;
 	}
-}
+};
 
 
 /**** Mapper207 ****/
@@ -4992,7 +4992,7 @@ NES.prototype.Mapper207 = function(core) {
 	NES.prototype.MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
-}
+};
 
 NES.prototype.Mapper207.prototype = Object.create(NES.prototype.MapperProto.prototype);
 
@@ -5006,7 +5006,7 @@ NES.prototype.Mapper207.prototype.Init = function() {
 
 	this.Core.SetPrgRomPages8K(0, 1, 2, this.Core.PrgRomPageCount * 2 - 1);
 	this.Core.SetChrRomPages1K(0, 1, 2, 3, 4, 5, 6, 7);
-}
+};
 
 NES.prototype.Mapper207.prototype.ReadSRAM = function(address) {
 	if(address >= 0x7F00 && address <= 0x7FFF)
@@ -5043,7 +5043,7 @@ NES.prototype.Mapper207.prototype.ReadSRAM = function(address) {
 	}
 
 	return 0x00;
-}
+};
 
 NES.prototype.Mapper207.prototype.WriteSRAM = function(address, data) {
 	if(address >= 0x7F00 && address <= 0x7FFF) {
@@ -5112,7 +5112,7 @@ NES.prototype.Mapper207.prototype.WriteSRAM = function(address, data) {
 			this.Core.SetPrgRomPage8K(2, data);
 			break;
 	}
-}
+};
 
 
 NES.prototype.MapperSelect = function () {
@@ -5292,6 +5292,6 @@ NES.prototype.MapperSelect = function () {
 			return false;
 	}
 	return true;
-}
+};
 
 module.exports = NES;

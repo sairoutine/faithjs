@@ -361,7 +361,7 @@ function NES() {
 
 /* **** NES Mapper **** */
 	this.Mapper = null;
-}
+};
 
 
 /* **************************************************************** */
@@ -390,7 +390,7 @@ NES.prototype.UpdateAnimationFrame = function () {
 NES.prototype.Run = function () {
 	this.CheckGamePad();
 	this.CpuRun();
-}
+};
 
 
 NES.prototype.Start = function () {
@@ -400,7 +400,7 @@ NES.prototype.Start = function () {
 		return true;
 	}
 	return false;
-}
+};
 
 
 NES.prototype.Pause = function () {
@@ -411,7 +411,7 @@ NES.prototype.Pause = function () {
 		return true;
 	}
 	return false;
-}
+};
 
 
 NES.prototype.Init = function () {
@@ -429,7 +429,7 @@ NES.prototype.Init = function () {
 	this.Mapper.Init();
 	this.CpuInit();
 	return true;
-}
+};
 
 
 NES.prototype.Reset = function () {
@@ -443,7 +443,7 @@ NES.prototype.Reset = function () {
 		return true;
 	}
 	return false;
-}
+};
 
 /* Non-Need methods
 NES.prototype.GetState = function () {
@@ -508,7 +508,7 @@ NES.prototype.GetState = function () {
 	this.Mapper.GetState();
 
 	return true;
-}
+};
 
 
 NES.prototype.SetState = function () {
@@ -582,7 +582,7 @@ NES.prototype.SetState = function () {
 	this.Mapper.SetState();
 
 	return true;
-}
+};
 */
 
 /* **** NES CPU **** */
@@ -600,7 +600,7 @@ NES.prototype.CpuInit = function () {
 	this.Set(0x0009, 0xEF);
 	this.Set(0x000A, 0xDF);
 	this.Set(0x000F, 0xBF);
-}
+};
 
 
 NES.prototype.CpuReset = function () {
@@ -609,7 +609,7 @@ NES.prototype.CpuReset = function () {
 	this.toNMI = false;
 	this.toIRQ = 0x00;
 	this.PC = this.Get16(0xFFFC);
-}
+};
 
 
 NES.prototype.NMI = function () {
@@ -619,7 +619,7 @@ NES.prototype.NMI = function () {
 	this.Push((this.P & 0xEF) | 0x20);
 	this.P = (this.P | 0x04) & 0xEF;
 	this.PC = this.Get16(0xFFFA);
-}
+};
 
 
 NES.prototype.IRQ = function () {
@@ -629,38 +629,38 @@ NES.prototype.IRQ = function () {
 	this.Push((this.P & 0xEF) | 0x20);
 	this.P = (this.P | 0x04) & 0xEF;
 	this.PC = this.Get16(0xFFFE);
-}
+};
 
 
 NES.prototype.GetAddressZeroPage = function () {
 	return this.Get(this.PC++);
-}
+};
 
 
 NES.prototype.GetAddressImmediate = function () {
 	return this.PC++;
-}
+};
 
 
 NES.prototype.GetAddressAbsolute = function () {
 	return this.Get(this.PC++) | (this.Get(this.PC++) << 8);
-}
+};
 
 
 NES.prototype.GetAddressZeroPageX = function () {
 	return (this.X + this.Get(this.PC++)) & 0xFF;
-}
+};
 
 
 NES.prototype.GetAddressZeroPageY = function () {
 	return (this.Y + this.Get(this.PC++)) & 0xFF;
-}
+};
 
 
 NES.prototype.GetAddressIndirectX = function () {
 	var tmp = (this.Get(this.PC++) + this.X) & 0xFF;
 	return this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
-}
+};
 
 
 NES.prototype.GetAddressIndirectY = function () {
@@ -670,7 +670,7 @@ NES.prototype.GetAddressIndirectY = function () {
 	if(((address ^ tmp) & 0x100) > 0)
 		this.CPUClock += 1;
 	return address;
-}
+};
 
 
 NES.prototype.GetAddressAbsoluteX = function () {
@@ -679,7 +679,7 @@ NES.prototype.GetAddressAbsoluteX = function () {
 	if(((address ^ tmp) & 0x100) > 0)
 		this.CPUClock += 1;
 	return address;
-}
+};
 
 
 NES.prototype.GetAddressAbsoluteY = function () {
@@ -688,52 +688,52 @@ NES.prototype.GetAddressAbsoluteY = function () {
 	if(((address ^ tmp) & 0x100) > 0)
 		this.CPUClock += 1;
 	return address;
-}
+};
 
 
 NES.prototype.Push = function (data) {
 	this.RAM[0x100 + this.S] = data;
 	this.S = (this.S - 1) & 0xFF;
-}
+};
 
 
 NES.prototype.Pop = function () {
 	this.S = (this.S + 1) & 0xFF;
 	return this.RAM[0x100 + this.S];
-}
+};
 
 
 NES.prototype.LDA = function (address) {
 	this.A = this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.LDX = function (address) {
 	this.X = this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-}
+};
 
 
 NES.prototype.LDY = function (address) {
 	this.Y = this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
-}
+};
 
 
 NES.prototype.STA = function (address) {
 	this.Set(address, this.A);
-}
+};
 
 
 NES.prototype.STX = function (address) {
 	this.Set(address, this.X);
-}
+};
 
 
 NES.prototype.STY = function (address) {
 	this.Set(address, this.Y);
-}
+};
 
 
 NES.prototype.Adder = function (data1) {
@@ -747,7 +747,7 @@ NES.prototype.Adder = function (data1) {
 	var tmp = data0 + data1 + (this.P & 0x01);
 	this.A = tmp & 0xFF;
 	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.ADC = function (address) {
@@ -763,7 +763,7 @@ NES.prototype.ADC = function (address) {
 			this.P |= 0x01;
 		}
 	}*/
-}
+};
 
 
 NES.prototype.SBC = function (address) {
@@ -775,46 +775,46 @@ NES.prototype.SBC = function (address) {
 		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) == 0x00)
 			this.A -= 0x60;
 	}*/
-}
+};
 
 
 NES.prototype.CMP = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - this.Get(address)) & 0x1FF];
-}
+};
 
 
 NES.prototype.CPX = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.X - this.Get(address)) & 0x1FF];
-}
+};
 
 
 NES.prototype.CPY = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.Y - this.Get(address)) & 0x1FF];
-}
+};
 
 
 NES.prototype.AND = function (address) {
 	this.A &= this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.EOR = function (address) {
 	this.A ^= this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.ORA = function (address) {
 	this.A |= this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.BIT = function (address) {
 	var x = this.Get(address);
 	this.P = this.P & 0x3D | this.ZNCacheTable[x & this.A] & 0x02 | x & 0xC0;
-}
+};
 
 
 NES.prototype.ASL_Sub = function (data) {
@@ -822,12 +822,12 @@ NES.prototype.ASL_Sub = function (data) {
 	data = (data << 1) & 0xFF;
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	return data;
-}
+};
 
 
 NES.prototype.ASL = function (address) {
 	this.Set(address, this.ASL_Sub(this.Get(address)));
-}
+};
 
 
 NES.prototype.LSR_Sub = function (data) {
@@ -835,12 +835,12 @@ NES.prototype.LSR_Sub = function (data) {
 	data >>= 1;
 	this.P |= this.ZNCacheTable[data];
 	return data;
-}
+};
 
 
 NES.prototype.LSR = function (address) {
 	this.Set(address, this.LSR_Sub(this.Get(address)));
-}
+};
 
 
 NES.prototype.ROL_Sub = function (data) {
@@ -848,12 +848,12 @@ NES.prototype.ROL_Sub = function (data) {
 	data = (data << 1) & 0xFF | this.P & 0x01;
 	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
 	return data;
-}
+};
 
 
 NES.prototype.ROL = function (address) {
 	this.Set(address, this.ROL_Sub(this.Get(address)));
-}
+};
 
 
 NES.prototype.ROR_Sub = function (data) {
@@ -861,26 +861,26 @@ NES.prototype.ROR_Sub = function (data) {
 	data = (data >> 1) | ((this.P & 0x01) << 7);
 	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
 	return  data;
-}
+};
 
 
 NES.prototype.ROR = function (address) {
 	this.Set(address, this.ROR_Sub(this.Get(address)));
-}
+};
 
 
 NES.prototype.INC = function (address) {
 	var data = (this.Get(address) + 1) & 0xFF;
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
-}
+};
 
 
 NES.prototype.DEC = function (address) {
 	var data = (this.Get(address) - 1) & 0xFF;
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
-}
+};
 
 
 NES.prototype.Branch = function (state) {
@@ -893,7 +893,7 @@ NES.prototype.Branch = function (state) {
 	this.PC = (tmp + (displace >= 128 ? displace - 256 : displace)) & 0xFFFF;
 
 	this.CPUClock += (((tmp ^ this.PC) & 0x100) > 0) ? 2 : 1;
-}
+};
 
 
 /* Undocument */
@@ -901,13 +901,13 @@ NES.prototype.ANC = function (address) {
 	this.A &= this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 	this.P = this.P & 0xFE | (this.A >>> 7);
-}
+};
 
 
 NES.prototype.ANE = function (address) {
 	this.A = (this.A | 0xEE) & this.X & this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.ARR = function (address) {
@@ -919,7 +919,7 @@ NES.prototype.ARR = function (address) {
 
 	var tmp = (this.A ^ (this.A << 1)) & 0x40;
 	this.P = (this.P & 0xBF) | tmp;
-}
+};
 
 
 NES.prototype.ASR = function (address) {
@@ -929,41 +929,41 @@ NES.prototype.ASR = function (address) {
 
 	this.A = this.A >> 1;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.DCP = function (address) {
 	var tmp = (this.Get(address) - 1) & 0xFF;
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - tmp) & 0x1FF];
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.ISB = function (address) {
 	var tmp = (this.Get(address) + 1) & 0xFF;
 	this.Adder(~tmp & 0xFF);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.LAS = function (address) {
 	var tmp = this.Get(address) & this.S;
 	this.A = this.X = this.S = tmp;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.LAX = function (address) {
 	this.A = this.X = this.Get(address);
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.LXA = function (address) {
 	var tmp = (this.A | 0xEE) & this.Get(address);
 	this.A = this.X = tmp;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-}
+};
 
 
 NES.prototype.RLA = function (address) {
@@ -973,7 +973,7 @@ NES.prototype.RLA = function (address) {
 	this.A &= tmp;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.RRA = function (address) {
@@ -983,13 +983,13 @@ NES.prototype.RRA = function (address) {
 	this.P = (this.P & 0xFE) | c;
 	this.Adder(tmp);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SAX = function (address) {
 	var tmp = this.A & this.X;
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SBX = function (address) {
@@ -997,32 +997,32 @@ NES.prototype.SBX = function (address) {
 	this.P = (this.P & 0xFE) | ((~tmp >> 8) & 0x01);
 	this.X = tmp & 0xFF;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-}
+};
 
 
 NES.prototype.SHA = function (address) {
 	var tmp = this.A & this.X & ((address >> 8) + 1);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SHS = function (address) {
 	this.S = this.A & this.X;
 	var tmp = this.S & ((address >> 8) + 1);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SHX = function (address) {
 	var tmp = this.X & ((address >> 8) + 1);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SHY = function (address) {
 	var tmp = this.Y & ((address >> 8) + 1);
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SLO = function (address) {
@@ -1032,7 +1032,7 @@ NES.prototype.SLO = function (address) {
 	this.A |= tmp;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.SRE = function (address) {
@@ -1042,7 +1042,7 @@ NES.prototype.SRE = function (address) {
 	this.A ^= tmp;
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 	this.Set(address, tmp);
-}
+};
 
 
 NES.prototype.CpuRun = function () {
@@ -1838,7 +1838,7 @@ NES.prototype.CpuRun = function () {
 				break;
 		}
 	} while(!this.DrawFlag);
-}
+};
 
 
 /* **** NES PPU **** */
@@ -1870,7 +1870,7 @@ NES.prototype.PpuInit = function () {
 	this.PpuY = 0;
 
 	this.Sprite0Line = false;
-}
+};
 
 
 NES.prototype.SetMirror = function (value) {
@@ -1878,7 +1878,7 @@ NES.prototype.SetMirror = function (value) {
 		this.SetMirrors(0, 0, 1, 1);
 	else
 		this.SetMirrors(0, 1, 0, 1);
-}
+};
 
 
 NES.prototype.SetMirrors = function (value0, value1, value2, value3) {
@@ -1886,7 +1886,7 @@ NES.prototype.SetMirrors = function (value0, value1, value2, value3) {
 	this.SetChrRomPage1K( 9, value1 + 8 + 0x0100);
 	this.SetChrRomPage1K(10, value2 + 8 + 0x0100);
 	this.SetChrRomPage1K(11, value3 + 8 + 0x0100);
-}
+};
 
 
 NES.prototype.SetChrRomPage1K = function (page, romPage){
@@ -1899,7 +1899,7 @@ NES.prototype.SetChrRomPage1K = function (page, romPage){
 			this.VRAM[page] = this.CHRROM_PAGES[this.CHRROM_STATE[page]];
 		}
 	}
-}
+};
 
 
 NES.prototype.SetChrRomPages1K = function (romPage0, romPage1, romPage2, romPage3, romPage4, romPage5, romPage6, romPage7){
@@ -1911,14 +1911,14 @@ NES.prototype.SetChrRomPages1K = function (romPage0, romPage1, romPage2, romPage
 	this.SetChrRomPage1K(5, romPage5);
 	this.SetChrRomPage1K(6, romPage6);
 	this.SetChrRomPage1K(7, romPage7);
-}
+};
 
 
 NES.prototype.SetChrRomPage = function (num){
 	num <<= 3;
 	for(var i=0; i<8; i++)
 		this.SetChrRomPage1K(i, num + i);
-}
+};
 
 
 NES.prototype.SetCanvas = function (id) {
@@ -1931,7 +1931,7 @@ NES.prototype.SetCanvas = function (id) {
 		this.ImageData.data[i + 3] = 255;
 	this.ctx.putImageData(this.ImageData, 0, 0);
 	return true;
-}
+};
 
 
 NES.prototype.PpuRun = function () {
@@ -2028,7 +2028,7 @@ NES.prototype.PpuRun = function () {
 			}
 		}
 	}
-}
+};
 
 
 NES.prototype.BuildBGLine = function () {
@@ -2045,7 +2045,7 @@ NES.prototype.BuildBGLine = function () {
 		for(var p=0; p<8; p++)
 			tmpBgLineBuffer[p] = 0x10;
 	}
-}
+};
 
 
 NES.prototype.BuildBGLine_SUB = function () {
@@ -2079,12 +2079,12 @@ NES.prototype.BuildBGLine_SUB = function () {
 		} else
 			nameAddrLow++;
 	}
-}
+};
 
 
 NES.prototype.BuildSpriteLine = function () {
 	this.Mapper.BuildSpriteLine();
-}
+};
 
 
 NES.prototype.BuildSpriteLine_SUB = function () {
@@ -2159,7 +2159,7 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 		else
 			this.IO1[0x02] &= 0xDF;
 	}
-}
+};
 
 
 NES.prototype.WriteScrollRegister = function (value) {
@@ -2172,19 +2172,19 @@ NES.prototype.WriteScrollRegister = function (value) {
 		this.HScrollTmp = value & 7;
 	}
 	this.ScrollRegisterFlag = !this.ScrollRegisterFlag;
-}
+};
 
 
 NES.prototype.WritePPUControlRegister0 = function (value) {
 	this.IO1[0x00] = value;
 
 	this.PPUAddressBuffer = (this.PPUAddressBuffer & 0xF3FF) | ((value & 0x03) << 10);
-}
+};
 
 
 NES.prototype.WritePPUControlRegister1 = function (value) {
 	this.IO1[0x01] = value;
-}
+};
 
 
 NES.prototype.WritePPUAddressRegister = function (value) {
@@ -2195,7 +2195,7 @@ NES.prototype.WritePPUAddressRegister = function (value) {
 	else
 		this.PPUAddressBuffer = (this.PPUAddressBuffer & 0x00FF) | ((value & 0x3F) << 8);
 	this.PPUAddressRegisterFlag = !this.PPUAddressRegisterFlag;
-}
+};
 
 
 NES.prototype.ReadPPUStatus = function () {
@@ -2204,12 +2204,12 @@ NES.prototype.ReadPPUStatus = function () {
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
 	return result;
-}
+};
 
 
 NES.prototype.ReadPPUData = function () {
 	return this.Mapper.ReadPPUData();
-}
+};
 
 
 NES.prototype.ReadPPUData_SUB = function () {
@@ -2218,12 +2218,12 @@ NES.prototype.ReadPPUData_SUB = function () {
 	this.PPUReadBuffer = this.VRAM[addr >> 10][addr & 0x03FF];
 	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
 	return tmp;
-}
+};
 
 
 NES.prototype.WritePPUData = function (value) {
 	this.Mapper.WritePPUData(value);
-}
+};
 
 
 NES.prototype.WritePPUData_SUB = function (value) {
@@ -2250,18 +2250,18 @@ NES.prototype.WritePPUData_SUB = function (value) {
 	else
 		this.Palette[palNo] = value & 0x3F;
 	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
-}
+};
 
 
 NES.prototype.WriteSpriteData = function (data){
 	this.SPRITE_RAM[this.IO1[0x03]] = data;
 	this.IO1[0x03] = (this.IO1[0x03] + 1) & 0xFF;
-}
+};
 
 
 NES.prototype.WriteSpriteAddressRegister = function (data) {
 	this.IO1[0x03] = data;
-}
+};
 
 
 NES.prototype.StartDMA = function (data) {
@@ -2271,7 +2271,7 @@ NES.prototype.StartDMA = function (data) {
 	for(var i = 0; i < 0x100; i++, offset++)
 		tmpDist[i] = tmpSrc[offset];
 	this.CPUClock += 514;
-}
+};
 
 /* **** NES Header **** */
 NES.prototype.ParseHeader = function () {
@@ -2288,7 +2288,7 @@ NES.prototype.ParseHeader = function () {
 	this.MapperNumber = (this.Rom[6] >> 4) | (this.Rom[7] & 0xF0);
 
 	return true;
-}
+};
 
 
 /* **** NES Storage **** */
@@ -2328,7 +2328,7 @@ NES.prototype.StorageClear = function () {
 	for(i=0; i<this.IO2.length; i++)
 		this.IO2[i] = 0;
 	this.IO2[0x17] = 0x40;
-}
+};
 
 
 NES.prototype.SetRom = function (arraybuffer) {
@@ -2351,7 +2351,7 @@ NES.prototype.SetRom = function (arraybuffer) {
 
 	this.Rom = rom.concat(0);
 	return true;
-}
+};
 
 
 NES.prototype.StorageInit = function () {
@@ -2369,7 +2369,7 @@ NES.prototype.StorageInit = function () {
 			this.CHRROM_PAGES[i] = this.Rom.slice(this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0010,
 							this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0410);
 	}
-}
+};
 
 
 NES.prototype.Get = function (address) {
@@ -2407,12 +2407,12 @@ NES.prototype.Get = function (address) {
 		case 0xE000:
 			return this.ROM[3][address & 0x1FFF];
 	}
-}
+};
 
 
 NES.prototype.Get16 = function (address) {
 	return this.Get(address) | (this.Get(address + 1) << 8);
-}
+};
 
 
 NES.prototype.Set = function (address, data) {
@@ -2501,7 +2501,7 @@ NES.prototype.Set = function (address, data) {
 			this.Mapper.Write(address, data);
 			return;
 	}
-}
+};
 
 
 NES.prototype.SetPrgRomPage8K = function (page, romPage){
@@ -2512,7 +2512,7 @@ NES.prototype.SetPrgRomPage8K = function (page, romPage){
 		this.PRGROM_STATE[page] = romPage % (this.PrgRomPageCount * 2);
 		this.ROM[page] = this.PRGROM_PAGES[this.PRGROM_STATE[page]];
 	}
-}
+};
 
 
 NES.prototype.SetPrgRomPages8K = function (romPage0, romPage1, romPage2, romPage3){
@@ -2520,13 +2520,13 @@ NES.prototype.SetPrgRomPages8K = function (romPage0, romPage1, romPage2, romPage
 	this.SetPrgRomPage8K(1, romPage1);
 	this.SetPrgRomPage8K(2, romPage2);
 	this.SetPrgRomPage8K(3, romPage3);
-}
+};
 
 
 NES.prototype.SetPrgRomPage = function (no, num){
 	this.SetPrgRomPage8K(no * 2, num * 2);
 	this.SetPrgRomPage8K(no * 2 + 1, num * 2 + 1);
-}
+};
 
 
 /* **** NES JoyPad **** */
@@ -2537,21 +2537,21 @@ NES.prototype.WriteJoyPadRegister1 = function (value) {
 		this.JoyPadBuffer[1] = this.JoyPadState[1];
 	}
 	this.JoyPadStrobe = s;
-}
+};
 
 
 NES.prototype.ReadJoyPadRegister1 = function () {
 	var result = this.JoyPadBuffer[0] & 0x01;
 	this.JoyPadBuffer[0] >>>= 1;
 	return result;
-}
+};
 
 
 NES.prototype.ReadJoyPadRegister2 = function () {
 	var result = this.JoyPadBuffer[1] & 0x01;
 	this.JoyPadBuffer[1] >>>= 1;
 	return result;
-}
+};
 
 
 NES.prototype.KeyUpFunction = function (evt){
@@ -2603,7 +2603,7 @@ NES.prototype.KeyUpFunction = function (evt){
 			break;
 	}
 	evt.preventDefault();
-}
+};
 
 
 NES.prototype.KeyDownFunction = function (evt){
@@ -2655,7 +2655,7 @@ NES.prototype.KeyDownFunction = function (evt){
 			break;
 	}
 	evt.preventDefault();
-}
+};
 
 
 NES.prototype.JoyPadInit = function () {
@@ -2663,13 +2663,13 @@ NES.prototype.JoyPadInit = function () {
 	this.JoyPadKeyDownFunction = this.KeyDownFunction.bind(this);
 	document.addEventListener("keyup", this.JoyPadKeyUpFunction, true);
 	document.addEventListener("keydown", this.JoyPadKeyDownFunction, true);
-}
+};
 
 
 NES.prototype.JoyPadRelease = function () {
 	document.removeEventListener("keyup", this.JoyPadKeyUpFunction, true);
 	document.removeEventListener("keydown", this.JoyPadKeyDownFunction, true);
-}
+};
 
 
 NES.prototype.CheckGamePad = function () {
@@ -2694,7 +2694,7 @@ NES.prototype.CheckGamePad = function () {
 			this.JoyPadState[i] |= pad.axes[0] >  0.5 ? 0x80 : 0x00;// RIGHT
 		}
 	}
-}
+};
 
 
 /* **** NES APU **** */
@@ -2717,7 +2717,7 @@ NES.prototype.WebAudioFunction = function (e) {
 			this.WaveDatas = this.WaveDatas.slice(this.WebAudioBufferSize * 2);
 	}
 	output.set(data);
-}
+};
 
 
 NES.prototype.ReadWaveControl = function () {
@@ -2742,7 +2742,7 @@ NES.prototype.ReadWaveControl = function () {
 	this.toIRQ &= ~0x40;
 
 	return tmp;
-}
+};
 
 
 NES.prototype.WriteWaveControl = function () {
@@ -2766,12 +2766,12 @@ NES.prototype.WriteWaveControl = function () {
 	} else if(this.WaveCh5SampleCounter == 0) {
 		this.SetCh5Delta();
 	}
-}
+};
 
 
 NES.prototype.WriteCh1Length0 = function () {
 	this.WaveCh1Frequency = ((this.IO2[0x03] & 0x07) << 8) + this.IO2[0x02] + 1;
-}
+};
 
 
 NES.prototype.WriteCh1Length1 = function () {
@@ -2780,12 +2780,12 @@ NES.prototype.WriteCh1Length1 = function () {
 	this.WaveCh1EnvelopeCounter = 0x0F;
 	this.WaveCh1Sweep = 0;
 	this.WaveCh1Frequency = ((this.IO2[0x03] & 0x07) << 8) + this.IO2[0x02] + 1;
-}
+};
 
 
 NES.prototype.WriteCh2Length0 = function () {
 	this.WaveCh2Frequency = ((this.IO2[0x07] & 0x07) << 8) + this.IO2[0x06] + 1;
-}
+};
 
 
 NES.prototype.WriteCh2Length1 = function () {
@@ -2794,36 +2794,36 @@ NES.prototype.WriteCh2Length1 = function () {
 	this.WaveCh2EnvelopeCounter = 0x0F;
 	this.WaveCh2Sweep = 0;
 	this.WaveCh2Frequency = ((this.IO2[0x07] & 0x07) << 8) + this.IO2[0x06] + 1;
-}
+};
 
 
 NES.prototype.WriteCh3LinearCounter = function (){
 	this.WaveCh3LinearCounter = this.IO2[0x08] & 0x7F;
-}
+};
 
 
 NES.prototype.WriteCh3Length1 = function () {
 	this.WaveCh3LengthCounter = this.WaveLengthCount[this.IO2[0x0B] >> 3];
 	this.WaveCh3LinearCounter = this.IO2[0x08] & 0x7F;
-}
+};
 
 
 NES.prototype.WriteCh4Length1 = function () {
 	this.WaveCh4LengthCounter = this.WaveLengthCount[this.IO2[0x0F] >> 3];
 	this.WaveCh4Envelope = 0;
 	this.WaveCh4EnvelopeCounter = 0x0F;
-}
+};
 
 
 NES.prototype.WriteCh5DeltaControl = function () {
 	if((this.IO2[0x10] & 0x80) != 0x80)
 		this.toIRQ &= ~0x80;
-}
+};
 
 
 NES.prototype.WriteCh5DeltaCounter = function () {
 	this.WaveCh5DeltaCounter = this.IO2[0x11] & 0x7F;
-}
+};
 
 
 NES.prototype.SetCh5Delta = function () {
@@ -2834,7 +2834,7 @@ NES.prototype.SetCh5Delta = function () {
 	this.WaveCh5Register = 0;
 	this.WaveCh5Angle = -1;
 	this.toIRQ &= ~0x80;
-}
+};
 
 
 NES.prototype.ApuInit = function () {
@@ -2876,7 +2876,7 @@ NES.prototype.ApuInit = function () {
 	this.ApuCpuClockCounter = 0;
 
 	this.EXSoundInit();
-}
+};
 
 
 NES.prototype.Out_Apu = function () {
@@ -2954,7 +2954,7 @@ NES.prototype.Out_Apu = function () {
 		}
 	}
 	return (all_out + this.WaveCh5DeltaCounter) << 5;
-}
+};
 
 
 NES.prototype.WaveFrameSequencer = function (clock) {
@@ -2978,7 +2978,7 @@ NES.prototype.WaveFrameSequencer = function (clock) {
 			this.WaveFrameSequence = ++this.WaveFrameSequence % 5;
 		}
 	}
-}
+};
 
 
 NES.prototype.ApuRun = function () {
@@ -2996,7 +2996,7 @@ NES.prototype.ApuRun = function () {
 			this.WebAudioGainNode.gain.value = this.WaveVolume;
 		}
 	}
-}
+};
 
 
 NES.prototype.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep = function () {
@@ -3051,7 +3051,7 @@ NES.prototype.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep = function () {
 			}
 		}
 	}
-}
+};
 
 
 NES.prototype.WaveCh1_2_4_Envelope_WaveCh3_Linear = function () {
@@ -3092,7 +3092,7 @@ NES.prototype.WaveCh1_2_4_Envelope_WaveCh3_Linear = function () {
 
 	if((tmpIO2[0x08] & 0x80) == 0x00 && this.WaveCh3LinearCounter != 0)
 		this.WaveCh3LinearCounter--;
-}
+};
 
 
 /* **** EX Sound **** */
@@ -3102,7 +3102,7 @@ NES.prototype.EXSoundInit = function () {
 	this.Init_VRC6();
 	this.Init_N163();
 	this.Init_AY();
-}
+};
 
 
 /* FDS */
@@ -3129,14 +3129,14 @@ NES.prototype.Init_FDS = function () {
 	this.FDS_SweepBias = 0;
 
 	this.FDS_Volume = 0;
-}
+};
 
 
 NES.prototype.Write_FDS_WAVE_REG = function (no, data) {
 	if((this.FDS_REG[9] & 0x80) != 0x80)
 		return;
 	this.FDS_WAVE_REG[no] = data & 0x3F;
-}
+};
 
 
 NES.prototype.Write_FDS_REG = function (no, data) {
@@ -3175,7 +3175,7 @@ NES.prototype.Write_FDS_REG = function (no, data) {
 			}
 			break;
 	}
-}
+};
 
 
 NES.prototype.Count_FDS = function (clock) {
@@ -3269,14 +3269,14 @@ NES.prototype.Count_FDS = function (clock) {
 		this.FDS_WaveIndex &= 0x3F;
 		this.FDS_Volume = this.FDS_VolumeEnv;
 	}
-}
+};
 
 
 NES.prototype.Out_FDS = function () {
 	if((this.FDS_REG[3] & 0x80) != 0x80)
 		return ((this.FDS_WAVE_REG[this.FDS_WaveIndex] - 32) * this.FDS_Volume) >> 1;
 	return 0;
-}
+};
 
 
 /* MMC5 */
@@ -3287,13 +3287,13 @@ NES.prototype.Init_MMC5 = function () {
 		this.MMC5_REG[i] = 0x00;
 	this.MMC5_Ch[0] = {"LengthCounter": 0, "Envelope": 0, "EnvelopeCounter": 0, "Sweep": 0, "Frequency": 0};
 	this.MMC5_Ch[1] = {"LengthCounter": 0, "Envelope": 0, "EnvelopeCounter": 0, "Sweep": 0, "Frequency": 0};
-}
+};
 
 
 NES.prototype.Write_MMC5_ChLength0 = function (ch) {
 	var tmp = ch << 2;
 	this.MMC5_Ch[ch].Frequency = ((this.MMC5_REG[tmp + 0x03] & 0x07) << 8) + this.MMC5_REG[tmp + 0x02] + 1;
-}
+};
 
 
 NES.prototype.Write_MMC5_ChLength1 = function (ch) {
@@ -3303,7 +3303,7 @@ NES.prototype.Write_MMC5_ChLength1 = function (ch) {
 	this.MMC5_Ch[ch].EnvelopeCounter = 0x0F;
 	this.MMC5_Ch[ch].Sweep = 0;
 	this.MMC5_Ch[ch].Frequency = ((this.MMC5_REG[tmp + 0x03] & 0x07) << 8) + this.MMC5_REG[tmp + 0x02] + 1;
-}
+};
 
 
 NES.prototype.Write_MMC5_REG = function (no, data) {
@@ -3329,7 +3329,7 @@ NES.prototype.Write_MMC5_REG = function (no, data) {
 			}
 			break;
 	}
-}
+};
 
 
 NES.prototype.Read_MMC5_REG = function (no) {
@@ -3340,7 +3340,7 @@ NES.prototype.Read_MMC5_REG = function (no) {
 			tmp |= 0x01 << i;
 		}
 	}
-}
+};
 
 
 NES.prototype.Count_MMC5 = function (clock) {
@@ -3390,7 +3390,7 @@ NES.prototype.Count_MMC5 = function (clock) {
 
 		this.MMC5_FrameSequence = ++this.MMC5_FrameSequence & 0x03;
 	}
-}
+};
 
 
 NES.prototype.Out_MMC5 = function () {
@@ -3405,7 +3405,7 @@ NES.prototype.Out_MMC5 = function () {
 
 	all_out += (this.MMC5_REG[0x11] >> 2) - 16;
 	return all_out << 5;
-}
+};
 
 
 /* VRC6 */
@@ -3414,12 +3414,12 @@ NES.prototype.Init_VRC6 = function () {
 		this.VRC6_REG[i] = 0x00;
 	this.VRC6_Ch3_Counter = 0;
 	this.VRC6_Ch3_index = 0;
-}
+};
 
 
 NES.prototype.Write_VRC6_REG = function (no, data) {
 	this.VRC6_REG[no] = data;
-}
+};
 
 
 NES.prototype.Count_VRC6 = function (clock) {
@@ -3428,7 +3428,7 @@ NES.prototype.Count_VRC6 = function (clock) {
 	this.VRC6_Ch3_index += (this.VRC6_Ch3_Counter / chfreq) | 0;
 	this.VRC6_Ch3_index %= 14;
 	this.VRC6_Ch3_Counter %= chfreq;
-}
+};
 
 
 NES.prototype.Out_VRC6 = function () {
@@ -3452,7 +3452,7 @@ NES.prototype.Out_VRC6 = function () {
 		all_out += (((this.VRC6_Ch3_index >>> 1) * (this.VRC6_REG[8] & 0x3F)) >>> 3) - 16;
 
 	return all_out << 5;
-}
+};
 
 
 /* N163 */
@@ -3464,7 +3464,7 @@ NES.prototype.Init_N163 = function () {
 	this.N163_Address = 0x00;
 	this.N163_ch = 0;
 	this.N163_Clock = 0;
-}
+};
 
 
 NES.prototype.Write_N163_RAM = function (data) {
@@ -3506,7 +3506,7 @@ NES.prototype.Write_N163_RAM = function (data) {
 
 	if((this.N163_Address & 0x80) == 0x80)
 		this.N163_Address = ((this.N163_Address & 0x7F) + 1) | 0x80;
-}
+};
 
 
 NES.prototype.Read_N163_RAM = function () {
@@ -3514,7 +3514,7 @@ NES.prototype.Read_N163_RAM = function () {
 	if((this.N163_Address & 0x80) == 0x80)
 		this.N163_Address = ((this.N163_Address & 0x7F) + 1) | 0x80;
 	return ret;
-}
+};
 
 
 NES.prototype.Count_N163 = function (clock) {
@@ -3527,7 +3527,7 @@ NES.prototype.Count_N163 = function (clock) {
 				this.N163_ch_data[i].Phase = (this.N163_ch_data[i].Phase + this.N163_ch_data[i].Freq) % this.N163_ch_data[i].Length;
 		}
 	}
-}
+};
 
 
 NES.prototype.Out_N163 = function () {
@@ -3540,7 +3540,7 @@ NES.prototype.Out_N163 = function () {
 		all_out += (data - 8) * this.N163_ch_data[i].Vol;
 	}
 	return all_out << 2;
-}
+};
 
 
 /* AY-3-8910 */
@@ -3553,12 +3553,12 @@ NES.prototype.Init_AY = function () {
 	this.AY_Env_Counter = 0;
 	this.AY_Env_Index = 0;
 	this.AY_REG_Select = 0x00;
-}
+};
 
 
 NES.prototype.Select_AY_REG = function (data) {
 	this.AY_REG_Select = data & 0x0F;
-}
+};
 
 
 NES.prototype.Write_AY_REG = function (data) {
@@ -3566,12 +3566,12 @@ NES.prototype.Write_AY_REG = function (data) {
 
 	if(this.AY_REG_Select == 13)
 		this.AY_Env_Index = 0;
-}
+};
 
 
 NES.prototype.Read_AY_REG = function () {return 0;
 	return this.AY_REG[this.AY_REG_Select];
-}
+};
 
 
 NES.prototype.Count_AY = function (clock) {
@@ -3583,7 +3583,7 @@ NES.prototype.Count_AY = function (clock) {
 	this.AY_Env_Index += envtmp;
 	if(this.AY_Env_Index >= 48)
 		this.AY_Env_Index = ((this.AY_Env_Index - 48) % 32) + 32;
-}
+};
 
 
 NES.prototype.Out_AY = function () {
@@ -3613,6 +3613,6 @@ NES.prototype.Out_AY = function () {
 			all_out += vol * noiseout;
 	}
 	return all_out;
-}
+};
 
 module.exports = NES;
