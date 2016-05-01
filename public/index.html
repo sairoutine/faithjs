@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>FaithJS</title>
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<script type="text/javascript" src="js/FC.js"></script>
+<script type="text/javascript" src="js/FCMain.js"></script>
+</head>
+<body>
+<!--[if IE ]>
+<div id="sitemix_user_contents">
+<![endif]-->
+
+
+<div id="main_screen">
+<canvas id="canvas0" width="256" height="224" style="border:1px solid black; width:512px; height:448px;">Unsupported CANVAS</canvas>
+</div>
+<div class="alignC">
+<span id="usefileapi">
+ROMファイル（.nes）を選択または、ドロップしてください。<br>
+<input type="file" id="file">
+</span>
+<br>
+<span id="rom_filename"></span><br>
+<span id="disk_filename"></span><br>
+<button id="start">START</button><button id="pause">PAUSE</button><button id="reset">RESET</button><br>
+<span id="diskside"></span><select id="diskselect">
+<option value="0">1-A</option>
+<option value="1">1-B</option>
+<option value="2">2-A</option>
+<option value="3">2-B</option>
+</select><button id="insert">INSERT</button><button id="eject">EJECT</button><br>
+<span id="pad0state"></span><br>
+<span id="pad1state"></span><br>
+<button id="sramout">SRAM OUT</button><button id="sramin">SRAM IN</button><br>
+<textarea id="sramdata"></textarea>
+<table class="BT_table alignC">
+<tr><td class="BT_td"></td><td class="BT_td">1P</td><td class="BT_td">2P</td></tr>
+<tr><td class="BT_td">A</td><td class="BT_td">X</td><td class="BT_td">Num&nbsp;7</td></tr>
+<tr><td class="BT_td">B</td><td class="BT_td">Z</td><td class="BT_td">Num&nbsp;9</td></tr>
+<tr><td class="BT_td">START</td><td class="BT_td">S</td><td class="BT_td"></td></tr>
+<tr><td class="BT_td">SELECT</td><td class="BT_td">A</td><td class="BT_td"></td></tr>
+<tr><td class="BT_td">UP</td><td class="BT_td">↑</td><td class="BT_td">Num&nbsp;8</td></tr>
+<tr><td class="BT_td">DOWN</td><td class="BT_td">↓</td><td class="BT_td">Num&nbsp;2</td></tr>
+<tr><td class="BT_td">LEFT</td><td class="BT_td">←</td><td class="BT_td">Num&nbsp;4</td></tr>
+<tr><td class="BT_td">RIGHT</td><td class="BT_td">→</td><td class="BT_td">Num&nbsp;6</td></tr>
+</table>
+</div>
+</body>
+</html>
