@@ -31,23 +31,13 @@ function fc_reset() {
 	}
 }
 
-function fc_rom_change(changerom) {
+function fc_rom_change(arraybuffer) {
+	// 実行中のNESを停止
 	fc_pause();
 
-	var rom;
-	var i;
-	if(changerom instanceof ArrayBuffer) {
-		var u8array = new Uint8Array(changerom);
-		rom = [];
-		for(i=0; i<u8array.length; i++)
-			rom.push(u8array[i]);
-	} else {
-		console.error("Can't get rom data(perhaps you must set ArrayBuffer arguments)");
+	if( ! fc.SetRom(arraybuffer)) {
+		console.error("Can't get rom data (perhaps you don't set ArrayBuffer arguments or it's not nes rom format)");
 		return;
-	}
-
-	if( ! (rom[0] === 0x4E && rom[1] === 0x45 && rom[2] === 0x53 && rom[3] === 0x1A)) {
-		console.error("This rom seems not to be nes rom");
 	}
 
 	document.getElementById("start").disabled = true;
@@ -56,7 +46,6 @@ function fc_rom_change(changerom) {
 	document.getElementById("insert").disabled = true;
 	document.getElementById("eject").disabled = true;
 
-	fc.SetRom(rom);
 	if(fc.Init())
 		fc_start();
 	disk_side_check();

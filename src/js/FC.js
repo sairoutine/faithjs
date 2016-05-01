@@ -2334,8 +2334,26 @@ FC.prototype.StorageClear = function () {
 }
 
 
-FC.prototype.SetRom = function (rom) {
+FC.prototype.SetRom = function (arraybuffer) {
+	if( ! arraybuffer instanceof ArrayBuffer) {
+		return false;
+	}
+
+	var u8array = new Uint8Array(arraybuffer);
+
+	var rom = [];
+	// Uint8Array -> Array に変換
+	for(var i=0; i < u8array.length; i++) {
+		rom.push(u8array[i]);
+	}
+
+	// ROMがiNES format かどうかチェック
+	if( ! (rom[0] === 0x4E && rom[1] === 0x45 && rom[2] === 0x53 && rom[3] === 0x1A)) {
+		return false;
+	}
+
 	this.Rom = rom.concat(0);
+	return true;
 }
 
 
