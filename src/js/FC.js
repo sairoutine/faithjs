@@ -8890,3 +8890,5 @@ FC.prototype.MapperSelect = function () {
 	}
 	return true;
 }
+
+module.exports = FC;

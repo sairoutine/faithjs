@@ -1,4 +1,7 @@
-﻿var fc = null;
+﻿
+var FC = require('./FC');
+
+var fc = null;
 
 
 var FCUse_FileReader;
