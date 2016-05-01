@@ -1,4 +1,5 @@
-﻿
+﻿"use strict";
+
 var FC = require('./FC');
 
 var fc = null;
@@ -8,6 +9,9 @@ var FCUse_FileReader;
 
 
 window.addEventListener('load', FCSet, false);
+
+
+
 
 
 function FCFileChange(e) {
@@ -198,8 +202,8 @@ function FCSet() {
 		document.getElementById("sramout").addEventListener("click", SramOut, false);
 		document.getElementById("sramin").addEventListener("click", SramIn, false);
 
-		document.getElementById("statesave").addEventListener("click", StateSave, false);
-		document.getElementById("stateload").addEventListener("click", StateLoad, false);
+		//document.getElementById("statesave").addEventListener("click", StateSave, false);
+		//document.getElementById("stateload").addEventListener("click", StateLoad, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
@@ -207,6 +211,29 @@ function FCSet() {
 		document.getElementById("insert").disabled = true;
 		document.getElementById("eject").disabled = true;
 	}
+
+	// ROM読み込み
+	// ROMのパス
+	//var url = 'rom/mario.nes';
+	var url = "rom/bad_apple_2_5.nes";
+
+	var request = new XMLHttpRequest();
+	request.responseType = 'arraybuffer';
+
+	request.onload = function() {
+		var rom_binary = request.response;
+		File = {};
+		File.name = url;
+		FCRomChange(rom_binary);
+		return;
+	};
+
+	request.onerror = function(e) {
+		console.log("can't get rom binary");
+	};
+
+	request.open('GET', url, true);
+	request.send(null);
 }
 
 
