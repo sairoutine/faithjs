@@ -8900,14 +8900,8 @@ module.exports = FC;
 // ファミコン本体クラス
 var FC = require('./FC');
 
-var fc = null;
-var FCUse_FileReader;
-
-
-
-
-
-
+var fc = new FC();
+fc.SetCanvas("mainCanvas");
 
 function FCFileChange(e) {
 	fc_file_read(e.target.files[0]);
@@ -9091,19 +9085,9 @@ function DiskEject() {
 
 
 
-function fc_setup() {
-	fc = new FC();
-	if (!fc.SetCanvas("mainCanvas"))
-		return false;
-	return true;
-}
-
 window.onload = function() {
-	if(!fc_setup())
-		return;
-
-	FCUse_FileReader = typeof window.FileReader !== "undefined";
-	if(FCUse_FileReader) {
+	if(typeof window.FileReader !== "undefined") {
+		// ドラッグ&ドロップでファイル読み込み
 		window.addEventListener("dragenter",
 			function (e) {
 				e.preventDefault();
@@ -9125,22 +9109,6 @@ window.onload = function() {
 		document.getElementById("pause").addEventListener("click", fc_pause, false);
 		document.getElementById("start").addEventListener("click", fc_start, false);
 		document.getElementById("reset").addEventListener("click", FCReset, false);
-
-		window.addEventListener("gamepadconnected", function(e) {
-			if(e.gamepad.index === 0)
-				document.getElementById("pad0state").innerHTML = "Gamepad 0 connected: " + e.gamepad.id;
-			if(e.gamepad.index === 1)
-				document.getElementById("pad1state").innerHTML = "Gamepad 1 connected: " + e.gamepad.id;
-		});
-
-		window.addEventListener("gamepaddisconnected", function(e) {
-			if(e.gamepad.index === 0)
-				document.getElementById("pad0state").innerHTML = "Gamepad 0 disconnected";
-			if(e.gamepad.index === 1)
-				document.getElementById("pad1state").innerHTML = "Gamepad 1 disconnected";
-		});
-		document.getElementById("pad0state").innerHTML = "Gamepad 0 disconnected";
-		document.getElementById("pad1state").innerHTML = "Gamepad 1 disconnected";
 
 		document.getElementById("insert").addEventListener("click", DiskInsert, false);
 		document.getElementById("eject").addEventListener("click", DiskEject, false);
