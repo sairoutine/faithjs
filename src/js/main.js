@@ -43,12 +43,9 @@ function nes_rom_change(arraybuffer) {
 	document.getElementById("start").disabled = true;
 	document.getElementById("pause").disabled = true;
 
-	document.getElementById("insert").disabled = true;
-	document.getElementById("eject").disabled = true;
 
 	if(nes.Init())
 		nes_start();
-	disk_side_check();
 }
 
 function SramOut() {
@@ -60,47 +57,6 @@ function SramOut() {
 function SramIn() {
 	nes.Mapper.InSRAM(document.getElementById("sramdata").value);
 }
-
-
-var DiskSideString = [" drop FDS Disk ", " EJECT ", " SIDE 1-A ", " SIDE 1-B ", " SIDE 2-A ", " SIDE 2-B "];
-function disk_side_check() {
-	document.getElementById("insert").disabled = true;
-	document.getElementById("eject").disabled = true;
-
-	if(nes.Mapper === null || nes.MapperNumber !== 20)
-		document.getElementById("diskside").innerHTML = " drop FDS BIOS ";
-	else {
-		var tmp = nes.Mapper.InDisk();
-		tmp += 2;
-		document.getElementById("diskside").innerHTML = DiskSideString[tmp];
-
-		if(tmp !== 0) {
-			if(tmp === 1)
-				document.getElementById("insert").disabled = false;
-			else
-				document.getElementById("eject").disabled = false;
-		}
-	}
-}
-
-
-function DiskInsert() {
-	if(nes.Mapper === null || nes.MapperNumber !== 20)
-		return;
-	var select = document.getElementById("diskselect");
-	nes.Mapper.InsertDisk(parseInt(select.options[select.selectedIndex].value, 10));
-	disk_side_check();
-}
-
-
-function DiskEject() {
-	if(nes.Mapper === null || nes.MapperNumber !== 20)
-		return;
-	nes.Mapper.EjectDisk();
-	disk_side_check();
-}
-
-
 
 // ローカル上のROMを読み込み
 var read_local_file = function(fileObj, cb) {
@@ -152,17 +108,12 @@ var initialize_dom_events = function() {
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
 
-		document.getElementById("insert").addEventListener("click", DiskInsert, false);
-		document.getElementById("eject").addEventListener("click", DiskEject, false);
-
 		document.getElementById("sramout").addEventListener("click", SramOut, false);
 		document.getElementById("sramin").addEventListener("click", SramIn, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
 
-		document.getElementById("insert").disabled = true;
-		document.getElementById("eject").disabled = true;
 	}
 
 };
