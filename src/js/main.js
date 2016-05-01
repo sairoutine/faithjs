@@ -6,18 +6,6 @@ var FC = require('./FC');
 var fc = new FC();
 fc.SetCanvas("mainCanvas");
 
-function FCFileChange(e) {
-	fc_file_read(e.target.files[0]);
-}
-
-
-function fc_file_read(file) {
-	var reader = new FileReader();
-	reader.onload = function (e) {
-		fc_rom_change(e.target.result);
-	};
-	reader.readAsArrayBuffer(file);
-}
 
 
 function fc_pause() {
@@ -92,19 +80,15 @@ function fc_rom_change(changerom) {
 
 	var rom;
 	var i;
-	if(typeof changerom === "string") {
-		rom = [];
-		for(i=0; i<changerom.length; i+=2)
-			rom.push(eval("0x" + changerom.substr(i, 2)));
-	} else if(changerom instanceof ArrayBuffer) {
+	if(changerom instanceof ArrayBuffer) {
 		var u8array = new Uint8Array(changerom);
 		rom = [];
 		for(i=0; i<u8array.length; i++)
 			rom.push(u8array[i]);
-	} else if(changerom instanceof Array) {
-		rom = changerom;
-	} else
+	} else {
+		console.error("Can't get rom data(perhaps you must set ArrayBuffer arguments)");
 		return;
+	}
 
 	var tmp = parse_rom(rom);
 
@@ -182,10 +166,31 @@ function DiskEject() {
 }
 
 
+
+// ローカル上のROMを読み込み
+var read_local_file = function(fileObj, cb) {
+	var reader = new FileReader();
+	reader.onload = function (e) { cb(e.target.result); };
+	reader.readAsArrayBuffer(fileObj);
+};
+
+// URL からROMを読み込み
+var read_url = function (url, cb) {
+	var request = new XMLHttpRequest();
+	request.responseType = 'arraybuffer';
+
+	request.onload = function() { cb(request.response); };
+	request.onerror = function(e) {
+		console.error("can't get rom binary");
+	};
+	request.open('GET', url, true);
+	request.send(null);
+};
+
 // DOMのイベントを設定
 var initialize_dom_events = function() {
 	if(typeof window.FileReader !== "undefined") {
-		// ドラッグ&ドロップでファイル読み込み
+		// ドラッグ&ドロップでROM読み込み
 		window.addEventListener("dragenter",
 			function (e) {
 				e.preventDefault();
@@ -199,10 +204,14 @@ var initialize_dom_events = function() {
 		window.addEventListener("drop",
 			function (e) {
 				e.preventDefault();
-				fc_file_read(e.dataTransfer.files[0]);
+				read_local_file(e.dataTransfer.files[0], fc_rom_change);
 			}, false);
 
-		document.getElementById("file").addEventListener("change", FCFileChange, false);
+		// input type="file" から ROM読み込み
+		document.getElementById("file").addEventListener("change",
+			function (e) {
+				read_local_file(e.target.files[0], fc_rom_change);
+			}, false);
 
 		document.getElementById("pause").addEventListener("click", fc_pause, false);
 		document.getElementById("start").addEventListener("click", fc_start, false);
@@ -223,36 +232,17 @@ var initialize_dom_events = function() {
 
 };
 
-
-// ROM読み込み
+// 初期化
 window.onload = function() {
-	// ROMのパス
+	// DOMのイベントを設定
+	initialize_dom_events();
+
+	// TODO: Now Loading...的なものを入れる
+
+	// onload でデフォルトのゲームを読み込む
 	//var url = 'rom/mario.nes';
 	var url = "rom/bad_apple_2_5.nes";
-
-	var request = new XMLHttpRequest();
-	request.responseType = 'arraybuffer';
-
-	request.onload = function() {
-		// 読み込んだROMのバイナリ
-		var rom_binary = request.response;
-
-		// DOMのイベントを設定
-		initialize_dom_events();
-
-		// DEBUG:
-		console.log("suceed to get rom binary");
-
-		fc_rom_change(rom_binary);
-		return;
-	};
-
-	request.onerror = function(e) {
-		console.log("can't get rom binary");
-	};
-
-	request.open('GET', url, true);
-	request.send(null);
+	read_url(url, fc_rom_change);
 };
 
 
