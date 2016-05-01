@@ -20,6 +20,12 @@ http://pgate1.at-ninja.jp/NES_on_FPGA/index.html
 まずNESファイルを解析することから始めます。
 1.iNES フォーマットのバイナリを 16進数でダンプしましょう。
 2.先頭4バイトはSignature なのでそれを読んでROMファイルかどうか判別してみる
+ROMデータをPRG ROM, CHR ROM に振り分ける
+CPUやJoyPad、Register などのガワだけ作る
+JoyPad がキーボードの入力を受け取れるようにする
+電源ONにする際の処理を作る
+イベントループする
+
 
 
 # TODO:
