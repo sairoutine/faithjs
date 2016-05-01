@@ -38,7 +38,7 @@ function fc_start() {
 }
 
 
-function FCReset() {
+function fc_reset() {
 	if(fc.Reset()) {
 		document.getElementById("pause").disabled = false;
 		document.getElementById("start").disabled = true;
@@ -211,7 +211,7 @@ window.onload = function() {
 
 		document.getElementById("pause").addEventListener("click", fc_pause, false);
 		document.getElementById("start").addEventListener("click", fc_start, false);
-		document.getElementById("reset").addEventListener("click", FCReset, false);
+		document.getElementById("reset").addEventListener("click", fc_reset, false);
 
 		document.getElementById("insert").addEventListener("click", DiskInsert, false);
 		document.getElementById("eject").addEventListener("click", DiskEject, false);
