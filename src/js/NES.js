@@ -394,7 +394,7 @@ NES.prototype.Run = function () {
 
 
 NES.prototype.Start = function () {
-	if(this.Mapper != null && this.TimerID == null) {
+	if(this.Mapper !== null && this.TimerID === null) {
 		this.JoyPadInit();
 		this.TimerID = this.requestAnimationFrame();
 		return true;
@@ -404,7 +404,7 @@ NES.prototype.Start = function () {
 
 
 NES.prototype.Pause = function () {
-	if(this.Mapper != null && this.TimerID != null) {
+	if(this.Mapper !== null && this.TimerID !== null) {
 		this.cancelAnimationFrame();
 		this.JoyPadRelease();
 		this.TimerID = null;
@@ -433,7 +433,7 @@ NES.prototype.Init = function () {
 
 
 NES.prototype.Reset = function () {
-	if(this.Mapper != null) {
+	if(this.Mapper !== null) {
 		this.Pause();
 		this.PpuInit();
 		this.ApuInit();
@@ -447,7 +447,7 @@ NES.prototype.Reset = function () {
 
 /* Non-Need methods
 NES.prototype.GetState = function () {
-	if(this.Mapper == null)
+	if(this.Mapper === null)
 		return false;
 
 	this.StateData = new Object();
@@ -512,7 +512,7 @@ NES.prototype.GetState = function () {
 
 
 NES.prototype.SetState = function () {
-	if(this.Mapper == null || this.StateData == null)
+	if(this.Mapper === null || this.StateData === null)
 		return false;
 
 	this.A =		 	this.StateData.A;
@@ -753,10 +753,10 @@ NES.prototype.Adder = function (data1) {
 NES.prototype.ADC = function (address) {
 	this.Adder(this.Get(address));
 
-	/*if((this.P & 0x08) == 0x08) {
+	/*if((this.P & 0x08) === 0x08) {
 		if((this.A & 0x0F) > 0x09 || this.HalfCarry)
 			this.A += 0x06;
-		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) == 0x01)
+		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x01)
 			this.A += 0x60;
 		if(this.A > 0xFF) {
 			this.A &= 0xFF;
@@ -769,10 +769,10 @@ NES.prototype.ADC = function (address) {
 NES.prototype.SBC = function (address) {
 	this.Adder(~this.Get(address) & 0xFF);
 
-	/*if((this.P & 0x08) == 0x08) {
+	/*if((this.P & 0x08) === 0x08) {
 		if((this.A & 0x0F) > 0x09 || !this.HalfCarry)
 			this.A -= 0x06;
-		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) == 0x00)
+		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x00)
 			this.A -= 0x60;
 	}*/
 };
@@ -1054,7 +1054,7 @@ NES.prototype.CpuRun = function () {
 		if(this.toNMI) {
 			this.NMI();
 			this.toNMI = false;
-		} else if((this.P & 0x04) == 0x00 && this.toIRQ != 0x00)
+		} else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00)
 			this.IRQ();
 		var opcode = this.Get(this.PC++);
 		this.CPUClock += cycletable[opcode];
@@ -1544,28 +1544,28 @@ NES.prototype.CpuRun = function () {
 				break;
 
 			case 0x10://BPL REL
-				this.Branch((this.P & 0x80) == 0);
+				this.Branch((this.P & 0x80) === 0);
 				break;
 			case 0x30://BMI REL
-				this.Branch((this.P & 0x80) != 0);
+				this.Branch((this.P & 0x80) !== 0);
 				break;
 			case 0x50://BVC REL
-				this.Branch((this.P & 0x40) == 0);
+				this.Branch((this.P & 0x40) === 0);
 				break;
 			case 0x70://BVS REL
-				this.Branch((this.P & 0x40) != 0);
+				this.Branch((this.P & 0x40) !== 0);
 				break;
 			case 0x90://BCC REL
-				this.Branch((this.P & 0x01) == 0);
+				this.Branch((this.P & 0x01) === 0);
 				break;
 			case 0xB0://BCS REL
-				this.Branch((this.P & 0x01) != 0);
+				this.Branch((this.P & 0x01) !== 0);
 				break;
 			case 0xD0://BNE REL
-				this.Branch((this.P & 0x02) == 0);
+				this.Branch((this.P & 0x02) === 0);
 				break;
 			case 0xF0://BEQ REL
-				this.Branch((this.P & 0x02) != 0);
+				this.Branch((this.P & 0x02) !== 0);
 				break;
 
 			/* Undocument */
@@ -1941,15 +1941,15 @@ NES.prototype.PpuRun = function () {
 	this.PpuX += this.CPUClock * 3;
 
 	while(this.PpuX >= 341) {
-		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) == 0x08;
-		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) == 0x10;
+		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08;
+		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10;
 
 		this.PpuX -= 341;
 		tmpx = 0;
 		this.Sprite0Line = false;
 		this.PpuY++;
 
-		if(this.PpuY == 262) {
+		if(this.PpuY === 262) {
 			this.PpuY = 0;
 			if(tmpIsScreenEnable || tmpIsSpriteEnable)
 				this.PPUAddress = this.PPUAddressBuffer;
@@ -1958,14 +1958,14 @@ NES.prototype.PpuRun = function () {
 
 		this.Mapper.HSync(this.PpuY);
 
-		if(this.PpuY == 240) {
+		if(this.PpuY === 240) {
 			this.ctx.putImageData(this.ImageData, 0, 0);
 
 			this.DrawFlag = true;
 			this.ScrollRegisterFlag = false;
 			tmpIO1[0x02] = (tmpIO1[0x02] & 0x1F) | 0x80;
 
-			this.toNMI = (tmpIO1[0x00] & 0x80) == 0x80;
+			this.toNMI = (tmpIO1[0x00] & 0x80) === 0x80;
 			continue;
 		}
 
@@ -1996,11 +1996,11 @@ NES.prototype.PpuRun = function () {
 					this.BuildSpriteLine();
 				}
 
-				if((this.PPUAddress & 0x7000) == 0x7000) {
+				if((this.PPUAddress & 0x7000) === 0x7000) {
 					this.PPUAddress &= 0x8FFF;
-					if((this.PPUAddress & 0x03E0) == 0x03A0)
+					if((this.PPUAddress & 0x03E0) === 0x03A0)
 						this.PPUAddress = (this.PPUAddress ^ 0x0800) & 0xFC1F;
-					else if((this.PPUAddress & 0x03E0) == 0x03E0)
+					else if((this.PPUAddress & 0x03E0) === 0x03E0)
 						this.PPUAddress &= 0xFC1F;
 					else
 						this.PPUAddress += 0x0020;
@@ -2019,10 +2019,10 @@ NES.prototype.PpuRun = function () {
 		}
 	}
 
-	if(this.Sprite0Line && (tmpIO1[0x02] & 0x40) != 0x40) {
+	if(this.Sprite0Line && (tmpIO1[0x02] & 0x40) !== 0x40) {
 		var i = this.PpuX > 255 ? 255 : this.PpuX;
 		for(; tmpx<=i; tmpx++) {
-			if(tmpSpLine[tmpx] == 0) {
+			if(tmpSpLine[tmpx] === 0) {
 				tmpIO1[0x02] |= 0x40;
 				break;
 			}
@@ -2033,7 +2033,7 @@ NES.prototype.PpuRun = function () {
 
 NES.prototype.BuildBGLine = function () {
 	var tmpBgLineBuffer = this.BgLineBuffer;
-	if((this.IO1[0x01] & 0x08) != 0x08) {
+	if((this.IO1[0x01] & 0x08) !== 0x08) {
 		for(var p=0; p<264; p++)
 			tmpBgLineBuffer[p] = 0x10;
 		return;
@@ -2041,7 +2041,7 @@ NES.prototype.BuildBGLine = function () {
 
 	this.Mapper.BuildBGLine();
 
-	if((this.IO1[0x01] & 0x02) != 0x02) {
+	if((this.IO1[0x01] & 0x02) !== 0x02) {
 		for(var p=0; p<8; p++)
 			tmpBgLineBuffer[p] = 0x10;
 	}
@@ -2073,7 +2073,7 @@ NES.prototype.BuildBGLine_SUB = function () {
 			tmpBgLineBuffer[q] = tmpPaletteArray[ptn[s] | attr];
 		s = 0;
 
-		if((nameAddrLow & 0x001F) == 0x001F) {
+		if((nameAddrLow & 0x001F) === 0x001F) {
 			nameAddrLow &= 0xFFE0;
 			tmpVRAMHigh = tmpVRAM[(nameAddrHigh ^= 0x01)];
 		} else
@@ -2089,15 +2089,15 @@ NES.prototype.BuildSpriteLine = function () {
 
 NES.prototype.BuildSpriteLine_SUB = function () {
 	var tmpBgLineBuffer = this.BgLineBuffer;
-	var tmpIsSpriteClipping = (this.IO1[0x01] & 0x04) == 0x04 ? 0 : 8;
+	var tmpIsSpriteClipping = (this.IO1[0x01] & 0x04) === 0x04 ? 0 : 8;
 
-	if((this.IO1[0x01] & 0x10) == 0x10) {
+	if((this.IO1[0x01] & 0x10) === 0x10) {
 		var tmpSpLine = this.SpriteLineBuffer;
 		for(var p=0; p<256; p++)
 			tmpSpLine[p] = 256;
 
 		var tmpSpRAM = this.SPRITE_RAM;
-		var tmpBigSize = (this.IO1[0x00] & 0x20) == 0x20 ? 16 : 8;
+		var tmpBigSize = (this.IO1[0x00] & 0x20) === 0x20 ? 16 : 8;
 		var tmpSpPatternTableAddress = (this.IO1[0x00] & 0x08) << 9;
 
 		var tmpVRAM = this.VRAM;
@@ -2111,10 +2111,10 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 			if(isy > lineY || (isy + tmpBigSize) <= lineY)
 				continue;
 
-			if(i == 0)
+			if(i === 0)
 				this.Sprite0Line = true;
 
-			if(++count == 9 && this.SpriteLimit)
+			if(++count === 9 && this.SpriteLimit)
 				break;
 
 			var x = tmpSpRAM[i + 3];
@@ -2125,18 +2125,18 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 			var attr = tmpSpRAM[i + 2];
 
 			var attribute = ((attr & 0x03) << 2) | 0x10;
-			var bgsp = (attr & 0x20) == 0x00;
+			var bgsp = (attr & 0x20) === 0x00;
 
-			var iy = (attr & 0x80) == 0x80 ? tmpBigSize - 1 - (lineY - isy) : lineY - isy;
+			var iy = (attr & 0x80) === 0x80 ? tmpBigSize - 1 - (lineY - isy) : lineY - isy;
 			var tileNum = ((iy & 0x08) << 1) + (iy & 0x07) +
-				(tmpBigSize == 8 ? (tmpSpRAM[i + 1] << 4) + tmpSpPatternTableAddress : ((tmpSpRAM[i + 1] & 0xFE) << 4) + ((tmpSpRAM[i + 1] & 0x01) << 12));
+				(tmpBigSize === 8 ? (tmpSpRAM[i + 1] << 4) + tmpSpPatternTableAddress : ((tmpSpRAM[i + 1] & 0xFE) << 4) + ((tmpSpRAM[i + 1] & 0x01) << 12));
 			var tmpHigh = tmpVRAM[tileNum >> 10];
 			var tmpLow = tileNum & 0x03FF;
 			var ptn = tmpSPBitArray[tmpHigh[tmpLow]][tmpHigh[tmpLow + 8]];
 
 			var is;
 			var ia;
-			if((attr & 0x40) == 0x00) {
+			if((attr & 0x40) === 0x00) {
 				is = 0;
 				ia = 1;
 			} else {
@@ -2146,9 +2146,9 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 
 			for(; x<ex; x++, is+=ia) {
 				var tmpPtn = ptn[is];
-				if(tmpPtn != 0x00 && tmpSpLine[x] == 256) {
+				if(tmpPtn !== 0x00 && tmpSpLine[x] === 256) {
 					tmpSpLine[x] = i;
-					if(x >= tmpIsSpriteClipping && (bgsp || tmpBgLineBuffer[x] == 0x10))
+					if(x >= tmpIsSpriteClipping && (bgsp || tmpBgLineBuffer[x] === 0x10))
 							tmpBgLineBuffer[x] = tmpPtn | attribute;
 				}
 			}
@@ -2216,7 +2216,7 @@ NES.prototype.ReadPPUData_SUB = function () {
 	var tmp = this.PPUReadBuffer;
 	var addr = this.PPUAddress & 0x3FFF;
 	this.PPUReadBuffer = this.VRAM[addr >> 10][addr & 0x03FF];
-	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
+	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) === 0x04 ? 32 : 1)) & 0xFFFF;
 	return tmp;
 };
 
@@ -2234,22 +2234,22 @@ NES.prototype.WritePPUData_SUB = function (value) {
 	this.VRAM[tmpPPUAddress >> 10][tmpPPUAddress & 0x03FF] = value;
 
 	if(tmpPPUAddress < 0x3000) {
-		this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
+		this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) === 0x04 ? 32 : 1)) & 0xFFFF;
 		return;
 	}
 
 	if(tmpPPUAddress < 0x3EFF) {
 		this.VRAM[(tmpPPUAddress - 0x1000) >> 10][(tmpPPUAddress - 0x1000) & 0x03FF] = value;
-		this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
+		this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) === 0x04 ? 32 : 1)) & 0xFFFF;
 		return;
 	}
 
 	var palNo = tmpPPUAddress & 0x001F;
-	if(palNo == 0x00 || palNo == 0x10)
+	if(palNo === 0x00 || palNo === 0x10)
 		this.Palette[0x00] = this.Palette[0x10] = value & 0x3F;
 	else
 		this.Palette[palNo] = value & 0x3F;
-	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) == 0x04 ? 32 : 1)) & 0xFFFF;
+	this.PPUAddress = (this.PPUAddress + ((this.IO1[0x00] & 0x04) === 0x04 ? 32 : 1)) & 0xFFFF;
 };
 
 
@@ -2275,16 +2275,16 @@ NES.prototype.StartDMA = function (data) {
 
 /* **** NES Header **** */
 NES.prototype.ParseHeader = function () {
-	if(this.Rom.length < 0x10 || this.Rom[0] != 0x4E || this.Rom[1] != 0x45 ||  this.Rom[2] != 0x53 || this.Rom[3] != 0x1A)
+	if(this.Rom.length < 0x10 || this.Rom[0] !== 0x4E || this.Rom[1] !== 0x45 ||  this.Rom[2] !== 0x53 || this.Rom[3] !== 0x1A)
 		return false;
 
 	this.PrgRomPageCount = this.Rom[4]
 	this.ChrRomPageCount = this.Rom[5];
-	this.HMirror  = (this.Rom[6] & 0x01) == 0;
-	this.VMirror  = (this.Rom[6] & 0x01) != 0;
-	this.SramEnable = (this.Rom[6] & 0x02) != 0;
-	this.TrainerEnable = (this.Rom[6] & 0x04) != 0;
-	this.FourScreen = (this.Rom[6] & 0x08) != 0;
+	this.HMirror  = (this.Rom[6] & 0x01) === 0;
+	this.VMirror  = (this.Rom[6] & 0x01) !== 0;
+	this.SramEnable = (this.Rom[6] & 0x02) !== 0;
+	this.TrainerEnable = (this.Rom[6] & 0x04) !== 0;
+	this.FourScreen = (this.Rom[6] & 0x08) !== 0;
 	this.MapperNumber = (this.Rom[6] >> 4) | (this.Rom[7] & 0xF0);
 
 	return true;
@@ -2531,7 +2531,7 @@ NES.prototype.SetPrgRomPage = function (no, num){
 
 /* **** NES JoyPad **** */
 NES.prototype.WriteJoyPadRegister1 = function (value) {
-	var s = (value & 0x01) == 0x01 ? true : false;
+	var s = (value & 0x01) === 0x01 ? true : false;
 	if(this.JoyPadStrobe && !s) {
 		this.JoyPadBuffer[0] = this.JoyPadState[0];
 		this.JoyPadBuffer[1] = this.JoyPadState[1];
@@ -2702,7 +2702,7 @@ NES.prototype.WebAudioFunction = function (e) {
 	var output = e.outputBuffer.getChannelData(0);
 
 	var data;
-	if(this.WaveDatas.length == 0) {
+	if(this.WaveDatas.length === 0) {
 		var data = new Float32Array(this.WebAudioBufferSize);
 		for(var i=0; i<this.WebAudioBufferSize; i++)
 			data[i] = 0.0;
@@ -2722,19 +2722,19 @@ NES.prototype.WebAudioFunction = function (e) {
 
 NES.prototype.ReadWaveControl = function () {
 	var tmp = 0x00;
-	if(this.WaveCh1LengthCounter != 0)
+	if(this.WaveCh1LengthCounter !== 0)
 		tmp |= 0x01;
 
-	if(this.WaveCh2LengthCounter != 0)
+	if(this.WaveCh2LengthCounter !== 0)
 		tmp |= 0x02;
 
-	if(this.WaveCh3LengthCounter != 0)
+	if(this.WaveCh3LengthCounter !== 0)
 		tmp |= 0x04;
 
-	if(this.WaveCh4LengthCounter != 0)
+	if(this.WaveCh4LengthCounter !== 0)
 		tmp |= 0x08;
 
-	if(this.WaveCh5SampleCounter != 0)
+	if(this.WaveCh5SampleCounter !== 0)
 		tmp |= 0x10;
 
 	tmp |= this.toIRQ & 0xC0;
@@ -2748,22 +2748,22 @@ NES.prototype.ReadWaveControl = function () {
 NES.prototype.WriteWaveControl = function () {
 	var tmp = this.IO2[0x15];
 
-	if((tmp & 0x01) != 0x01)
+	if((tmp & 0x01) !== 0x01)
 		this.WaveCh1LengthCounter = 0;
 
-	if((tmp & 0x02) != 0x02)
+	if((tmp & 0x02) !== 0x02)
 		this.WaveCh2LengthCounter = 0;
 
-	if((tmp & 0x04) != 0x04)
+	if((tmp & 0x04) !== 0x04)
 		this.WaveCh3LengthCounter = 0;
 
-	if((tmp & 0x08) != 0x08)
+	if((tmp & 0x08) !== 0x08)
 		this.WaveCh4LengthCounter = 0;
 
-	if((tmp & 0x10) != 0x10) {
+	if((tmp & 0x10) !== 0x10) {
 		this.WaveCh5SampleCounter = 0;
 		this.toIRQ &= ~0x80;
-	} else if(this.WaveCh5SampleCounter == 0) {
+	} else if(this.WaveCh5SampleCounter === 0) {
 		this.SetCh5Delta();
 	}
 };
@@ -2816,7 +2816,7 @@ NES.prototype.WriteCh4Length1 = function () {
 
 
 NES.prototype.WriteCh5DeltaControl = function () {
-	if((this.IO2[0x10] & 0x80) != 0x80)
+	if((this.IO2[0x10] & 0x80) !== 0x80)
 		this.toIRQ &= ~0x80;
 };
 
@@ -2886,37 +2886,37 @@ NES.prototype.Out_Apu = function () {
 	var tmpIO2 = this.IO2;
 
 	// **** CH1 ****
-	if(this.WaveCh1LengthCounter != 0 && this.WaveCh1Frequency > 3)
-		all_out += ((tmpIO2[0x00] & 0x10) == 0x10 ? (tmpIO2[0x00] & 0x0F) : this.WaveCh1EnvelopeCounter) * (((tmpWaveBaseCount / this.WaveCh1Frequency) & 0x1F) < this.WaveCh1_2DutyData[(tmpIO2[0x00] & 0xC0) >> 6] ? 1 : -1);
+	if(this.WaveCh1LengthCounter !== 0 && this.WaveCh1Frequency > 3)
+		all_out += ((tmpIO2[0x00] & 0x10) === 0x10 ? (tmpIO2[0x00] & 0x0F) : this.WaveCh1EnvelopeCounter) * (((tmpWaveBaseCount / this.WaveCh1Frequency) & 0x1F) < this.WaveCh1_2DutyData[(tmpIO2[0x00] & 0xC0) >> 6] ? 1 : -1);
 
 	// **** CH2 ****
-	if(this.WaveCh2LengthCounter != 0 && this.WaveCh2Frequency > 3)
-		all_out += ((tmpIO2[0x04] & 0x10) == 0x10 ? (tmpIO2[0x04] & 0x0F) : this.WaveCh2EnvelopeCounter) * (((tmpWaveBaseCount / this.WaveCh2Frequency) & 0x1F) < this.WaveCh1_2DutyData[(tmpIO2[0x04] & 0xC0) >> 6] ? 1 : -1);
+	if(this.WaveCh2LengthCounter !== 0 && this.WaveCh2Frequency > 3)
+		all_out += ((tmpIO2[0x04] & 0x10) === 0x10 ? (tmpIO2[0x04] & 0x0F) : this.WaveCh2EnvelopeCounter) * (((tmpWaveBaseCount / this.WaveCh2Frequency) & 0x1F) < this.WaveCh1_2DutyData[(tmpIO2[0x04] & 0xC0) >> 6] ? 1 : -1);
 
 	// **** CH3 ****
 	var ch3freq = ((tmpIO2[0x0B] & 0x07) << 8) + tmpIO2[0x0A] + 1;
-	if(this.WaveCh3LengthCounter != 0 && this.WaveCh3LinearCounter != 0 && ch3freq > 3)
+	if(this.WaveCh3LengthCounter !== 0 && this.WaveCh3LinearCounter !== 0 && ch3freq > 3)
 		all_out += this.WaveCh3SequenceData[(tmpWaveBaseCount2 / ch3freq) & 0x1F];
 
 	// **** CH4 ****
 	var angle = (tmpWaveBaseCount / this.WaveCh4FrequencyData[tmpIO2[0x0E] & 0x0F]) | 0;
-	if(angle != this.WaveCh4Angle) {
-		this.WaveCh4Register = (tmpIO2[0x0E] & 0x80) == 0x80 ?
+	if(angle !== this.WaveCh4Angle) {
+		this.WaveCh4Register = (tmpIO2[0x0E] & 0x80) === 0x80 ?
 				(this.WaveCh4Register >> 1) | (((this.WaveCh4Register & 0x0040) <<  8) ^ ((this.WaveCh4Register & 0x0001) << 14)) :
 				(this.WaveCh4Register >> 1) | (((this.WaveCh4Register & 0x0002) << 13) ^ ((this.WaveCh4Register & 0x0001) << 14));
 		this.WaveCh4Angle = angle;
 	}
-	if(this.WaveCh4LengthCounter != 0 && (this.WaveCh4Register & 0x0001) == 0x0000)
-		all_out += (tmpIO2[0x0C] & 0x10) == 0x10 ? (tmpIO2[0x0C] & 0x0F) : this.WaveCh4EnvelopeCounter;
+	if(this.WaveCh4LengthCounter !== 0 && (this.WaveCh4Register & 0x0001) === 0x0000)
+		all_out += (tmpIO2[0x0C] & 0x10) === 0x10 ? (tmpIO2[0x0C] & 0x0F) : this.WaveCh4EnvelopeCounter;
 
 	// **** CH5 ****
-	if(this.WaveCh5SampleCounter != 0) {
+	if(this.WaveCh5SampleCounter !== 0) {
 		angle = (tmpWaveBaseCount2 / this.WaveCh5FrequencyData[tmpIO2[0x10] & 0x0F]) & 0x1F;
 
-		if(this.WaveCh5Angle != angle) {
+		if(this.WaveCh5Angle !== angle) {
 			var ii = this.WaveCh5Angle;
 			var jj = 0;
-			if(ii != -1) {
+			if(ii !== -1) {
 				jj = angle;
 				if(jj < ii)
 					jj += 32;
@@ -2924,16 +2924,16 @@ NES.prototype.Out_Apu = function () {
 			this.WaveCh5Angle = angle;
 
 			for(; ii<jj; ii++){
-				if((this.WaveCh5SampleCounter & 0x0007) == 0) {
-					if(this.WaveCh5SampleCounter != 0){
+				if((this.WaveCh5SampleCounter & 0x0007) === 0) {
+					if(this.WaveCh5SampleCounter !== 0){
 						this.WaveCh5Register = this.ROM[(this.WaveCh5SampleAddress >> 13) + 2][this.WaveCh5SampleAddress & 0x1FFF];
 						this.WaveCh5SampleAddress++;
 						this.CPUClock += 4;
 					}
 				}
 
-				if(this.WaveCh5SampleCounter != 0) {
-					if((this.WaveCh5Register & 0x01) == 0x00) {
+				if(this.WaveCh5SampleCounter !== 0) {
+					if((this.WaveCh5Register & 0x01) === 0x00) {
 						if(this.WaveCh5DeltaCounter > 1)
 							this.WaveCh5DeltaCounter -= 2;
 					} else {
@@ -2946,8 +2946,8 @@ NES.prototype.Out_Apu = function () {
 			}
 		}
 
-		if(this.WaveCh5SampleCounter == 0) {
-			if((tmpIO2[0x10] & 0x40) == 0x40)
+		if(this.WaveCh5SampleCounter === 0) {
+			if((tmpIO2[0x10] & 0x40) === 0x40)
 				this.SetCh5Delta();
 			else
 				this.toIRQ |= tmpIO2[0x10] & 0x80;
@@ -2962,18 +2962,18 @@ NES.prototype.WaveFrameSequencer = function (clock) {
 	if(this.WaveFrameSequenceCounter >= this.MainClock) {
 		this.WaveFrameSequenceCounter -= this.MainClock;
 
-		if((this.IO2[0x17] & 0x80) == 0x00) {
+		if((this.IO2[0x17] & 0x80) === 0x00) {
 			this.WaveCh1_2_4_Envelope_WaveCh3_Linear();
-			if(this.WaveFrameSequence == 1 || this.WaveFrameSequence == 3)
+			if(this.WaveFrameSequence === 1 || this.WaveFrameSequence === 3)
 				this.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep();
-			if(this.WaveFrameSequence == 3 && (this.IO2[0x17] & 0x40) == 0x00) {
+			if(this.WaveFrameSequence === 3 && (this.IO2[0x17] & 0x40) === 0x00) {
 				this.toIRQ |= 0x40;
 			}
 			this.WaveFrameSequence = ++this.WaveFrameSequence & 0x03;
 		} else {
-			if(this.WaveFrameSequence != 4)
+			if(this.WaveFrameSequence !== 4)
 				this.WaveCh1_2_4_Envelope_WaveCh3_Linear();
-			if(this.WaveFrameSequence == 0 || this.WaveFrameSequence == 2)
+			if(this.WaveFrameSequence === 0 || this.WaveFrameSequence === 2)
 				this.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep();
 			this.WaveFrameSequence = ++this.WaveFrameSequence % 5;
 		}
@@ -3002,30 +3002,30 @@ NES.prototype.ApuRun = function () {
 NES.prototype.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep = function () {
 	var tmpIO2 = this.IO2;
 
-	if((tmpIO2[0x00] & 0x20) == 0x00 && this.WaveCh1LengthCounter != 0) {
-		if(--this.WaveCh1LengthCounter == 0)
+	if((tmpIO2[0x00] & 0x20) === 0x00 && this.WaveCh1LengthCounter !== 0) {
+		if(--this.WaveCh1LengthCounter === 0)
 			tmpIO2[0x15] &= 0xFE;
 	}
 
-	if((tmpIO2[0x04] & 0x20) == 0x00 && this.WaveCh2LengthCounter != 0) {
-		if(--this.WaveCh2LengthCounter == 0)
+	if((tmpIO2[0x04] & 0x20) === 0x00 && this.WaveCh2LengthCounter !== 0) {
+		if(--this.WaveCh2LengthCounter === 0)
 			tmpIO2[0x15] &= 0xFD;
 	}
 
-	if((tmpIO2[0x08] & 0x80) == 0x00 && this.WaveCh3LengthCounter != 0) {
-		if(--this.WaveCh3LengthCounter == 0)
+	if((tmpIO2[0x08] & 0x80) === 0x00 && this.WaveCh3LengthCounter !== 0) {
+		if(--this.WaveCh3LengthCounter === 0)
 			tmpIO2[0x15] &= 0xFB;
 	}
 
-	if((tmpIO2[0x0C] & 0x20) == 0x00 && this.WaveCh4LengthCounter != 0) {
-		if(--this.WaveCh4LengthCounter == 0)
+	if((tmpIO2[0x0C] & 0x20) === 0x00 && this.WaveCh4LengthCounter !== 0) {
+		if(--this.WaveCh4LengthCounter === 0)
 			tmpIO2[0x15] &= 0xF7;
 	}
 
-	if(++this.WaveCh1Sweep == (((tmpIO2[0x01] & 0x70) >> 4) + 1)) {
+	if(++this.WaveCh1Sweep === (((tmpIO2[0x01] & 0x70) >> 4) + 1)) {
 		this.WaveCh1Sweep = 0;
-		if((tmpIO2[0x01] & 0x80) == 0x80 && (tmpIO2[0x01] & 0x07) != 0x00 && this.WaveCh1LengthCounter != 0) {
-			if((tmpIO2[0x01] & 0x08) == 0x00)
+		if((tmpIO2[0x01] & 0x80) === 0x80 && (tmpIO2[0x01] & 0x07) !== 0x00 && this.WaveCh1LengthCounter !== 0) {
+			if((tmpIO2[0x01] & 0x08) === 0x00)
 				this.WaveCh1Frequency += this.WaveCh1Frequency >> (tmpIO2[0x01] & 0x07);
 			else 
 				this.WaveCh1Frequency -= this.WaveCh1Frequency >> (tmpIO2[0x01] & 0x07);
@@ -3037,10 +3037,10 @@ NES.prototype.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep = function () {
 		}
 	}
 
-	if(++this.WaveCh2Sweep == (((tmpIO2[0x05] & 0x70) >> 4) + 1)) {
+	if(++this.WaveCh2Sweep === (((tmpIO2[0x05] & 0x70) >> 4) + 1)) {
 		this.WaveCh2Sweep = 0;
-		if((tmpIO2[0x05] & 0x80) == 0x80 && (tmpIO2[0x05] & 0x07) != 0x00 && this.WaveCh2LengthCounter != 0) {
-			if((tmpIO2[0x05] & 0x08) == 0x00)
+		if((tmpIO2[0x05] & 0x80) === 0x80 && (tmpIO2[0x05] & 0x07) !== 0x00 && this.WaveCh2LengthCounter !== 0) {
+			if((tmpIO2[0x05] & 0x08) === 0x00)
 				this.WaveCh2Frequency += this.WaveCh2Frequency >> (tmpIO2[0x05] & 0x07);
 			else 
 				this.WaveCh2Frequency -= this.WaveCh2Frequency >> (tmpIO2[0x05] & 0x07);
@@ -3057,40 +3057,40 @@ NES.prototype.WaveCh1_2_3_4_Length_WaveCh1_2_Sweep = function () {
 NES.prototype.WaveCh1_2_4_Envelope_WaveCh3_Linear = function () {
 	var tmpIO2 = this.IO2;
 
-	if((tmpIO2[0x00] & 0x10) == 0x00) {
-		if(++this.WaveCh1Envelope == ((tmpIO2[0x00] & 0x0F) + 1)) {
+	if((tmpIO2[0x00] & 0x10) === 0x00) {
+		if(++this.WaveCh1Envelope === ((tmpIO2[0x00] & 0x0F) + 1)) {
 			this.WaveCh1Envelope = 0;
-			if(this.WaveCh1EnvelopeCounter == 0) {
-				if((tmpIO2[0x00] & 0x20) == 0x20)
+			if(this.WaveCh1EnvelopeCounter === 0) {
+				if((tmpIO2[0x00] & 0x20) === 0x20)
 					this.WaveCh1EnvelopeCounter = 0x0F;
 			} else
 				this.WaveCh1EnvelopeCounter--;
 		}
 	}
 
-	if((tmpIO2[0x04] & 0x10) == 0x00) {
-		if(++this.WaveCh2Envelope == ((tmpIO2[0x04] & 0x0F) + 1)) {
+	if((tmpIO2[0x04] & 0x10) === 0x00) {
+		if(++this.WaveCh2Envelope === ((tmpIO2[0x04] & 0x0F) + 1)) {
 			this.WaveCh2Envelope = 0;
-			if(this.WaveCh2EnvelopeCounter == 0) {
-				if((tmpIO2[0x04] & 0x20) == 0x20)
+			if(this.WaveCh2EnvelopeCounter === 0) {
+				if((tmpIO2[0x04] & 0x20) === 0x20)
 					this.WaveCh2EnvelopeCounter = 0x0F;
 			} else
 				this.WaveCh2EnvelopeCounter--;
 		}
 	}
 
-	if((tmpIO2[0x0C] & 0x10) == 0x00) {
-		if(++this.WaveCh4Envelope == ((tmpIO2[0x0C] & 0x0F) + 1)) {
+	if((tmpIO2[0x0C] & 0x10) === 0x00) {
+		if(++this.WaveCh4Envelope === ((tmpIO2[0x0C] & 0x0F) + 1)) {
 			this.WaveCh4Envelope = 0;
-			if(this.WaveCh4EnvelopeCounter == 0) {
-				if((tmpIO2[0x0C] & 0x20) == 0x20)
+			if(this.WaveCh4EnvelopeCounter === 0) {
+				if((tmpIO2[0x0C] & 0x20) === 0x20)
 					this.WaveCh4EnvelopeCounter = 0x0F;
 			} else
 				this.WaveCh4EnvelopeCounter--;
 		}
 	}
 
-	if((tmpIO2[0x08] & 0x80) == 0x00 && this.WaveCh3LinearCounter != 0)
+	if((tmpIO2[0x08] & 0x80) === 0x00 && this.WaveCh3LinearCounter !== 0)
 		this.WaveCh3LinearCounter--;
 };
 
@@ -3133,7 +3133,7 @@ NES.prototype.Init_FDS = function () {
 
 
 NES.prototype.Write_FDS_WAVE_REG = function (no, data) {
-	if((this.FDS_REG[9] & 0x80) != 0x80)
+	if((this.FDS_REG[9] & 0x80) !== 0x80)
 		return;
 	this.FDS_WAVE_REG[no] = data & 0x3F;
 };
@@ -3143,17 +3143,17 @@ NES.prototype.Write_FDS_REG = function (no, data) {
 	this.FDS_REG[no] = data;
 	switch(no) {
 		case 0:
-			if((data & 0x80) == 0x80)
+			if((data & 0x80) === 0x80)
 				this.FDS_VolumeEnv = data & 0x3F;
 
 			this.FDS_VolumeEnvCounter = 0;
 			break;
 		case 3:
-			if((data & 0x80) == 0x80)
+			if((data & 0x80) === 0x80)
 				this.FDS_WaveIndex = 0;
 			break;
 		case 4:
-			if((data & 0x80) == 0x80)
+			if((data & 0x80) === 0x80)
 				this.FDS_SweepEnv = data & 0x3F;
 
 			this.FDS_SweepEnvCounter = 0;
@@ -3169,7 +3169,7 @@ NES.prototype.Write_FDS_REG = function (no, data) {
 			this.FDS_LFOIndex = 0;
 			break;
 		case 8:
-			if((this.FDS_REG[7] & 0x80) == 0x80) {
+			if((this.FDS_REG[7] & 0x80) === 0x80) {
 				this.FDS_LFO_REG[this.FDS_REGAddress] = data & 0x07;
 				this.FDS_REGAddress = (this.FDS_REGAddress + 1) & 0x1F;
 			}
@@ -3179,7 +3179,7 @@ NES.prototype.Write_FDS_REG = function (no, data) {
 
 
 NES.prototype.Count_FDS = function (clock) {
-	if((this.FDS_REG[3] & 0x40) != 0x40) {
+	if((this.FDS_REG[3] & 0x40) !== 0x40) {
 		if((this.FDS_REG[0] & 0xC0) < 0x80) {
 			var c = this.FDS_REG[10] * ((this.FDS_REG[0] & 0x3F) + 1) * 8;
 			if(c > 0) {
@@ -3187,7 +3187,7 @@ NES.prototype.Count_FDS = function (clock) {
 				while(this.FDS_VolumeEnvCounter >= c) {
 					this.FDS_VolumeEnvCounter -= c;
 
-					if((this.FDS_REG[0] & 0x40) == 0x00) {
+					if((this.FDS_REG[0] & 0x40) === 0x00) {
 						if(this.FDS_VolumeEnv > 0)
 							this.FDS_VolumeEnv--;
 					} else {
@@ -3206,7 +3206,7 @@ NES.prototype.Count_FDS = function (clock) {
 				while(this.FDS_SweepEnvCounter >= c) {
 					this.FDS_SweepEnvCounter -= c;
 
-					if((this.FDS_REG[4] & 0x40) == 0x00) {
+					if((this.FDS_REG[4] & 0x40) === 0x00) {
 						if(this.FDS_SweepEnv > 0)
 							this.FDS_SweepEnv--;
 					} else {
@@ -3220,7 +3220,7 @@ NES.prototype.Count_FDS = function (clock) {
 	}
 
 	var f;
-	if((this.FDS_REG[7] & 0x80) != 0x80) {
+	if((this.FDS_REG[7] & 0x80) !== 0x80) {
 		f = this.FDS_REG[6] | ((this.FDS_REG[7] & 0x0F) << 8);
 		this.FDS_LFOIndexCounter += f * clock;
 		while(this.FDS_LFOIndexCounter >= 65536) {
@@ -3228,7 +3228,7 @@ NES.prototype.Count_FDS = function (clock) {
 
 			var lfo = this.FDS_LFO_REG[this.FDS_LFOIndex >> 1];
 			this.FDS_SweepBias += this.FDS_LFO_DATA[lfo];
-			if(lfo == 4)
+			if(lfo === 4)
 				this.FDS_SweepBias = 0;
 
 			if(this.FDS_SweepBias > 63)
@@ -3273,7 +3273,7 @@ NES.prototype.Count_FDS = function (clock) {
 
 
 NES.prototype.Out_FDS = function () {
-	if((this.FDS_REG[3] & 0x80) != 0x80)
+	if((this.FDS_REG[3] & 0x80) !== 0x80)
 		return ((this.FDS_WAVE_REG[this.FDS_WaveIndex] - 32) * this.FDS_Volume) >> 1;
 	return 0;
 };
@@ -3324,7 +3324,7 @@ NES.prototype.Write_MMC5_REG = function (no, data) {
 			break;
 		case 0x015:
 			for(var i=0; i<2; i++) {
-				if((this.MMC5_REG[0x15] & (0x01 << i)) == 0x00)
+				if((this.MMC5_REG[0x15] & (0x01 << i)) === 0x00)
 					this.MMC5_Ch[i].LengthCounter = 0;
 			}
 			break;
@@ -3333,10 +3333,10 @@ NES.prototype.Write_MMC5_REG = function (no, data) {
 
 
 NES.prototype.Read_MMC5_REG = function (no) {
-	if(no == 0x15) {
+	if(no === 0x15) {
 		var tmp =0;
 		for(var i=0; i<2; i++) {
-		if(this.MMC5_Ch[i].LengthCounter != 0)
+		if(this.MMC5_Ch[i].LengthCounter !== 0)
 			tmp |= 0x01 << i;
 		}
 	}
@@ -3350,11 +3350,11 @@ NES.prototype.Count_MMC5 = function (clock) {
 
 		for(var i=0; i<2; i++) {
 			var tmp = i << 2;
-			if((this.MMC5_REG[tmp] & 0x10) == 0x00) {
-				if(++this.MMC5_Ch[i].Envelope == ((this.MMC5_REG[tmp] & 0x0F) + 1)) {
+			if((this.MMC5_REG[tmp] & 0x10) === 0x00) {
+				if(++this.MMC5_Ch[i].Envelope === ((this.MMC5_REG[tmp] & 0x0F) + 1)) {
 					this.MMC5_Ch[i].Envelope = 0;
-					if(this.MMC5_Ch[i].EnvelopeCounter == 0) {
-						if((this.MMC5_REG[tmp] & 0x20) == 0x20)
+					if(this.MMC5_Ch[i].EnvelopeCounter === 0) {
+						if((this.MMC5_REG[tmp] & 0x20) === 0x20)
 							this.MMC5_Ch[i].EnvelopeCounter = 0x0F;
 					} else
 						this.MMC5_Ch[i].EnvelopeCounter--;
@@ -3362,19 +3362,19 @@ NES.prototype.Count_MMC5 = function (clock) {
 			}
 		}
 
-		if(this.MMC5_FrameSequence == 1 || this.MMC5_FrameSequence == 3) {
+		if(this.MMC5_FrameSequence === 1 || this.MMC5_FrameSequence === 3) {
 			for(var i=0; i<2; i++) {
 				var tmp = i << 2;
 
-				if((this.MMC5_REG[tmp] & 0x20) == 0x00 && this.MMC5_Ch[i].LengthCounter != 0) {
-					if(--this.MMC5_Ch[i].LengthCounter == 0)
+				if((this.MMC5_REG[tmp] & 0x20) === 0x00 && this.MMC5_Ch[i].LengthCounter !== 0) {
+					if(--this.MMC5_Ch[i].LengthCounter === 0)
 						this.MMC5_REG[0x15] &= ~(0x01 << i);
 				}
 
-				if(++this.MMC5_Ch[i].Sweep == (((this.MMC5_REG[tmp + 0x01] & 0x70) >> 4) + 1)) {
+				if(++this.MMC5_Ch[i].Sweep === (((this.MMC5_REG[tmp + 0x01] & 0x70) >> 4) + 1)) {
 					this.MMC5_Ch[i].Sweep = 0;
-					if((this.MMC5_REG[tmp + 0x01] & 0x80) == 0x80 && (this.MMC5_REG[tmp + 0x01] & 0x07) != 0x00 && this.MMC5_Ch[i].LengthCounter != 0) {
-						if((this.MMC5_REG[tmp + 0x01] & 0x08) == 0x00)
+					if((this.MMC5_REG[tmp + 0x01] & 0x80) === 0x80 && (this.MMC5_REG[tmp + 0x01] & 0x07) !== 0x00 && this.MMC5_Ch[i].LengthCounter !== 0) {
+						if((this.MMC5_REG[tmp + 0x01] & 0x08) === 0x00)
 							this.MMC5_Ch[i].Frequency += this.MMC5_Ch[i].Frequency >> (this.MMC5_REG[tmp + 0x01] & 0x07);
 						else 
 							this.MMC5_Ch[i].Frequency -= this.MMC5_Ch[i].Frequency >> (this.MMC5_REG[tmp + 0x01] & 0x07);
@@ -3399,8 +3399,8 @@ NES.prototype.Out_MMC5 = function () {
 
 	for(var i=0; i<2; i++) {
 		var tmp = i << 2;
-		if(this.MMC5_Ch[i].LengthCounter != 0 && this.MMC5_Ch[i].Frequency > 3)
-			all_out += ((this.MMC5_REG[tmp] & 0x10) == 0x10 ? (this.MMC5_REG[tmp] & 0x0F) : this.MMC5_Ch[i].EnvelopeCounter) * (((tmpWaveBaseCount / this.MMC5_Ch[i].Frequency) & 0x1F) < this.WaveCh1_2DutyData[(this.MMC5_REG[tmp] & 0xC0) >> 6] ? 1 : -1);
+		if(this.MMC5_Ch[i].LengthCounter !== 0 && this.MMC5_Ch[i].Frequency > 3)
+			all_out += ((this.MMC5_REG[tmp] & 0x10) === 0x10 ? (this.MMC5_REG[tmp] & 0x0F) : this.MMC5_Ch[i].EnvelopeCounter) * (((tmpWaveBaseCount / this.MMC5_Ch[i].Frequency) & 0x1F) < this.WaveCh1_2DutyData[(this.MMC5_REG[tmp] & 0xC0) >> 6] ? 1 : -1);
 	}
 
 	all_out += (this.MMC5_REG[0x11] >> 2) - 16;
@@ -3437,8 +3437,8 @@ NES.prototype.Out_VRC6 = function () {
 
 	// **** CH1-2 ****
 	for(var i=0; i<8; i+=4) {
-		if((this.VRC6_REG[i + 2] & 0x80) == 0x80) {
-			if((this.VRC6_REG[i + 0] & 0x80) == 0x00) {
+		if((this.VRC6_REG[i + 2] & 0x80) === 0x80) {
+			if((this.VRC6_REG[i + 0] & 0x80) === 0x00) {
 				var chfreq = ((this.VRC6_REG[i + 2] & 0x0F) << 8) | this.VRC6_REG[i + 1];
 				var duty = (this.VRC6_REG[i + 0] & 0x70) >>> 4;
 				all_out += (this.VRC6_REG[i + 0] & 0x0F) * (((tmpWaveBaseCount / chfreq) & 0x0F) < duty ? 1 : -1);
@@ -3448,7 +3448,7 @@ NES.prototype.Out_VRC6 = function () {
 	}
 
 	// **** CH3 ****
-	if((this.VRC6_REG[10] & 0x80) == 0x80)
+	if((this.VRC6_REG[10] & 0x80) === 0x80)
 		all_out += (((this.VRC6_Ch3_index >>> 1) * (this.VRC6_REG[8] & 0x3F)) >>> 3) - 16;
 
 	return all_out << 5;
@@ -3498,20 +3498,20 @@ NES.prototype.Write_N163_RAM = function (data) {
 				break;
 			case 0x07:
 				this.N163_ch_data[ch].Vol = data & 0x0F;
-				if(address == 0x7F)
+				if(address === 0x7F)
 					this.N163_ch = (data >>> 4) & 0x07;
 				break;
 		}
 	}
 
-	if((this.N163_Address & 0x80) == 0x80)
+	if((this.N163_Address & 0x80) === 0x80)
 		this.N163_Address = ((this.N163_Address & 0x7F) + 1) | 0x80;
 };
 
 
 NES.prototype.Read_N163_RAM = function () {
 	var ret = this.N163_RAM[this.N163_Address & 0x7F];
-	if((this.N163_Address & 0x80) == 0x80)
+	if((this.N163_Address & 0x80) === 0x80)
 		this.N163_Address = ((this.N163_Address & 0x7F) + 1) | 0x80;
 	return ret;
 };
@@ -3536,7 +3536,7 @@ NES.prototype.Out_N163 = function () {
 	for(var i=7-this.N163_ch; i<8; i++) {
 		var addr = (this.N163_ch_data[i].Address + (this.N163_ch_data[i].Phase >> 16)) & 0xFF;
 		var data = this.N163_RAM[addr >>> 1];
-		data = (addr & 0x01) == 0x00 ? (data & 0x0F) : (data >>> 4);
+		data = (addr & 0x01) === 0x00 ? (data & 0x0F) : (data >>> 4);
 		all_out += (data - 8) * this.N163_ch_data[i].Vol;
 	}
 	return all_out << 2;
@@ -3564,7 +3564,7 @@ NES.prototype.Select_AY_REG = function (data) {
 NES.prototype.Write_AY_REG = function (data) {
 	this.AY_REG[this.AY_REG_Select] = data;
 
-	if(this.AY_REG_Select == 13)
+	if(this.AY_REG_Select === 13)
 		this.AY_Env_Index = 0;
 };
 
@@ -3590,18 +3590,18 @@ NES.prototype.Out_AY = function () {
 	var tmpWaveBaseCount = this.WaveBaseCount;
 	var all_out = 0;
 
-	var noiseout = (this.AY_Noise_Seed & 0x0001) == 0x0001 ? 1 : -1;
+	var noiseout = (this.AY_Noise_Seed & 0x0001) === 0x0001 ? 1 : -1;
 	var angle = (tmpWaveBaseCount / (((this.AY_REG[5] & 0x1F) + 1) * 32)) | 0;
-	if(angle != this.AY_Noise_Angle) {
+	if(angle !== this.AY_Noise_Angle) {
 		this.AY_Noise_Seed = (this.AY_Noise_Seed >>> 1) | (((this.AY_Noise_Seed & 0x0001) << 15) ^ ((this.AY_Noise_Seed & 0x0008) << 12));
 		this.AY_Noise_Angle = angle;
 	}
 
 	for(var i=0; i<3; i++) {
-		var vol = (this.AY_REG[8 + i] & 0x10) == 0x00 ? (this.AY_REG[8 + i] & 0x0F) : this.AY_Env_Pattern[this.AY_REG[13] & 0x0F][this.AY_Env_Index];
+		var vol = (this.AY_REG[8 + i] & 0x10) === 0x00 ? (this.AY_REG[8 + i] & 0x0F) : this.AY_Env_Pattern[this.AY_REG[13] & 0x0F][this.AY_Env_Index];
 		vol = this.AY_Env_Volume[vol];
 
-		if(((this.AY_REG[7] >> i) & 0x01) == 0x00) {
+		if(((this.AY_REG[7] >> i) & 0x01) === 0x00) {
 			var f = (((this.AY_REG[i * 2 + 1] & 0x0F) << 8) | this.AY_REG[i * 2]) + 1;
 			if(f > 1)
 				all_out += vol * (((tmpWaveBaseCount / f) & 0x1F) < 0x10 ? 1 : -1);
@@ -3609,7 +3609,7 @@ NES.prototype.Out_AY = function () {
 				all_out += vol;
 		}
 
-		if(((this.AY_REG[7] >> i) & 0x08) == 0x00)
+		if(((this.AY_REG[7] >> i) & 0x08) === 0x00)
 			all_out += vol * noiseout;
 	}
 	return all_out;
