@@ -46,11 +46,12 @@ function NES() {
 
 	this.ZNCacheTable = new Array(256);
 	this.ZNCacheTable[0] = 0x02;
-	for(var i=1; i<256; i++)
+	var i;
+	for(i=1; i<256; i++)
 		this.ZNCacheTable[i] = i & 0x80;
 
 	this.ZNCacheTableCMP = new Array(512);
-	for(var i=0; i<256; i++) {
+	for(i=0; i<256; i++) {
 		this.ZNCacheTableCMP[i] = this.ZNCacheTable[i] | 0x01;
 		this.ZNCacheTableCMP[i + 256] = this.ZNCacheTable[i];
 	}
@@ -90,7 +91,7 @@ function NES() {
 	this.BgLineBuffer = null;
 
 	this.SPBitArray = new Array(256);
-	for(var i=0; i<256; i++) {
+	for(i=0; i<256; i++) {
 		this.SPBitArray[i] = new Array(256);
 		for(var j=0; j<256; j++) {
 			this.SPBitArray[i][j] = new Array(8);
@@ -133,14 +134,14 @@ function NES() {
 	this.VRAM = new Array(16);
 
 	this.VRAMS = new Array(16);
-	for(var i=0; i<16; i++)
+	for(i=0; i<16; i++)
 		this.VRAMS[i] = new Array(0x0400);
 
 	this.SPRITE_RAM = new Array(0x100);
 
 	this.ROM = new Array(4);
 	this.ROM_RAM = new Array(4);
-	for(var i=0; i<4; i++)
+	for(i=0; i<4; i++)
 		this.ROM_RAM[i] = new Array(0x2000);
 
 	this.PRGROM_STATE = new Array(4);
@@ -165,7 +166,7 @@ function NES() {
 
 /* **** NES APU **** */
 	this.WaveOut = true;
-	this.WaveDatas = new Array();
+	this.WaveDatas = [];
 	this.WaveBaseCount = 0;
 	this.WaveSampleRate = 24000;
 	this.WaveFrameSequence = 0;
@@ -369,7 +370,7 @@ NES.prototype.requestAnimationFrame = function (){
 		this.UpdateAnimationFrame();
 	else
 		this.TimerID = setInterval(this.Run.bind(this), 16);
-}
+};
 
 
 NES.prototype.cancelAnimationFrame = function (){
@@ -377,13 +378,13 @@ NES.prototype.cancelAnimationFrame = function (){
 		window.cancelAnimationFrame(this.TimerID);
 	else
 		clearInterval(this.TimerID);
-}
+};
 
 
 NES.prototype.UpdateAnimationFrame = function () {
 	this.TimerID = window.requestAnimationFrame(this.UpdateAnimationFrame.bind(this));
 	this.Run();
-}
+};
 
 
 NES.prototype.Run = function () {
