@@ -691,6 +691,454 @@ CPU.prototype._OP[0xFD] = {'op': CPU.prototype._OP_SBC, 'cycle': 4, 'mode': CPU.
 CPU.prototype._OP[0xFE] = {'op': CPU.prototype._OP_INC, 'cycle': 7, 'mode': CPU.prototype._ADDRESSING_INDEXED_ABSOLUTE_X};
 CPU.prototype._OP[0xFF] = {'op': CPU.prototype._OP_INV, 'cycle': 0, 'mode': null};
 
+// 命令の実行
+CPU.prototype._operate = function(op) {
+	switch(op.op.opc) {
+		// (A + メモリ + キャリーフラグ) を演算して結果をAへ返します。[N:V:0:0:0:0:Z:C]
+		case this._OP_ADC.opc:
+			var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var c = this.p.isC() ? 1 : 0;
+      var result = src1 + src2 + c;
+      this.a.store(result);
+      this._updateN(result)
+      this._updateZ(result)
+      this._updateC(result)
+      if(!((src1 ^ src2) & 0x80) && ((src2 ^ result) & 0x80))
+        this.p.setV();
+      else
+        this.p.clearV();
+      break;
+
+    case this._OP_AND.opc:
+      var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var result = src1 & src2;
+      this.a.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_ASL.opc:
+      var self = this;
+      var func = function(src) {
+        var result = src << 1;
+        self._updateN(result)
+        self._updateZ(result);
+        self._updateC(result);
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    case this._OP_BCC.opc:
+      this._doBranch(op, !this.p.isC());
+      break;
+
+    case this._OP_BCS.opc:
+      this._doBranch(op, this.p.isC());
+      break;
+
+    case this._OP_BEQ.opc:
+      this._doBranch(op, this.p.isZ());
+      break;
+
+    // TODO: check logic.
+    case this._OP_BIT.opc:
+      var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var result = src1 & src2;
+      this._updateN(src2);
+      this._updateZ(result);
+      if((src2 & 0x40) == 0)
+        this.p.clearV();
+      else
+        this.p.setV();
+      break;
+
+    case this._OP_BMI.opc:
+      this._doBranch(op, this.p.isN());
+      break;
+
+    case this._OP_BNE.opc:
+      this._doBranch(op, !this.p.isZ());
+      break;
+
+    case this._OP_BPL.opc:
+      this._doBranch(op, !this.p.isN());
+      break;
+
+    // TODO: check logic.
+    case this._OP_BRK.opc:
+      this.pc.increment(); // necessary?
+      this.p.setB();
+      this.interrupt(this._INTERRUPT_IRQ);
+      break;
+
+    case this._OP_BVC.opc:
+      this._doBranch(op, !this.p.isV());
+      break;
+
+    case this._OP_BVS.opc:
+      this._doBranch(op, this.p.isV());
+      break;
+
+    case this._OP_CLC.opc:
+      this.p.clearC();
+      break;
+
+    case this._OP_CLD.opc:
+      this.p.clearD();
+      break;
+
+    case this._OP_CLI.opc:
+      this.p.clearI();
+      break;
+
+    case this._OP_CLV.opc:
+      this.p.clearV();
+      break;
+
+    // TODO: separate?
+    case this._OP_CMP.opc:
+    case this._OP_CPX.opc:
+    case this._OP_CPY.opc:
+      var src1;
+      switch(op.op.opc) {
+        case this._OP_CMP.opc:
+          src1 = this.a.load();
+          break;
+        case this._OP_CPX.opc:
+          src1 = this.x.load();
+          break;
+        case this._OP_CPY.opc:
+          src1 = this.y.load();
+          break;
+      }
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var result = src1 - src2;
+      this._updateN(result);
+      this._updateZ(result);
+      if(src1 >= src2)
+        this.p.setC();
+      else
+        this.p.clearC();
+      break;
+
+    case this._OP_DEC.opc:
+      var self = this;
+      var func = function(src) {
+        var result = src - 1;
+        self._updateN(result);
+        self._updateZ(result);
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    case this._OP_DEX.opc:
+    case this._OP_DEY.opc:
+      var reg;
+      switch(op.op.opc) {
+        case this._OP_DEX.opc:
+          reg = this.x;
+          break;
+        case this._OP_DEY.opc:
+          reg = this.y;
+          break;
+      }
+      var src1 = reg.load();
+      var result = src1 - 1;
+      reg.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_EOR.opc:
+      var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var result = src1 ^ src2;
+      this.a.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_INC.opc:
+      var self = this;
+      var func = function(src) {
+        var result = src + 1;
+        self._updateN(result);
+        self._updateZ(result);
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    case this._OP_INX.opc:
+    case this._OP_INY.opc:
+      var reg;
+      switch(op.op.opc) {
+        case this._OP_INX.opc:
+          reg = this.x;
+          break;
+        case this._OP_INY.opc:
+          reg = this.y;
+          break;
+      }
+      var src1 = reg.load();
+      var result = src1 + 1;
+      reg.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    // TODO: check the logic.
+    case this._OP_JMP.opc:
+      var address = this._getMemoryAddressWithAddressingMode(op);
+      this.pc.store(address);
+      break;
+
+    // TODO: check the logic.
+    case this._OP_JSR.opc:
+      var address = this._getMemoryAddressWithAddressingMode(op);
+      this.pc.decrement();
+      this._pushStack2Bytes(this.pc.load());
+      this.pc.store(address);
+      break;
+
+    case this._OP_LDA.opc:
+    case this._OP_LDX.opc:
+    case this._OP_LDY.opc:
+      var result = this._loadMemoryWithAddressingMode(op);
+      var reg;
+      switch(op.op.opc) {
+        case this._OP_LDA.opc:
+          reg = this.a;
+          break;
+        case this._OP_LDX.opc:
+          reg = this.x;
+          break;
+        case this._OP_LDY.opc:
+          reg = this.y;
+          break;
+      }
+      reg.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_LSR.opc:
+      var self = this;
+      var func = function(src) {
+        var result = src >> 1;
+        self.p.clearN();
+        self._updateZ(result);
+        if((src & 1) == 0)
+          self.p.clearC();
+        else
+          self.p.setC();
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    case this._OP_NOP.opc:
+      break;
+
+    case this._OP_ORA.opc:
+      var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var result = src1 | src2;
+      this.a.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_PHA.opc:
+    case this._OP_PHP.opc:
+      var reg;
+      switch(op.op.opc) {
+        case this._OP_PHA.opc:
+          reg = this.a;
+          break;
+        case this._OP_PHP.opc:
+          // TODO: check this logic. when to clear?
+          this.p.setA();
+          this.p.setB();
+          reg = this.p;
+          break;
+      }
+      this._pushStack(reg.load());
+      break;
+
+    case this._OP_PLA.opc:
+      var result = this._popStack();
+      this.a.store(result);
+      this._updateN(result);
+      this._updateZ(result);
+      break;
+
+    case this._OP_PLP.opc:
+      this.p.store(this._popStack());
+      break;
+
+    case this._OP_ROL.opc:
+      var self = this;
+      var func = function(src) {
+        var c = self.p.isC() ? 1 : 0;
+        var result = (src << 1) | c;
+        self._updateN(result);
+        self._updateZ(result);
+        self._updateC(result);
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    case this._OP_ROR.opc:
+      var self = this;
+      var func = function(src) {
+        var c = self.p.isC() ? 0x80 : 0x00;
+        var result = (src >> 1) | c;
+        self._updateN(result);
+        self._updateZ(result);
+        if((src & 1) == 0)
+          self.p.clearC();
+        else
+          self.p.setC();
+        return result;
+      };
+      this._updateMemoryWithAddressingMode(op, func);
+      break;
+
+    // TODO: check logic.
+    case this._OP_RTI.opc:
+      this.p.store(this._popStack());
+      this.pc.store(this._popStack2Bytes());
+      break;
+
+    // TODO: check logic.
+    case this._OP_RTS.opc:
+      this.pc.store(this._popStack2Bytes() + 1);
+      break;
+
+    case this._OP_SBC.opc:
+      var src1 = this.a.load();
+      var src2 = this._loadMemoryWithAddressingMode(op);
+      var c = this.p.isC() ? 0 : 1;
+      var result = src1 - src2 - c;
+      this.a.store(result);
+      this._updateN(result)
+      this._updateZ(result)
+      // TODO: check if this logic is right.
+      if(src1 >= src2 + c) 
+        this.p.setC();
+      else
+        this.p.clearC();
+      // TODO: implement right overflow logic.
+      //       this is just a temporal logic.
+      if(((src1 ^ result) & 0x80) && ((src1 ^ src2) & 0x80))
+        this.p.setV();
+      else
+        this.p.clearV();
+      break;
+
+    case this._OP_SEC.opc:
+      this.p.setC();
+      break;
+
+    case this._OP_SED.opc:
+      this.p.setD();
+      break;
+
+    case this._OP_SEI.opc:
+      this.p.setI();
+      break;
+
+    case this._OP_STA.opc:
+    case this._OP_STX.opc:
+    case this._OP_STY.opc:
+      var reg;
+      switch(op.op.opc) {
+        case this._OP_STA.opc:
+          reg = this.a;
+          break;
+        case this._OP_STX.opc:
+          reg = this.x;
+          break;
+        case this._OP_STY.opc:
+          reg = this.y;
+          break;
+      }
+      this._storeMemoryWithAddressingMode(op, reg.load());
+      break;
+
+    case this._OP_TAX.opc:
+    case this._OP_TAY.opc:
+    case this._OP_TSX.opc:
+    case this._OP_TXA.opc:
+    case this._OP_TXS.opc:
+    case this._OP_TYA.opc:
+      var srcReg;
+      var desReg;
+      switch(op.op.opc) {
+        case this._OP_TAX.opc:
+          srcReg = this.a;
+          desReg = this.x;
+          break;
+        case this._OP_TAY.opc:
+          srcReg = this.a;
+          desReg = this.y;
+          break;
+        case this._OP_TSX.opc:
+          srcReg = this.sp;
+          desReg = this.x;
+          break;
+        case this._OP_TXA.opc:
+          srcReg = this.x;
+          desReg = this.a;
+          break;
+        case this._OP_TXS.opc:
+          srcReg = this.x;
+          desReg = this.sp;
+          break;
+        case this._OP_TYA.opc:
+          srcReg = this.y;
+          desReg = this.a;
+          break;
+      }
+      var result = srcReg.load();
+      desReg.store(result);
+      if(op.op.opc != this._OP_TXS.opc) {
+        this._updateN(result);
+        this._updateZ(result);
+      }
+      break;
+
+    default:
+      // throw exception?
+      break;
+  }
+};
+
+// アドレッシングモードを考慮してメモリアクセスする
+CPU.prototype._loadMemoryWithAddressingMode = function(op) {
+  if(op.mode.id == this._ADDRESSING_ACCUMULATOR.id) {
+    return this.a.load();
+  }
+
+  var address = this._getMemoryAddressWithAddressingMode(op);
+  var value = this.load(address);
+  // expects that relative addressing mode is used only for load.
+  if(op.mode.id == this._ADDRESSING_RELATIVE.id) {
+    // TODO: confirm if this logic is right.
+    if(value & 0x80)
+      value = value | 0xff00;
+  }
+  return value;
+};
+
+
 
 
 
