@@ -5518,6 +5518,8 @@ FC.prototype.Mapper19.prototype.EXSoundSync = function(clock) {
 
 
 /**** Mapper20 ****/
+/* Disk System Code it's not seem to be non-need
+ * TODO:
 FC.prototype.Mapper20 = function(core) {
 	FC.prototype.MapperProto.apply(this, arguments);
 
