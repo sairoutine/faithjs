@@ -2,116 +2,14 @@
 
 var NES = require('./NES');
 
-/* **** NES Mapper **** */
-/**** MapperProto ****/
-NES.prototype.MapperProto = function(core) {
-	this.Core = core;
-	this.MAPPER_REG = null;
-};
-
-NES.prototype.MapperProto.prototype.Init = function() {
-};
-
-NES.prototype.MapperProto.prototype.ReadLow = function(address) {
-	return 0x40;
-};
-
-NES.prototype.MapperProto.prototype.WriteLow = function(address, data) {
-};
-
-NES.prototype.MapperProto.prototype.ReadPPUData = function () {
-	return this.Core.ReadPPUData_SUB();
-};
-
-NES.prototype.MapperProto.prototype.WritePPUData = function (value) {
-	this.Core.WritePPUData_SUB(value);
-};
-
-NES.prototype.MapperProto.prototype.BuildBGLine = function () {
-	this.Core.BuildBGLine_SUB();
-};
-
-NES.prototype.MapperProto.prototype.BuildSpriteLine = function () {
-	this.Core.BuildSpriteLine_SUB();
-};
-
-NES.prototype.MapperProto.prototype.ReadSRAM = function(address) {
-	return this.Core.SRAM[address & 0x1FFF];
-};
-
-NES.prototype.MapperProto.prototype.WriteSRAM = function(address, data) {
-	this.Core.SRAM[address & 0x1FFF] = data;
-};
-
-NES.prototype.MapperProto.prototype.Write = function(address, data) {
-};
-
-NES.prototype.MapperProto.prototype.HSync = function(y) {
-};
-
-NES.prototype.MapperProto.prototype.CPUSync = function(clock) {
-};
-
-NES.prototype.MapperProto.prototype.SetIRQ = function() {
-	this.Core.toIRQ |= 0x04;
-};
-
-NES.prototype.MapperProto.prototype.ClearIRQ = function() {
-	this.Core.toIRQ &= ~0x04;
-};
-
-NES.prototype.MapperProto.prototype.OutEXSound = function(soundin) {
-	return soundin;
-};
-
-NES.prototype.MapperProto.prototype.EXSoundSync = function(clock) {
-};
-
-NES.prototype.MapperProto.prototype.OutSRAM = function() {
-	var ret = "";
-	for(var i=0; i<this.Core.SRAM.length; i++) {
-		ret += (this.Core.SRAM[i] < 0x10 ? "0" : "") + this.Core.SRAM[i].toString(16);
-	}
-	return ret.toUpperCase();
-};
-
-NES.prototype.MapperProto.prototype.InSRAM = function(sram) {
-	var i;
-	for(i=0; i<this.Core.SRAM.length; i++)
-		this.Core.SRAM[i] = 0x00;
-
-	try{
-		for(i=0; i<(this.Core.SRAM.length * 2) && i<sram.length; i+=2)
-			this.Core.SRAM[i / 2] = parseInt(sram.substr(i, 2), 16);
-	} catch(e) {
-		return false;
-	}
-	return true;
-};
-
-NES.prototype.MapperProto.prototype.GetState = function() {
-	if(this.MAPPER_REG === null)
-		return;
-
-	this.Core.StateData.Mapper = {};
-	this.Core.StateData.Mapper.MAPPER_REG = this.MAPPER_REG.slice(0);
-};
-
-NES.prototype.MapperProto.prototype.SetState = function() {
-	if(this.MAPPER_REG === null)
-		return;
-
-	for(var i=0; i<this.Core.StateData.Mapper.MAPPER_REG.length; i++)
-		this.MAPPER_REG[i] = this.Core.StateData.Mapper.MAPPER_REG[i];
-};
-
+var MapperProto = require('./Mapper/Base');
 
 /**** Mapper0 ****/
 NES.prototype.Mapper0 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper0.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper0.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper0.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -122,11 +20,11 @@ NES.prototype.Mapper0.prototype.Init = function() {
 
 /**** Mapper1 ****/
 NES.prototype.Mapper1 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-NES.prototype.Mapper1.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper1.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper1.prototype.Init = function() {
 	var i;
@@ -335,10 +233,10 @@ NES.prototype.Mapper1.prototype.SetPrgRomPages8K_Mapper01 = function (){
 
 /**** Mapper2 ****/
 NES.prototype.Mapper2 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper2.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper2.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper2.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -353,10 +251,10 @@ NES.prototype.Mapper2.prototype.Write = function(address, data) {
 
 /**** Mapper3 ****/
 NES.prototype.Mapper3 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper3.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper3.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper3.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -371,11 +269,11 @@ NES.prototype.Mapper3.prototype.Write = function(address, data) {
 
 /**** Mapper4 ****/
 NES.prototype.Mapper4 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-NES.prototype.Mapper4.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper4.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper4.prototype.Init = function() {
 	var i;
@@ -506,7 +404,7 @@ NES.prototype.Mapper4.prototype.HSync = function(y) {
 
 /**** Mapper5 ****/
 NES.prototype.Mapper5 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(0x300);
 	this.MAPPER_EXRAM = new Array(8);
 	this.MAPPER_EXRAM2 = new Array(1024);
@@ -518,7 +416,7 @@ NES.prototype.Mapper5 = function(core) {
 	this.MAPPER_IRQ_STATUS = 0;
 };
 
-NES.prototype.Mapper5.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper5.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper5.prototype.Init = function() {
 	this.MAPPER_IRQ = 0;
@@ -932,10 +830,10 @@ NES.prototype.Mapper5.prototype.EXSoundSync = function(clock) {
 
 /**** Mapper7 ****/
 NES.prototype.Mapper7 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper7.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper7.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper7.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -957,14 +855,14 @@ NES.prototype.Mapper7.prototype.Write = function(address, data) {
 
 /**** Mapper9 ****/
 NES.prototype.Mapper9 = function(core) {//<--
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	//this.MAPPER_REG = new Array(6);
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
 };
 
-NES.prototype.Mapper9.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper9.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper9.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, this.Core.PrgRomPageCount * 2 - 3, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -1189,14 +1087,14 @@ NES.prototype.Mapper9.prototype.SetState = function() {
 
 /**** Mapper10 ****/
 NES.prototype.Mapper10 = function(core) {//<--
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	//this.MAPPER_REG = new Array(6);
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
 };
 
-NES.prototype.Mapper10.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper10.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper10.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -1422,7 +1320,7 @@ NES.prototype.Mapper10.prototype.SetState = function() {
 
 /**** Mapper16 ****/
 NES.prototype.Mapper16 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(5);
 
 	this.EEPROM_ADDRESS = 0;
@@ -1442,7 +1340,7 @@ NES.prototype.Mapper16 = function(core) {
 		this.EEPROM[i] = 0x00;
 };
 
-NES.prototype.Mapper16.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper16.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper16.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0;
@@ -1623,12 +1521,12 @@ NES.prototype.Mapper16.prototype.CPUSync = function(clock) {
 
 /**** Mapper18 ****/
 NES.prototype.Mapper18 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.IRQ_Counter = 0;
 };
 
-NES.prototype.Mapper18.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper18.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper18.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -1719,12 +1617,12 @@ NES.prototype.Mapper18.prototype.CPUSync = function(clock) {
 
 /**** Mapper19 ****/
 NES.prototype.Mapper19 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(5);
 	this.EX_VRAM = new Array(32);
 };
 
-NES.prototype.Mapper19.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper19.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper19.prototype.Init = function() {
 	var i;
@@ -1926,7 +1824,7 @@ NES.prototype.Mapper19.prototype.EXSoundSync = function(clock) {
 /* Disk System Code it's not seem to be non-need
  * TODO:
 NES.prototype.Mapper20 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 
 	this.Disk = null;
 	this.DISK_PAGES = null;
@@ -1945,7 +1843,7 @@ NES.prototype.Mapper20 = function(core) {
 	this.WriteSkip = 0;
 };
 
-NES.prototype.Mapper20.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper20.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper20.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -2140,11 +2038,11 @@ NES.prototype.Mapper20.prototype.EXSoundSync = function(clock) {
 
 /**** Mapper22 ****/
 NES.prototype.Mapper22 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-NES.prototype.Mapper22.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper22.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper22.prototype.Init = function() {
 	var i;
@@ -2287,11 +2185,11 @@ NES.prototype.Mapper22.prototype.Write = function(address, data) {
 
 /**** Mapper23 ****/
 NES.prototype.Mapper23 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-NES.prototype.Mapper23.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper23.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper23.prototype.Init = function() {
 	var i;
@@ -2481,11 +2379,11 @@ NES.prototype.Mapper23.prototype.CPUSync = function(clock) {
 
 /**** Mapper24 ****/
 NES.prototype.Mapper24 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-NES.prototype.Mapper24.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper24.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper24.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0x00;
@@ -2614,11 +2512,11 @@ NES.prototype.Mapper24.prototype.EXSoundSync = function(clock) {
 
 /**** Mapper25 ****/
 NES.prototype.Mapper25 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-NES.prototype.Mapper25.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper25.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper25.prototype.Init = function() {
 	var i;
@@ -2820,11 +2718,11 @@ NES.prototype.Mapper25.prototype.CPUSync = function(clock) {
 
 /**** Mapper26 ****/
 NES.prototype.Mapper26 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-NES.prototype.Mapper26.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper26.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper26.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0x00;
@@ -2955,11 +2853,11 @@ NES.prototype.Mapper26.prototype.EXSoundSync = function(clock) {
 
 /**** Mapper32 ****/
 NES.prototype.Mapper32 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 };
 
-NES.prototype.Mapper32.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper32.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper32.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3008,10 +2906,10 @@ NES.prototype.Mapper32.prototype.Write = function(address, data) {
 
 /**** Mapper33 ****/
 NES.prototype.Mapper33 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper33.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper33.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper33.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -3056,10 +2954,10 @@ NES.prototype.Mapper33.prototype.Write = function(address, data) {
 
 /**** Mapper34 ****/
 NES.prototype.Mapper34 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper34.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper34.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper34.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -3077,11 +2975,11 @@ NES.prototype.Mapper34.prototype.Write = function(address, data) {
 
 /**** Mapper48 ****/
 NES.prototype.Mapper48 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-NES.prototype.Mapper48.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper48.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper48.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3152,13 +3050,13 @@ NES.prototype.Mapper48.prototype.HSync = function(y) {
 
 /**** Mapper65 ****/
 NES.prototype.Mapper65 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.IRQ_Counter = 0;
 	this.IRQ_Value = 0;
 	this.IRQ_Flag = false;
 };
 
-NES.prototype.Mapper65.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper65.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper65.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -3231,10 +3129,10 @@ NES.prototype.Mapper65.prototype.CPUSync = function(clock) {
 
 /**** Mapper66 ****/
 NES.prototype.Mapper66 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper66.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper66.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper66.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -3253,12 +3151,12 @@ NES.prototype.Mapper66.prototype.Write = function(address, data) {
 
 /**** Mapper67 ****/
 NES.prototype.Mapper67 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
 	this.IRQ_Toggle = 0x00;
 };
 
-NES.prototype.Mapper67.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper67.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper67.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3339,11 +3237,11 @@ NES.prototype.Mapper67.prototype.CPUSync = function(clock) {
 
 /**** Mapper68 ****/
 NES.prototype.Mapper68 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
 };
 
-NES.prototype.Mapper68.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper68.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper68.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3421,14 +3319,14 @@ NES.prototype.Mapper68.prototype.SetMirror = function() {
 
 /**** Mapper69 ****/
 NES.prototype.Mapper69 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 	this.MAPPER_REG_Select = 0x00;
 	this.R8_ROM = null;
 	this.IRQ_Counter = 0;
 };
 
-NES.prototype.Mapper69.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper69.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper69.prototype.Init = function() {
 	var i;
@@ -3536,10 +3434,10 @@ NES.prototype.Mapper69.prototype.EXSoundSync = function(clock) {
 
 /**** Mapper70 ****/
 NES.prototype.Mapper70 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper70.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper70.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper70.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -3560,11 +3458,11 @@ NES.prototype.Mapper70.prototype.Write = function(address, data) {
 
 /**** Mapper72 ****/
 NES.prototype.Mapper72 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-NES.prototype.Mapper72.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper72.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper72.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0;
@@ -3592,11 +3490,11 @@ NES.prototype.Mapper72.prototype.Write = function(address, data) {
 
 /**** Mapper73 ****/
 NES.prototype.Mapper73 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-NES.prototype.Mapper73.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper73.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper73.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -3671,11 +3569,11 @@ NES.prototype.Mapper73.prototype.CPUSync = function(clock) {
 
 /**** Mapper75 ****/
 NES.prototype.Mapper75 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-NES.prototype.Mapper75.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper75.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper75.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, 0, this.Core.PrgRomPageCount * 2 - 1);
@@ -3727,11 +3625,11 @@ NES.prototype.Mapper75.prototype.Write = function(address, data) {
 
 /**** Mapper76 ****/
 NES.prototype.Mapper76 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-NES.prototype.Mapper76.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper76.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper76.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -3774,10 +3672,10 @@ NES.prototype.Mapper76.prototype.Write = function(address, data) {
 
 /**** Mapper77 ****/
 NES.prototype.Mapper77 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper77.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper77.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper77.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -3806,10 +3704,10 @@ NES.prototype.Mapper77.prototype.Write = function(address, data) {
 
 /**** Mapper78 ****/
 NES.prototype.Mapper78 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper78.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper78.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper78.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -3831,12 +3729,12 @@ NES.prototype.Mapper78.prototype.Write = function(address, data) {
 
 /**** Mapper80 ****/
 NES.prototype.Mapper80 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
 };
 
-NES.prototype.Mapper80.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper80.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper80.prototype.Init = function() {
 	var i;
@@ -3954,12 +3852,12 @@ NES.prototype.Mapper80.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper82 ****/
 NES.prototype.Mapper82 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(13);
 	this.EX_RAM = new Array(0x1400);
 };
 
-NES.prototype.Mapper82.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper82.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper82.prototype.Init = function() {
 	var i;
@@ -4070,12 +3968,12 @@ NES.prototype.Mapper82.prototype.SetChr = function() {
 
 /**** Mapper85 ****/
 NES.prototype.Mapper85 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.MAPPER_EXVRAM = new Array(8);
 };
 
-NES.prototype.Mapper85.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper85.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper85.prototype.Init = function() {
 	var i;
@@ -4241,10 +4139,10 @@ NES.prototype.Mapper85.prototype.CPUSync = function(clock) {
 
 /**** Mapper86 ****/
 NES.prototype.Mapper86 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper86.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper86.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper86.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(this.Core.PrgRomPageCount * 2 - 4, this.Core.PrgRomPageCount * 2 - 3, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -4263,10 +4161,10 @@ NES.prototype.Mapper86.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper87 ****/
 NES.prototype.Mapper87 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper87.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper87.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper87.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4282,11 +4180,11 @@ NES.prototype.Mapper87.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper88 ****/
 NES.prototype.Mapper88 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-NES.prototype.Mapper88.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper88.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper88.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -4333,10 +4231,10 @@ NES.prototype.Mapper88.prototype.Write = function(address, data) {
 
 /**** Mapper89 ****/
 NES.prototype.Mapper89 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper89.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper89.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper89.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4358,10 +4256,10 @@ NES.prototype.Mapper89.prototype.Write = function(address, data) {
 
 /**** Mapper92 ****/
 NES.prototype.Mapper92 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper92.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper92.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper92.prototype.Init = function() {
 
@@ -4390,10 +4288,10 @@ NES.prototype.Mapper92.prototype.Write = function(address, data) {
 
 /**** Mapper93 ****/
 NES.prototype.Mapper93 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper93.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper93.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper93.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 1, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -4410,10 +4308,10 @@ NES.prototype.Mapper93.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper94 ****/
 NES.prototype.Mapper94 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper94.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper94.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper94.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4428,11 +4326,11 @@ NES.prototype.Mapper94.prototype.Write = function(address, data) {
 
 /**** Mapper95 ****/
 NES.prototype.Mapper95 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-NES.prototype.Mapper95.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper95.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper95.prototype.Init = function() {
 	this.Core.SetPrgRomPages8K(0, 0, this.Core.PrgRomPageCount * 2 - 2, this.Core.PrgRomPageCount * 2 - 1);
@@ -4486,10 +4384,10 @@ NES.prototype.Mapper95.prototype.Write = function(address, data) {
 
 /**** Mapper97 ****/
 NES.prototype.Mapper97 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper97.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper97.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper97.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, this.Core.PrgRomPageCount - 1);
@@ -4520,10 +4418,10 @@ NES.prototype.Mapper97.prototype.Write = function(address, data) {
 
 /**** Mapper101 ****/
 NES.prototype.Mapper101 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper101.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper101.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper101.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4538,11 +4436,11 @@ NES.prototype.Mapper101.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper118 ****/
 NES.prototype.Mapper118 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-NES.prototype.Mapper118.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper118.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper118.prototype.Init = function() {
 	var i;
@@ -4686,11 +4584,11 @@ NES.prototype.Mapper118.prototype.HSync = function(y) {
 
 /**** Mapper119 ****/
 NES.prototype.Mapper119 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-NES.prototype.Mapper119.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper119.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper119.prototype.Init = function() {
 	var i;
@@ -4863,10 +4761,10 @@ NES.prototype.Mapper119.prototype.HSync = function(y) {
 
 /**** Mapper140 ****/
 NES.prototype.Mapper140 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper140.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper140.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper140.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4884,10 +4782,10 @@ NES.prototype.Mapper140.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper152 ****/
 NES.prototype.Mapper152 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper152.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper152.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper152.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4908,10 +4806,10 @@ NES.prototype.Mapper152.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper180 ****/
 NES.prototype.Mapper180 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper180.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper180.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper180.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4926,10 +4824,10 @@ NES.prototype.Mapper180.prototype.Write = function(address, data) {
 
 /**** Mapper184 ****/
 NES.prototype.Mapper184 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 };
 
-NES.prototype.Mapper184.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper184.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper184.prototype.Init = function() {
 	this.Core.SetPrgRomPage(0, 0);
@@ -4955,12 +4853,12 @@ NES.prototype.Mapper184.prototype.WriteSRAM = function(address, data) {
 
 /**** Mapper185 ****/
 NES.prototype.Mapper185 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = 0;
 	this.EX_ChrRom = new Array(0x0400);
 };
 
-NES.prototype.Mapper185.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper185.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper185.prototype.Init = function() {
 	for(var i=0; i<this.EX_ChrRom.length; i++)
@@ -4998,12 +4896,12 @@ NES.prototype.Mapper185.prototype.Write = function(address, data) {
 
 /**** Mapper207 ****/
 NES.prototype.Mapper207 = function(core) {
-	NES.prototype.MapperProto.apply(this, arguments);
+	MapperProto.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
 };
 
-NES.prototype.Mapper207.prototype = Object.create(NES.prototype.MapperProto.prototype);
+NES.prototype.Mapper207.prototype = Object.create(MapperProto.prototype);
 
 NES.prototype.Mapper207.prototype.Init = function() {
 	var i;
