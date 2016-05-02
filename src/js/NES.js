@@ -2,7 +2,6 @@
 
 var NES = function() {
 	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
-	this.Use_GetGamepads = typeof navigator.getGamepads !== "undefined";
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
 	this.TimerID = null;
@@ -388,7 +387,6 @@ NES.prototype.UpdateAnimationFrame = function () {
 
 
 NES.prototype.Run = function () {
-	this.CheckGamePad();
 	this.CpuRun();
 };
 
@@ -2678,32 +2676,6 @@ NES.prototype.JoyPadRelease = function () {
 	document.removeEventListener("keyup", this.JoyPadKeyUpFunction, true);
 	document.removeEventListener("keydown", this.JoyPadKeyDownFunction, true);
 };
-
-
-NES.prototype.CheckGamePad = function () {
-	if(!this.Use_GetGamepads)
-		return;
-
-	var pads = navigator.getGamepads();
-	for(var i=0; i<2; i++) {
-		var pad = pads[i];
-		if(typeof pad !== "undefined") {
-			this.JoyPadState[i] = 0x00;
-			this.JoyPadState[i] |= pad.buttons[1].pressed ? 0x01 : 0x00;// A
-			this.JoyPadState[i] |= pad.buttons[0].pressed ? 0x02 : 0x00;// B
-			this.JoyPadState[i] |= pad.buttons[2].pressed ? 0x04 : 0x00;// SELECT
-			this.JoyPadState[i] |= pad.buttons[3].pressed ? 0x08 : 0x00;// START
-			//this.JoyPadState[i] |= pad.buttons[8].pressed ? 0x04 : 0x00;// SELECT
-			//this.JoyPadState[i] |= pad.buttons[9].pressed ? 0x08 : 0x00;// START
-
-			this.JoyPadState[i] |= pad.axes[1] < -0.5 ? 0x10 : 0x00;// UP
-			this.JoyPadState[i] |= pad.axes[1] >  0.5 ? 0x20 : 0x00;// DOWN
-			this.JoyPadState[i] |= pad.axes[0] < -0.5 ? 0x40 : 0x00;// LEFT
-			this.JoyPadState[i] |= pad.axes[0] >  0.5 ? 0x80 : 0x00;// RIGHT
-		}
-	}
-};
-
 
 /* **** NES APU **** */
 NES.prototype.WebAudioFunction = function (e) {
