@@ -1,14 +1,14 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper0 ****/
 var Mapper0 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper0.prototype = Object.create(MapperProto.prototype);
+Mapper0.prototype = Object.create(Base.prototype);
 
 Mapper0.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -22,15 +22,15 @@ module.exports = Mapper0;
 },{"./Base":55}],2:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper1 ****/
 var Mapper1 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-Mapper1.prototype = Object.create(MapperProto.prototype);
+Mapper1.prototype = Object.create(Base.prototype);
 
 Mapper1.prototype.Init = function() {
 	var i;
@@ -241,17 +241,17 @@ module.exports = Mapper1;
 },{"./Base":55}],3:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper10 ****/
 var Mapper10 = function(nes) {//<--
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	//this.MAPPER_REG = new Array(6);
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
 };
 
-Mapper10.prototype = Object.create(MapperProto.prototype);
+Mapper10.prototype = Object.create(Base.prototype);
 
 Mapper10.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 0, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -479,13 +479,13 @@ module.exports = Mapper10;
 },{"./Base":55}],4:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper101 ****/
 var Mapper101 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper101.prototype = Object.create(MapperProto.prototype);
+Mapper101.prototype = Object.create(Base.prototype);
 
 Mapper101.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -502,14 +502,14 @@ module.exports = Mapper101;
 },{"./Base":55}],5:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper118 ****/
 var Mapper118 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-Mapper118.prototype = Object.create(MapperProto.prototype);
+Mapper118.prototype = Object.create(Base.prototype);
 
 Mapper118.prototype.Init = function() {
 	var i;
@@ -655,15 +655,15 @@ module.exports = Mapper118;
 },{"./Base":55}],6:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper119 ****/
 var Mapper119 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-Mapper119.prototype = Object.create(MapperProto.prototype);
+Mapper119.prototype = Object.create(Base.prototype);
 
 Mapper119.prototype.Init = function() {
 	var i;
@@ -838,14 +838,14 @@ module.exports = Mapper119;
 },{"./Base":55}],7:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper140 ****/
 var Mapper140 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper140.prototype = Object.create(MapperProto.prototype);
+Mapper140.prototype = Object.create(Base.prototype);
 
 Mapper140.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -865,14 +865,14 @@ module.exports = Mapper140;
 },{"./Base":55}],8:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper152 ****/
 var Mapper152 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper152.prototype = Object.create(MapperProto.prototype);
+Mapper152.prototype = Object.create(Base.prototype);
 
 Mapper152.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -895,11 +895,11 @@ module.exports = Mapper152;
 },{"./Base":55}],9:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper16 ****/
 var Mapper16 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(5);
 
 	this.EEPROM_ADDRESS = 0;
@@ -919,7 +919,7 @@ var Mapper16 = function(nes) {
 		this.EEPROM[i] = 0x00;
 };
 
-Mapper16.prototype = Object.create(MapperProto.prototype);
+Mapper16.prototype = Object.create(Base.prototype);
 
 Mapper16.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0;
@@ -1102,16 +1102,16 @@ module.exports = Mapper16;
 },{"./Base":55}],10:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper18 ****/
 var Mapper18 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.IRQ_Counter = 0;
 };
 
-Mapper18.prototype = Object.create(MapperProto.prototype);
+Mapper18.prototype = Object.create(Base.prototype);
 
 Mapper18.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -1204,13 +1204,13 @@ module.exports = Mapper18;
 },{"./Base":55}],11:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper180 ****/
 var Mapper180 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper180.prototype = Object.create(MapperProto.prototype);
+Mapper180.prototype = Object.create(Base.prototype);
 
 Mapper180.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -1227,13 +1227,13 @@ module.exports = Mapper180;
 },{"./Base":55}],12:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper184 ****/
 var Mapper184 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper184.prototype = Object.create(MapperProto.prototype);
+Mapper184.prototype = Object.create(Base.prototype);
 
 Mapper184.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -1261,15 +1261,15 @@ module.exports = Mapper184;
 },{"./Base":55}],13:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper185 ****/
 var Mapper185 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = 0;
 	this.EX_ChrRom = new Array(0x0400);
 };
 
-Mapper185.prototype = Object.create(MapperProto.prototype);
+Mapper185.prototype = Object.create(Base.prototype);
 
 Mapper185.prototype.Init = function() {
 	for(var i=0; i<this.EX_ChrRom.length; i++)
@@ -1309,15 +1309,15 @@ module.exports = Mapper185;
 },{"./Base":55}],14:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper19 ****/
 var Mapper19 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(5);
 	this.EX_VRAM = new Array(32);
 };
 
-Mapper19.prototype = Object.create(MapperProto.prototype);
+Mapper19.prototype = Object.create(Base.prototype);
 
 Mapper19.prototype.Init = function() {
 	var i;
@@ -1519,13 +1519,13 @@ module.exports = Mapper19;
 },{"./Base":55}],15:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper2 ****/
 var Mapper2 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper2.prototype = Object.create(MapperProto.prototype);
+Mapper2.prototype = Object.create(Base.prototype);
 
 Mapper2.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -1542,15 +1542,15 @@ module.exports = Mapper2;
 },{"./Base":55}],16:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper207 ****/
 var Mapper207 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
 };
 
-Mapper207.prototype = Object.create(MapperProto.prototype);
+Mapper207.prototype = Object.create(Base.prototype);
 
 Mapper207.prototype.Init = function() {
 	var i;
@@ -1676,14 +1676,14 @@ module.exports = Mapper207;
 },{"./Base":55}],17:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper22 ****/
 var Mapper22 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-Mapper22.prototype = Object.create(MapperProto.prototype);
+Mapper22.prototype = Object.create(Base.prototype);
 
 Mapper22.prototype.Init = function() {
 	var i;
@@ -1828,15 +1828,15 @@ module.exports = Mapper22;
 },{"./Base":55}],18:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 
 /**** Mapper23 ****/
 var Mapper23 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-Mapper23.prototype = Object.create(MapperProto.prototype);
+Mapper23.prototype = Object.create(Base.prototype);
 
 Mapper23.prototype.Init = function() {
 	var i;
@@ -2028,14 +2028,14 @@ module.exports = Mapper23;
 },{"./Base":55}],19:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper24 ****/
 var Mapper24 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-Mapper24.prototype = Object.create(MapperProto.prototype);
+Mapper24.prototype = Object.create(Base.prototype);
 
 Mapper24.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0x00;
@@ -2166,14 +2166,14 @@ module.exports = Mapper24;
 },{"./Base":55}],20:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper25 ****/
 var Mapper25 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 };
 
-Mapper25.prototype = Object.create(MapperProto.prototype);
+Mapper25.prototype = Object.create(Base.prototype);
 
 Mapper25.prototype.Init = function() {
 	var i;
@@ -2377,14 +2377,14 @@ module.exports = Mapper25;
 },{"./Base":55}],21:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper26 ****/
 var Mapper26 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-Mapper26.prototype = Object.create(MapperProto.prototype);
+Mapper26.prototype = Object.create(Base.prototype);
 
 Mapper26.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0x00;
@@ -2517,13 +2517,13 @@ module.exports = Mapper26;
 },{"./Base":55}],22:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper3 ****/
 var Mapper3 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper3.prototype = Object.create(MapperProto.prototype);
+Mapper3.prototype = Object.create(Base.prototype);
 
 Mapper3.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -2540,14 +2540,14 @@ module.exports = Mapper3;
 },{"./Base":55}],23:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper32 ****/
 var Mapper32 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 };
 
-Mapper32.prototype = Object.create(MapperProto.prototype);
+Mapper32.prototype = Object.create(Base.prototype);
 
 Mapper32.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -2598,13 +2598,13 @@ module.exports = Mapper32;
 },{"./Base":55}],24:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper33 ****/
 var Mapper33 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper33.prototype = Object.create(MapperProto.prototype);
+Mapper33.prototype = Object.create(Base.prototype);
 
 Mapper33.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 1, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -2651,13 +2651,13 @@ module.exports = Mapper33;
 },{"./Base":55}],25:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper34 ****/
 var Mapper34 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper34.prototype = Object.create(MapperProto.prototype);
+Mapper34.prototype = Object.create(Base.prototype);
 
 Mapper34.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -2677,14 +2677,14 @@ module.exports = Mapper34;
 },{"./Base":55}],26:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper4 ****/
 var Mapper4 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(20);
 };
 
-Mapper4.prototype = Object.create(MapperProto.prototype);
+Mapper4.prototype = Object.create(Base.prototype);
 
 Mapper4.prototype.Init = function() {
 	var i;
@@ -2817,14 +2817,14 @@ module.exports = Mapper4;
 },{"./Base":55}],27:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper48 ****/
 var Mapper48 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-Mapper48.prototype = Object.create(MapperProto.prototype);
+Mapper48.prototype = Object.create(Base.prototype);
 
 Mapper48.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -2897,10 +2897,10 @@ module.exports = Mapper48;
 },{"./Base":55}],28:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper5 ****/
 var Mapper5 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(0x300);
 	this.MAPPER_EXRAM = new Array(8);
 	this.MAPPER_EXRAM2 = new Array(1024);
@@ -2912,7 +2912,7 @@ var Mapper5 = function(nes) {
 	this.MAPPER_IRQ_STATUS = 0;
 };
 
-Mapper5.prototype = Object.create(MapperProto.prototype);
+Mapper5.prototype = Object.create(Base.prototype);
 
 Mapper5.prototype.Init = function() {
 	this.MAPPER_IRQ = 0;
@@ -3328,16 +3328,16 @@ module.exports = Mapper5;
 },{"./Base":55}],29:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper65 ****/
 var Mapper65 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.IRQ_Counter = 0;
 	this.IRQ_Value = 0;
 	this.IRQ_Flag = false;
 };
 
-Mapper65.prototype = Object.create(MapperProto.prototype);
+Mapper65.prototype = Object.create(Base.prototype);
 
 Mapper65.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 1, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -3412,13 +3412,13 @@ module.exports = Mapper65;
 },{"./Base":55}],30:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper66 ****/
 var Mapper66 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper66.prototype = Object.create(MapperProto.prototype);
+Mapper66.prototype = Object.create(Base.prototype);
 
 Mapper66.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -3439,15 +3439,15 @@ module.exports = Mapper66;
 },{"./Base":55}],31:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper67 ****/
 var Mapper67 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
 	this.IRQ_Toggle = 0x00;
 };
 
-Mapper67.prototype = Object.create(MapperProto.prototype);
+Mapper67.prototype = Object.create(Base.prototype);
 
 Mapper67.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3530,14 +3530,14 @@ module.exports = Mapper67;
 },{"./Base":55}],32:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper68 ****/
 var Mapper68 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(8);
 };
 
-Mapper68.prototype = Object.create(MapperProto.prototype);
+Mapper68.prototype = Object.create(Base.prototype);
 
 Mapper68.prototype.Init = function() {
 	for(var i=0; i<this.MAPPER_REG.length; i++)
@@ -3617,17 +3617,17 @@ module.exports = Mapper68;
 },{"./Base":55}],33:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper69 ****/
 var Mapper69 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(16);
 	this.MAPPER_REG_Select = 0x00;
 	this.R8_ROM = null;
 	this.IRQ_Counter = 0;
 };
 
-Mapper69.prototype = Object.create(MapperProto.prototype);
+Mapper69.prototype = Object.create(Base.prototype);
 
 Mapper69.prototype.Init = function() {
 	var i;
@@ -3737,13 +3737,13 @@ module.exports = Mapper69;
 },{"./Base":55}],34:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper7 ****/
 var Mapper7 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper7.prototype = Object.create(MapperProto.prototype);
+Mapper7.prototype = Object.create(Base.prototype);
 
 Mapper7.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -3767,13 +3767,13 @@ module.exports = Mapper7;
 },{"./Base":55}],35:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper70 ****/
 var Mapper70 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper70.prototype = Object.create(MapperProto.prototype);
+Mapper70.prototype = Object.create(Base.prototype);
 
 Mapper70.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -3796,14 +3796,14 @@ module.exports = Mapper70;
 },{"./Base":55}],36:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper72 ****/
 var Mapper72 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-Mapper72.prototype = Object.create(MapperProto.prototype);
+Mapper72.prototype = Object.create(Base.prototype);
 
 Mapper72.prototype.Init = function() {
 	this.MAPPER_REG[0] = 0;
@@ -3833,14 +3833,14 @@ module.exports = Mapper72;
 },{"./Base":55}],37:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper73 ****/
 var Mapper73 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(3);
 };
 
-Mapper73.prototype = Object.create(MapperProto.prototype);
+Mapper73.prototype = Object.create(Base.prototype);
 
 Mapper73.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 1, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -3917,14 +3917,14 @@ module.exports = Mapper73;
 },{"./Base":55}],38:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper75 ****/
 var Mapper75 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-Mapper75.prototype = Object.create(MapperProto.prototype);
+Mapper75.prototype = Object.create(Base.prototype);
 
 Mapper75.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 0, 0, this.nes.PrgRomPageCount * 2 - 1);
@@ -3978,14 +3978,14 @@ module.exports = Mapper75;
 },{"./Base":55}],39:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper76 ****/
 var Mapper76 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-Mapper76.prototype = Object.create(MapperProto.prototype);
+Mapper76.prototype = Object.create(Base.prototype);
 
 Mapper76.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 0, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -4030,13 +4030,13 @@ module.exports = Mapper76;
 },{"./Base":55}],40:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper77 ****/
 var Mapper77 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper77.prototype = Object.create(MapperProto.prototype);
+Mapper77.prototype = Object.create(Base.prototype);
 
 Mapper77.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -4067,13 +4067,13 @@ module.exports = Mapper77;
 },{"./Base":55}],41:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper78 ****/
 var Mapper78 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper78.prototype = Object.create(MapperProto.prototype);
+Mapper78.prototype = Object.create(Base.prototype);
 
 Mapper78.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -4097,15 +4097,15 @@ module.exports = Mapper78;
 },{"./Base":55}],42:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper80 ****/
 var Mapper80 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(11);
 	this.EX_RAM = new Array(128);
 };
 
-Mapper80.prototype = Object.create(MapperProto.prototype);
+Mapper80.prototype = Object.create(Base.prototype);
 
 Mapper80.prototype.Init = function() {
 	var i;
@@ -4225,15 +4225,15 @@ module.exports = Mapper80;
 },{"./Base":55}],43:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper82 ****/
 var Mapper82 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(13);
 	this.EX_RAM = new Array(0x1400);
 };
 
-Mapper82.prototype = Object.create(MapperProto.prototype);
+Mapper82.prototype = Object.create(Base.prototype);
 
 Mapper82.prototype.Init = function() {
 	var i;
@@ -4346,15 +4346,15 @@ module.exports = Mapper82;
 },{"./Base":55}],44:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper85 ****/
 var Mapper85 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.MAPPER_EXVRAM = new Array(8);
 };
 
-Mapper85.prototype = Object.create(MapperProto.prototype);
+Mapper85.prototype = Object.create(Base.prototype);
 
 Mapper85.prototype.Init = function() {
 	var i;
@@ -4522,13 +4522,13 @@ module.exports = Mapper85;
 },{"./Base":55}],45:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper86 ****/
 var Mapper86 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper86.prototype = Object.create(MapperProto.prototype);
+Mapper86.prototype = Object.create(Base.prototype);
 
 Mapper86.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(this.nes.PrgRomPageCount * 2 - 4, this.nes.PrgRomPageCount * 2 - 3, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -4549,13 +4549,13 @@ module.exports = Mapper86;
 },{"./Base":55}],46:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper87 ****/
 var Mapper87 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper87.prototype = Object.create(MapperProto.prototype);
+Mapper87.prototype = Object.create(Base.prototype);
 
 Mapper87.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -4573,14 +4573,14 @@ module.exports = Mapper87;
 },{"./Base":55}],47:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper88 ****/
 var Mapper88 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-Mapper88.prototype = Object.create(MapperProto.prototype);
+Mapper88.prototype = Object.create(Base.prototype);
 
 Mapper88.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 0, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -4629,13 +4629,13 @@ module.exports = Mapper88;
 },{"./Base":55}],48:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper89 ****/
 var Mapper89 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper89.prototype = Object.create(MapperProto.prototype);
+Mapper89.prototype = Object.create(Base.prototype);
 
 Mapper89.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -4659,17 +4659,17 @@ module.exports = Mapper89;
 },{"./Base":55}],49:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper9 ****/
 var Mapper9 = function(nes) {//<--
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	//this.MAPPER_REG = new Array(6);
 	this.MAPPER_REG = new Array(4);
 	this.MAPPER_Latch0 = true;
 	this.MAPPER_Latch1 = true;
 };
 
-Mapper9.prototype = Object.create(MapperProto.prototype);
+Mapper9.prototype = Object.create(Base.prototype);
 
 Mapper9.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, this.nes.PrgRomPageCount * 2 - 3, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -4896,13 +4896,13 @@ module.exports = Mapper9;
 },{"./Base":55}],50:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper92 ****/
 var Mapper92 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper92.prototype = Object.create(MapperProto.prototype);
+Mapper92.prototype = Object.create(Base.prototype);
 
 Mapper92.prototype.Init = function() {
 
@@ -4933,13 +4933,13 @@ module.exports = Mapper92;
 },{"./Base":55}],51:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper93 ****/
 var Mapper93 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper93.prototype = Object.create(MapperProto.prototype);
+Mapper93.prototype = Object.create(Base.prototype);
 
 Mapper93.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 1, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -4958,13 +4958,13 @@ module.exports = Mapper93;
 },{"./Base":55}],52:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper94 ****/
 var Mapper94 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper94.prototype = Object.create(MapperProto.prototype);
+Mapper94.prototype = Object.create(Base.prototype);
 
 Mapper94.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, 0);
@@ -4981,14 +4981,14 @@ module.exports = Mapper94;
 },{"./Base":55}],53:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper95 ****/
 var Mapper95 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(1);
 };
 
-Mapper95.prototype = Object.create(MapperProto.prototype);
+Mapper95.prototype = Object.create(Base.prototype);
 
 Mapper95.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 0, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
@@ -5044,13 +5044,13 @@ module.exports = Mapper95;
 },{"./Base":55}],54:[function(require,module,exports){
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper97 ****/
 var Mapper97 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper97.prototype = Object.create(MapperProto.prototype);
+Mapper97.prototype = Object.create(Base.prototype);
 
 Mapper97.prototype.Init = function() {
 	this.nes.SetPrgRomPage(0, this.nes.PrgRomPageCount - 1);
@@ -5083,70 +5083,70 @@ module.exports = Mapper97;
 },{"./Base":55}],55:[function(require,module,exports){
 "use strict";
 
-var MapperProto = function(nes) {
+var Base = function(nes) {
 	this.nes = nes;
 	this.MAPPER_REG = null;
 };
 
-MapperProto.prototype.Init = function() {
+Base.prototype.Init = function() {
 };
 
-MapperProto.prototype.ReadLow = function(address) {
+Base.prototype.ReadLow = function(address) {
 	return 0x40;
 };
 
-MapperProto.prototype.WriteLow = function(address, data) {
+Base.prototype.WriteLow = function(address, data) {
 };
 
-MapperProto.prototype.ReadPPUData = function () {
+Base.prototype.ReadPPUData = function () {
 	return this.nes.ReadPPUData_SUB();
 };
 
-MapperProto.prototype.WritePPUData = function (value) {
+Base.prototype.WritePPUData = function (value) {
 	this.nes.WritePPUData_SUB(value);
 };
 
-MapperProto.prototype.BuildBGLine = function () {
+Base.prototype.BuildBGLine = function () {
 	this.nes.BuildBGLine_SUB();
 };
 
-MapperProto.prototype.BuildSpriteLine = function () {
+Base.prototype.BuildSpriteLine = function () {
 	this.nes.BuildSpriteLine_SUB();
 };
 
-MapperProto.prototype.ReadSRAM = function(address) {
+Base.prototype.ReadSRAM = function(address) {
 	return this.nes.SRAM[address & 0x1FFF];
 };
 
-MapperProto.prototype.WriteSRAM = function(address, data) {
+Base.prototype.WriteSRAM = function(address, data) {
 	this.nes.SRAM[address & 0x1FFF] = data;
 };
 
-MapperProto.prototype.Write = function(address, data) {
+Base.prototype.Write = function(address, data) {
 };
 
-MapperProto.prototype.HSync = function(y) {
+Base.prototype.HSync = function(y) {
 };
 
-MapperProto.prototype.CPUSync = function(clock) {
+Base.prototype.CPUSync = function(clock) {
 };
 
-MapperProto.prototype.SetIRQ = function() {
+Base.prototype.SetIRQ = function() {
 	this.nes.toIRQ |= 0x04;
 };
 
-MapperProto.prototype.ClearIRQ = function() {
+Base.prototype.ClearIRQ = function() {
 	this.nes.toIRQ &= ~0x04;
 };
 
-MapperProto.prototype.OutEXSound = function(soundin) {
+Base.prototype.OutEXSound = function(soundin) {
 	return soundin;
 };
 
-MapperProto.prototype.EXSoundSync = function(clock) {
+Base.prototype.EXSoundSync = function(clock) {
 };
 
-MapperProto.prototype.OutSRAM = function() {
+Base.prototype.OutSRAM = function() {
 	var ret = "";
 	for(var i=0; i<this.nes.SRAM.length; i++) {
 		ret += (this.nes.SRAM[i] < 0x10 ? "0" : "") + this.nes.SRAM[i].toString(16);
@@ -5154,7 +5154,7 @@ MapperProto.prototype.OutSRAM = function() {
 	return ret.toUpperCase();
 };
 
-MapperProto.prototype.InSRAM = function(sram) {
+Base.prototype.InSRAM = function(sram) {
 	var i;
 	for(i=0; i<this.nes.SRAM.length; i++)
 		this.nes.SRAM[i] = 0x00;
@@ -5168,7 +5168,7 @@ MapperProto.prototype.InSRAM = function(sram) {
 	return true;
 };
 
-MapperProto.prototype.GetState = function() {
+Base.prototype.GetState = function() {
 	if(this.MAPPER_REG === null)
 		return;
 
@@ -5176,7 +5176,7 @@ MapperProto.prototype.GetState = function() {
 	this.nes.StateData.Mapper.MAPPER_REG = this.MAPPER_REG.slice(0);
 };
 
-MapperProto.prototype.SetState = function() {
+Base.prototype.SetState = function() {
 	if(this.MAPPER_REG === null)
 		return;
 
@@ -5185,7 +5185,7 @@ MapperProto.prototype.SetState = function() {
 };
 
 
-module.exports = MapperProto;
+module.exports = Base;
 
 },{}],56:[function(require,module,exports){
 "use strict";
@@ -5250,9 +5250,6 @@ var NES = function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
 	this.TimerID = null;
-
-	this.StateData = null;
-
 
 /* **** NES CPU **** */
 	this.CycleTable = [
@@ -5687,146 +5684,6 @@ NES.prototype.Reset = function () {
 	}
 	return false;
 };
-
-/* Non-Need methods
-NES.prototype.GetState = function () {
-	if(this.Mapper === null)
-		return false;
-
-	this.StateData = new Object();
-
-	this.StateData.A =		 	this.A;
-	this.StateData.X =			this.X;
-	this.StateData.Y =			this.Y;
-	this.StateData.S =			this.S;
-	this.StateData.P =			this.P;
-	this.StateData.PC =			this.PC;
-
-	this.StateData.toNMI =			this.toNMI;
-	this.StateData.toIRQ =			this.toIRQ;
-	this.StateData.CPUClock =		this.CPUClock;
-
-	this.StateData.ScrollRegisterFlag =	this.ScrollRegisterFlag;
-	this.StateData.PPUAddressRegisterFlag =	this.PPUAddressRegisterFlag;
-	this.StateData.HScrollTmp =		this.HScrollTmp;
-	this.StateData.PPUAddress =		this.PPUAddress;
-	this.StateData.PPUAddressBuffer =	this.PPUAddressBuffer;
-
-	this.StateData.Palette =		this.Palette.slice(0);
-
-	this.StateData.PpuX =			this.PpuX;
-	this.StateData.PpuY =			this.PpuY;
-
-	this.StateData.Sprite0Line =		this.Sprite0Line;
-	this.StateData.SpriteLimit =		this.SpriteLimit;
-
-	this.StateData.PrgRomPageCount =	this.PrgRomPageCount;
-	this.StateData.ChrRomPageCount =	this.ChrRomPageCount;
-	this.StateData.HMirror =		this.HMirror;
-	this.StateData.VMirror =		this.VMirror;
-	this.StateData.SramEnable =		this.SramEnable;
-	this.StateData.TrainerEnable =		this.TrainerEnable;
-	this.StateData.FourScreen =		this.FourScreen;
-	this.StateData.MapperNumber =		this.MapperNumber;
-
-	this.StateData.RAM =			this.RAM.slice(0);
-	this.StateData.INNERSRAM =		this.INNERSRAM.slice(0);
-
-	this.StateData.VRAMS = new  Array(16);
-	for(var i=0; i<16; i++)
-		this.StateData.VRAMS[i] =	this.VRAMS[i].slice(0);
-
-	this.StateData.SPRITE_RAM =		this.SPRITE_RAM.slice(0);
-
-	this.StateData.ROM_RAM = new Array(4);
-	for(var i=0; i<4; i++)
-		this.StateData.ROM_RAM[i] =	this.ROM_RAM[i].slice(0);
-
-	this.StateData.IO1 =			this.IO1.slice(0);
-	this.StateData.IO2 =			this.IO2.slice(0);
-
-	this.StateData.PRGROM_STATE =		this.PRGROM_STATE.slice(0);
-	this.StateData.CHRROM_STATE =		this.CHRROM_STATE.slice(0);
-
-	this.Mapper.GetState();
-
-	return true;
-};
-
-
-NES.prototype.SetState = function () {
-	if(this.Mapper === null || this.StateData === null)
-		return false;
-
-	this.A =		 	this.StateData.A;
-	this.X =			this.StateData.X;
-	this.Y =			this.StateData.Y;
-	this.S =			this.StateData.S;
-	this.P =			this.StateData.P;
-	this.PC =			this.StateData.PC;
-
-	this.toNMI =			this.StateData.toNMI;
-	this.toIRQ =			this.StateData.toIRQ;
-	this.CPUClock =			this.StateData.CPUClock;
-
-	this.ScrollRegisterFlag =	this.StateData.ScrollRegisterFlag;
-	this.PPUAddressRegisterFlag =	this.StateData.PPUAddressRegisterFlag;
-	this.HScrollTmp =		this.StateData.HScrollTmp;
-	this.PPUAddress =		this.StateData.PPUAddress;
-	this.PPUAddressBuffer =		this.StateData.PPUAddressBuffer;
-
-	for(var i=0; i<this.Palette.length; i++)
-		this.Palette[i] =	this.StateData.Palette[i];
-
-	this.PpuX =			this.StateData.PpuX;
-	this.PpuY =			this.StateData.PpuY;
-
-	this.Sprite0Line =		this.StateData.Sprite0Line;
-	this.SpriteLimit =		this.StateData.SpriteLimit;
-
-	this.PrgRomPageCount =		this.StateData.PrgRomPageCount;
-	this.ChrRomPageCount =		this.StateData.ChrRomPageCount;
-	this.HMirror =			this.StateData.HMirror;
-	this.VMirror =			this.StateData.VMirror;
-	this.SramEnable =		this.StateData.SramEnable;
-	this.TrainerEnable =		this.StateData.TrainerEnable;
-	this.FourScreen =		this.StateData.FourScreen;
-	this.MapperNumber =		this.StateData.MapperNumber;
-
-	for(var i=0; i<this.RAM.length; i++)
-		this.RAM[i] =		this.StateData.RAM[i];
-
-	for(var i=0; i<this.INNERSRAM.length; i++)
-		this.INNERSRAM[i] =	this.StateData.INNERSRAM[i];
-
-	for(var i=0; i<16; i++)
-		for(var j=0; j<this.VRAMS[i].length; j++)
-			this.VRAMS[i][j] =	this.StateData.VRAMS[i][j];
-
-	for(var i=0; i<this.SPRITE_RAM.length; i++)
-		this.SPRITE_RAM[i] =	this.StateData.SPRITE_RAM[i];
-
-	for(var i=0; i<4; i++)
-		for(var j=0; j<this.ROM_RAM[i].length; j++)
-			this.ROM_RAM[i][j] =	this.StateData.ROM_RAM[i][j];
-
-	for(var i=0; i<this.IO1.length; i++)
-		this.IO1[i] =		this.StateData.IO1[i];
-
-	for(var i=0; i<this.IO2.length; i++)
-		this.IO2[i] =		this.StateData.IO2[i];
-
-	for(var i=0; i<this.StateData.PRGROM_STATE.length; i++)
-		this.SetPrgRomPage8K(i, this.StateData.PRGROM_STATE[i]);
-
-	for(var i=0; i<this.StateData.CHRROM_STATE.length; i++)
-		this.SetChrRomPage1K(i, this.StateData.CHRROM_STATE[i]);
-
-	this.Mapper.SetState();
-
-	return true;
-};
-*/
 
 /* **** NES CPU **** */
 NES.prototype.CpuInit = function () {
