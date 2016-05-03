@@ -1,5 +1,60 @@
 "use strict";
 
+var Mapper0   = require('./Mapper/0');
+var Mapper1   = require('./Mapper/1');
+var Mapper10  = require('./Mapper/10');
+var Mapper101 = require('./Mapper/101');
+var Mapper118 = require('./Mapper/118');
+var Mapper119 = require('./Mapper/119');
+var Mapper140 = require('./Mapper/140');
+var Mapper152 = require('./Mapper/152');
+var Mapper16  = require('./Mapper/16');
+var Mapper18  = require('./Mapper/18');
+var Mapper180 = require('./Mapper/180');
+var Mapper184 = require('./Mapper/184');
+var Mapper185 = require('./Mapper/185');
+var Mapper19  = require('./Mapper/19');
+var Mapper2   = require('./Mapper/2');
+var Mapper207 = require('./Mapper/207');
+var Mapper22  = require('./Mapper/22');
+var Mapper23  = require('./Mapper/23');
+var Mapper24  = require('./Mapper/24');
+var Mapper25  = require('./Mapper/25');
+var Mapper26  = require('./Mapper/26');
+var Mapper3   = require('./Mapper/3');
+var Mapper32  = require('./Mapper/32');
+var Mapper33  = require('./Mapper/33');
+var Mapper34  = require('./Mapper/34');
+var Mapper4   = require('./Mapper/4');
+var Mapper48  = require('./Mapper/48');
+var Mapper5   = require('./Mapper/5');
+var Mapper65  = require('./Mapper/65');
+var Mapper66  = require('./Mapper/66');
+var Mapper67  = require('./Mapper/67');
+var Mapper68  = require('./Mapper/68');
+var Mapper69  = require('./Mapper/69');
+var Mapper7   = require('./Mapper/7');
+var Mapper70  = require('./Mapper/70');
+var Mapper72  = require('./Mapper/72');
+var Mapper73  = require('./Mapper/73');
+var Mapper75  = require('./Mapper/75');
+var Mapper76  = require('./Mapper/76');
+var Mapper77  = require('./Mapper/77');
+var Mapper78  = require('./Mapper/78');
+var Mapper80  = require('./Mapper/80');
+var Mapper82  = require('./Mapper/82');
+var Mapper85  = require('./Mapper/85');
+var Mapper86  = require('./Mapper/86');
+var Mapper87  = require('./Mapper/87');
+var Mapper88  = require('./Mapper/88');
+var Mapper89  = require('./Mapper/89');
+var Mapper9   = require('./Mapper/9');
+var Mapper92  = require('./Mapper/92');
+var Mapper93  = require('./Mapper/93');
+var Mapper94  = require('./Mapper/94');
+var Mapper95  = require('./Mapper/95');
+var Mapper97  = require('./Mapper/97');
+
 var NES = function() {
 	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -3602,5 +3657,187 @@ NES.prototype.Out_AY = function () {
 	}
 	return all_out;
 };
+
+NES.prototype.MapperSelect = function () {
+	//TODO: delete debug message
+	console.log("mapper is " + this.MapperNumber);
+	switch(this.MapperNumber) {
+		case 0:
+			this.Mapper = new Mapper0(this);
+			break;
+		case 1:
+			this.Mapper = new Mapper1(this);
+			break;
+		case 2:
+			this.Mapper = new Mapper2(this);
+			break;
+		case 3:
+			this.Mapper = new Mapper3(this);
+			break;
+		case 4:
+			this.Mapper = new Mapper4(this);
+			break;
+		case 5:
+			this.Mapper = new Mapper5(this);
+			break;
+		case 7:
+			this.Mapper = new Mapper7(this);
+			break;
+		case 9:
+			this.Mapper = new Mapper9(this);
+			break;
+		case 10:
+			this.Mapper = new Mapper10(this);
+			break;
+		case 16:
+			this.Mapper = new Mapper16(this);
+			break;
+		case 18:
+			this.Mapper = new Mapper18(this);
+			break;
+		case 19:
+			this.Mapper = new Mapper19(this);
+			break;
+		case 20:
+			//this.Mapper = new Mapper20(this);
+		case 21:
+			this.Mapper = new Mapper25(this);
+			break;
+		case 22:
+			this.Mapper = new Mapper22(this);
+			break;
+		case 23:
+			this.Mapper = new Mapper23(this);
+			break;
+		case 24:
+			this.Mapper = new Mapper24(this);
+			break;
+		case 25:
+			this.Mapper = new Mapper25(this);
+			break;
+		case 26:
+			this.Mapper = new Mapper26(this);
+			break;
+		case 32:
+			this.Mapper = new Mapper32(this);
+			break;
+		case 33:
+			this.Mapper = new Mapper33(this);
+			break;
+		case 34:
+			this.Mapper = new Mapper34(this);
+			break;
+		case 48:
+			this.Mapper = new Mapper48(this);
+			break;
+		case 65:
+			this.Mapper = new Mapper65(this);
+			break;
+		case 66:
+			this.Mapper = new Mapper66(this);
+			break;
+		case 67:
+			this.Mapper = new Mapper67(this);
+			break;
+		case 68:
+			this.Mapper = new Mapper68(this);
+			break;
+		case 69:
+			this.Mapper = new Mapper69(this);
+			break;
+		case 70:
+			this.Mapper = new Mapper70(this);
+			break;
+		case 72:
+			this.Mapper = new Mapper72(this);
+			break;
+		case 73:
+			this.Mapper = new Mapper73(this);
+			break;
+		case 75:
+			this.Mapper = new Mapper75(this);
+			break;
+		case 76:
+			this.Mapper = new Mapper76(this);
+			break;
+		case 77:
+			this.Mapper = new Mapper77(this);
+			break;
+		case 78:
+			this.Mapper = new Mapper78(this);
+			break;
+		case 80:
+			this.Mapper = new Mapper80(this);
+			break;
+		case 82:
+			this.Mapper = new Mapper82(this);
+			break;
+		case 85:
+			this.Mapper = new Mapper85(this);
+			break;
+		case 86:
+			this.Mapper = new Mapper86(this);
+			break;
+		case 87:
+			this.Mapper = new Mapper87(this);
+			break;
+		case 88:
+			this.Mapper = new Mapper88(this);
+			break;
+		case 89:
+			this.Mapper = new Mapper89(this);
+			break;
+		case 92:
+			this.Mapper = new Mapper92(this);
+			break;
+		case 93:
+			this.Mapper = new Mapper93(this);
+			break;
+		case 94:
+			this.Mapper = new Mapper94(this);
+			break;
+		case 95:
+			this.Mapper = new Mapper95(this);
+			break;
+		case 97:
+			this.Mapper = new Mapper97(this);
+			break;
+		case 101:
+			this.Mapper = new Mapper101(this);
+			break;
+		case 118:
+			this.Mapper = new Mapper118(this);
+			break;
+		case 119:
+			this.Mapper = new Mapper119(this);
+			break;
+		case 140:
+			this.Mapper = new Mapper140(this);
+			break;
+		case 152:
+			this.Mapper = new Mapper152(this);
+			break;
+		case 180:
+			this.Mapper = new Mapper180(this);
+			break;
+		case 184:
+			this.Mapper = new Mapper184(this);
+			break;
+		case 185:
+			this.Mapper = new Mapper185(this);
+			break;
+		case 207:
+			this.Mapper = new Mapper207(this);
+			break;
+		case 210:
+			this.Mapper = new Mapper19(this);
+			break;
+		default:
+			return false;
+	}
+	return true;
+};
+
+
 
 module.exports = NES;

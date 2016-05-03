@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 // ファミコン本体クラス
-var NES = require('./MapperNES');
+var NES = require('./NES');
 
 var nes = new NES();
 nes.SetCanvas("mainCanvas");
