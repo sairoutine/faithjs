@@ -1,69 +1,69 @@
 "use strict";
 
-var MapperProto = function(nes) {
+var Base = function(nes) {
 	this.nes = nes;
 	this.MAPPER_REG = null;
 };
 
-MapperProto.prototype.Init = function() {
+Base.prototype.Init = function() {
 };
 
-MapperProto.prototype.ReadLow = function(address) {
+Base.prototype.ReadLow = function(address) {
 	return 0x40;
 };
 
-MapperProto.prototype.WriteLow = function(address, data) {
+Base.prototype.WriteLow = function(address, data) {
 };
 
-MapperProto.prototype.ReadPPUData = function () {
+Base.prototype.ReadPPUData = function () {
 	return this.nes.ReadPPUData_SUB();
 };
 
-MapperProto.prototype.WritePPUData = function (value) {
+Base.prototype.WritePPUData = function (value) {
 	this.nes.WritePPUData_SUB(value);
 };
 
-MapperProto.prototype.BuildBGLine = function () {
+Base.prototype.BuildBGLine = function () {
 	this.nes.BuildBGLine_SUB();
 };
 
-MapperProto.prototype.BuildSpriteLine = function () {
+Base.prototype.BuildSpriteLine = function () {
 	this.nes.BuildSpriteLine_SUB();
 };
 
-MapperProto.prototype.ReadSRAM = function(address) {
+Base.prototype.ReadSRAM = function(address) {
 	return this.nes.SRAM[address & 0x1FFF];
 };
 
-MapperProto.prototype.WriteSRAM = function(address, data) {
+Base.prototype.WriteSRAM = function(address, data) {
 	this.nes.SRAM[address & 0x1FFF] = data;
 };
 
-MapperProto.prototype.Write = function(address, data) {
+Base.prototype.Write = function(address, data) {
 };
 
-MapperProto.prototype.HSync = function(y) {
+Base.prototype.HSync = function(y) {
 };
 
-MapperProto.prototype.CPUSync = function(clock) {
+Base.prototype.CPUSync = function(clock) {
 };
 
-MapperProto.prototype.SetIRQ = function() {
+Base.prototype.SetIRQ = function() {
 	this.nes.toIRQ |= 0x04;
 };
 
-MapperProto.prototype.ClearIRQ = function() {
+Base.prototype.ClearIRQ = function() {
 	this.nes.toIRQ &= ~0x04;
 };
 
-MapperProto.prototype.OutEXSound = function(soundin) {
+Base.prototype.OutEXSound = function(soundin) {
 	return soundin;
 };
 
-MapperProto.prototype.EXSoundSync = function(clock) {
+Base.prototype.EXSoundSync = function(clock) {
 };
 
-MapperProto.prototype.OutSRAM = function() {
+Base.prototype.OutSRAM = function() {
 	var ret = "";
 	for(var i=0; i<this.nes.SRAM.length; i++) {
 		ret += (this.nes.SRAM[i] < 0x10 ? "0" : "") + this.nes.SRAM[i].toString(16);
@@ -71,7 +71,7 @@ MapperProto.prototype.OutSRAM = function() {
 	return ret.toUpperCase();
 };
 
-MapperProto.prototype.InSRAM = function(sram) {
+Base.prototype.InSRAM = function(sram) {
 	var i;
 	for(i=0; i<this.nes.SRAM.length; i++)
 		this.nes.SRAM[i] = 0x00;
@@ -85,7 +85,7 @@ MapperProto.prototype.InSRAM = function(sram) {
 	return true;
 };
 
-MapperProto.prototype.GetState = function() {
+Base.prototype.GetState = function() {
 	if(this.MAPPER_REG === null)
 		return;
 
@@ -93,7 +93,7 @@ MapperProto.prototype.GetState = function() {
 	this.nes.StateData.Mapper.MAPPER_REG = this.MAPPER_REG.slice(0);
 };
 
-MapperProto.prototype.SetState = function() {
+Base.prototype.SetState = function() {
 	if(this.MAPPER_REG === null)
 		return;
 
@@ -102,4 +102,4 @@ MapperProto.prototype.SetState = function() {
 };
 
 
-module.exports = MapperProto;
+module.exports = Base;

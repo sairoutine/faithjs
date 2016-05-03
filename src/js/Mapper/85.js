@@ -1,14 +1,14 @@
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper85 ****/
 var Mapper85 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 	this.MAPPER_REG = new Array(15);
 	this.MAPPER_EXVRAM = new Array(8);
 };
 
-Mapper85.prototype = Object.create(MapperProto.prototype);
+Mapper85.prototype = Object.create(Base.prototype);
 
 Mapper85.prototype.Init = function() {
 	var i;

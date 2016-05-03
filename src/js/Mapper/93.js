@@ -1,12 +1,12 @@
 "use strict";
 
-var MapperProto = require('./Base');
+var Base = require('./Base');
 /**** Mapper93 ****/
 var Mapper93 = function(nes) {
-	MapperProto.apply(this, arguments);
+	Base.apply(this, arguments);
 };
 
-Mapper93.prototype = Object.create(MapperProto.prototype);
+Mapper93.prototype = Object.create(Base.prototype);
 
 Mapper93.prototype.Init = function() {
 	this.nes.SetPrgRomPages8K(0, 1, this.nes.PrgRomPageCount * 2 - 2, this.nes.PrgRomPageCount * 2 - 1);
