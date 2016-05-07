@@ -56,7 +56,10 @@ var Mapper95  = require('./Mapper/95');
 var Mapper97  = require('./Mapper/97');
 
 var NES = function(canvas) {
-	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
+	if(typeof window.requestAnimationFrame === "undefined") {
+		window.alert('use brower having requestAnimationFrame method');
+	}
+
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
 	this.TimerID = null;
@@ -417,10 +420,7 @@ var NES = function(canvas) {
 
 /* **************************************************************** */
 NES.prototype.requestAnimationFrame = function (){
-	if(this.Use_requestAnimationFrame)
 		this.UpdateAnimationFrame();
-	else
-		this.TimerID = setInterval(this.Run.bind(this), 16);
 };
 
 
