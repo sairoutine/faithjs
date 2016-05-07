@@ -65,9 +65,11 @@ var NES = function(canvas) {
 	// window.requestAnimationFrame() の呼び出しによって返された ID 値
 	this.requestID = null;
 
+	//////////////////////////////////////////////////////////////////
+	// NES CPU
+	//////////////////////////////////////////////////////////////////
 
-
-/* **** NES CPU **** */
+	// 各命令で消費するCPUクロック数
 	this.CycleTable = [
 	 7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6, //0x00
 	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x10
@@ -86,8 +88,7 @@ var NES = function(canvas) {
 	 2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xE0
 	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7];//0xF0
 
-	this.MainClock = 1789772.5;
-
+	// レジスタ
 	this.A = 0;
 	this.X = 0;
 	this.Y = 0;
@@ -95,12 +96,15 @@ var NES = function(canvas) {
 	this.P = 0;
 	this.PC = 0;
 
+	// 割り込み
 	this.toNMI = false;
 	this.toIRQ = 0x00;
 	this.CPUClock = 0;
 
+	//TODO: 削除
 	//this.HalfCarry = false;
 
+	// TODO: 調べる
 	this.ZNCacheTable = new Array(256);
 	this.ZNCacheTable[0] = 0x02;
 	var i;
@@ -113,8 +117,9 @@ var NES = function(canvas) {
 		this.ZNCacheTableCMP[i + 256] = this.ZNCacheTable[i];
 	}
 
-
-/* **** NES PPU **** */
+	//////////////////////////////////////////////////////////////////
+	// NES PPU
+	//////////////////////////////////////////////////////////////////
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
 	this.HScrollTmp = 0;
@@ -162,7 +167,6 @@ var NES = function(canvas) {
 	this.PpuX = 0;
 	this.PpuY = 0;
 
-	this.Canvas = null;
 	this.ImageData = null;
 	this.DrawFlag = false;
 	this.ctx = canvas.getContext("2d");
@@ -222,6 +226,7 @@ var NES = function(canvas) {
 
 
 /* **** NES APU **** */
+	this.MainClock = 1789772.5;
 	this.WaveOut = true;
 	this.WaveDatas = [];
 	this.WaveBaseCount = 0;
