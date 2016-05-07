@@ -55,7 +55,7 @@ var Mapper94  = require('./Mapper/94');
 var Mapper95  = require('./Mapper/95');
 var Mapper97  = require('./Mapper/97');
 
-var NES = function() {
+var NES = function(canvas) {
 	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
@@ -157,9 +157,9 @@ var NES = function() {
 	this.PpuY = 0;
 
 	this.Canvas = null;
-	this.ctx = null;
 	this.ImageData = null;
 	this.DrawFlag = false;
+	this.ctx = canvas.getContext("2d");
 
 	this.Sprite0Line = false;
 	this.SpriteLimit = true;
@@ -1834,14 +1834,16 @@ NES.prototype.SetChrRomPage = function (num){
 };
 
 
-NES.prototype.SetCanvas = function (id) {
-	this.Canvas = document.getElementById(id);
-	if(!this.Canvas.getContext)
+NES.prototype.initCanvas = function () {
+	if(!this.ctx) {
 		return false;
-	this.ctx = this.Canvas.getContext("2d");
+	}
+
 	this.ImageData = this.ctx.createImageData(256, 224);
-	for(var i=0; i<256*224*4; i+=4)
+
+	for(var i=0; i<256*224*4; i+=4) {
 		this.ImageData.data[i + 3] = 255;
+	}
 	this.ctx.putImageData(this.ImageData, 0, 0);
 	return true;
 };

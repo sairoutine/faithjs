@@ -3,9 +3,11 @@
 // ファミコン本体クラス
 var NES = require('./NES');
 
-var nes = new NES();
-nes.SetCanvas("mainCanvas");
+// canvas
+var canvas = document.getElementById('mainCanvas');
 
+var nes = new NES(canvas);
+nes.initCanvas();
 
 
 function nes_pause() {
