@@ -56,13 +56,16 @@ var Mapper95  = require('./Mapper/95');
 var Mapper97  = require('./Mapper/97');
 
 var NES = function(canvas) {
+	// requestAnimationFrame 対応ブラウザのみ遊べます
 	if(typeof window.requestAnimationFrame === "undefined") {
-		window.alert('use brower having requestAnimationFrame method');
+		window.alert('use a brower that supports requestAnimationFrame method');
+		return;
 	}
 
-	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
-	this.TimerID = null;
+	// window.requestAnimationFrame() の呼び出しによって返された ID 値
+	this.requestID = null;
+
+
 
 /* **** NES CPU **** */
 	this.CycleTable = [
@@ -291,7 +294,10 @@ var NES = function(canvas) {
 
 	this.ApuCpuClockCounter = 0;
 
-	if(this.Use_AudioContext) {
+	window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	this.canAudioContext = typeof window.AudioContext !== "undefined";
+
+	if(this.canAudioContext) {
 		this.WebAudioCtx = new window.AudioContext();
 		this.WebAudioJsNode = this.WebAudioCtx.createScriptProcessor(this.WebAudioBufferSize, 1, 1);
 		this.WebAudioJsNode.onaudioprocess = this.WebAudioFunction.bind(this);
@@ -419,34 +425,19 @@ var NES = function(canvas) {
 
 
 /* **************************************************************** */
-NES.prototype.requestAnimationFrame = function (){
-		this.UpdateAnimationFrame();
-};
-
-
-NES.prototype.cancelAnimationFrame = function (){
-	if(this.cancelAnimationFrame)
-		window.cancelAnimationFrame(this.TimerID);
-	else
-		clearInterval(this.TimerID);
-};
-
-
-NES.prototype.UpdateAnimationFrame = function () {
-	this.TimerID = window.requestAnimationFrame(this.UpdateAnimationFrame.bind(this));
-	this.Run();
-};
-
-
 NES.prototype.Run = function () {
+	// Run
 	this.CpuRun();
+
+	// 再帰的に自身を呼び出す。
+	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
 };
 
 
 NES.prototype.Start = function () {
-	if(this.Mapper !== null && this.TimerID === null) {
+	if(this.Mapper !== null && this.requestID === null) {
 		this.JoyPadInit();
-		this.TimerID = this.requestAnimationFrame();
+		this.Run();
 		return true;
 	}
 	return false;
@@ -454,10 +445,10 @@ NES.prototype.Start = function () {
 
 
 NES.prototype.Pause = function () {
-	if(this.Mapper !== null && this.TimerID !== null) {
-		this.cancelAnimationFrame();
+	if(this.Mapper !== null && this.requestID !== null) {
+		window.cancelAnimationFrame(this.requestID);
+		this.requestID = null;
 		this.JoyPadRelease();
-		this.TimerID = null;
 		return true;
 	}
 	return false;
@@ -2886,7 +2877,7 @@ NES.prototype.ApuRun = function () {
 	this.ApuClockCounter += this.WaveSampleRate * this.CPUClock;
 	while(this.ApuClockCounter >= this.MainClock) {
 		this.ApuClockCounter -= this.MainClock;
-		if(this.Use_AudioContext && this.WaveOut) {
+		if(this.canAudioContext && this.WaveOut) {
 			this.WaveDatas.push(this.Mapper.OutEXSound(this.Out_Apu()));
 			this.WebAudioGainNode.gain.value = this.WaveVolume;
 		}
