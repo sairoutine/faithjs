@@ -5245,13 +5245,21 @@ var Mapper94  = require('./Mapper/94');
 var Mapper95  = require('./Mapper/95');
 var Mapper97  = require('./Mapper/97');
 
-var NES = function() {
-	this.Use_requestAnimationFrame = typeof window.requestAnimationFrame !== "undefined";
-	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	this.Use_AudioContext = typeof window.AudioContext !== "undefined";
-	this.TimerID = null;
+var NES = function(canvas) {
+	// requestAnimationFrame 対応ブラウザのみ遊べます
+	if(typeof window.requestAnimationFrame === "undefined") {
+		window.alert('use a brower that supports requestAnimationFrame method');
+		return;
+	}
 
-/* **** NES CPU **** */
+	// window.requestAnimationFrame() の呼び出しによって返された ID 値
+	this.requestID = null;
+
+	//////////////////////////////////////////////////////////////////
+	// NES CPU
+	//////////////////////////////////////////////////////////////////
+
+	// 各命令で消費するCPUクロック数
 	this.CycleTable = [
 	 7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6, //0x00
 	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x10
@@ -5270,8 +5278,7 @@ var NES = function() {
 	 2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xE0
 	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7];//0xF0
 
-	this.MainClock = 1789772.5;
-
+	// レジスタ
 	this.A = 0;
 	this.X = 0;
 	this.Y = 0;
@@ -5279,12 +5286,15 @@ var NES = function() {
 	this.P = 0;
 	this.PC = 0;
 
+	// 割り込み
 	this.toNMI = false;
 	this.toIRQ = 0x00;
 	this.CPUClock = 0;
 
+	//TODO: 削除
 	//this.HalfCarry = false;
 
+	// TODO: 調べる
 	this.ZNCacheTable = new Array(256);
 	this.ZNCacheTable[0] = 0x02;
 	var i;
@@ -5297,8 +5307,9 @@ var NES = function() {
 		this.ZNCacheTableCMP[i + 256] = this.ZNCacheTable[i];
 	}
 
-
-/* **** NES PPU **** */
+	//////////////////////////////////////////////////////////////////
+	// NES PPU
+	//////////////////////////////////////////////////////////////////
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
 	this.HScrollTmp = 0;
@@ -5346,10 +5357,9 @@ var NES = function() {
 	this.PpuX = 0;
 	this.PpuY = 0;
 
-	this.Canvas = null;
-	this.ctx = null;
 	this.ImageData = null;
 	this.DrawFlag = false;
+	this.ctx = canvas.getContext("2d");
 
 	this.Sprite0Line = false;
 	this.SpriteLimit = true;
@@ -5406,6 +5416,7 @@ var NES = function() {
 
 
 /* **** NES APU **** */
+	this.MainClock = 1789772.5;
 	this.WaveOut = true;
 	this.WaveDatas = [];
 	this.WaveBaseCount = 0;
@@ -5478,7 +5489,10 @@ var NES = function() {
 
 	this.ApuCpuClockCounter = 0;
 
-	if(this.Use_AudioContext) {
+	window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	this.canAudioContext = typeof window.AudioContext !== "undefined";
+
+	if(this.canAudioContext) {
 		this.WebAudioCtx = new window.AudioContext();
 		this.WebAudioJsNode = this.WebAudioCtx.createScriptProcessor(this.WebAudioBufferSize, 1, 1);
 		this.WebAudioJsNode.onaudioprocess = this.WebAudioFunction.bind(this);
@@ -5606,37 +5620,19 @@ var NES = function() {
 
 
 /* **************************************************************** */
-NES.prototype.requestAnimationFrame = function (){
-	if(this.Use_requestAnimationFrame)
-		this.UpdateAnimationFrame();
-	else
-		this.TimerID = setInterval(this.Run.bind(this), 16);
-};
-
-
-NES.prototype.cancelAnimationFrame = function (){
-	if(this.cancelAnimationFrame)
-		window.cancelAnimationFrame(this.TimerID);
-	else
-		clearInterval(this.TimerID);
-};
-
-
-NES.prototype.UpdateAnimationFrame = function () {
-	this.TimerID = window.requestAnimationFrame(this.UpdateAnimationFrame.bind(this));
-	this.Run();
-};
-
-
 NES.prototype.Run = function () {
+	// Run
 	this.CpuRun();
+
+	// 再帰的に自身を呼び出す。
+	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
 };
 
 
 NES.prototype.Start = function () {
-	if(this.Mapper !== null && this.TimerID === null) {
+	if(this.Mapper !== null && this.requestID === null) {
 		this.JoyPadInit();
-		this.TimerID = this.requestAnimationFrame();
+		this.Run();
 		return true;
 	}
 	return false;
@@ -5644,10 +5640,10 @@ NES.prototype.Start = function () {
 
 
 NES.prototype.Pause = function () {
-	if(this.Mapper !== null && this.TimerID !== null) {
-		this.cancelAnimationFrame();
+	if(this.Mapper !== null && this.requestID !== null) {
+		window.cancelAnimationFrame(this.requestID);
+		this.requestID = null;
 		this.JoyPadRelease();
-		this.TimerID = null;
 		return true;
 	}
 	return false;
@@ -7024,14 +7020,16 @@ NES.prototype.SetChrRomPage = function (num){
 };
 
 
-NES.prototype.SetCanvas = function (id) {
-	this.Canvas = document.getElementById(id);
-	if(!this.Canvas.getContext)
+NES.prototype.initCanvas = function () {
+	if(!this.ctx) {
 		return false;
-	this.ctx = this.Canvas.getContext("2d");
+	}
+
 	this.ImageData = this.ctx.createImageData(256, 224);
-	for(var i=0; i<256*224*4; i+=4)
+
+	for(var i=0; i<256*224*4; i+=4) {
 		this.ImageData.data[i + 3] = 255;
+	}
 	this.ctx.putImageData(this.ImageData, 0, 0);
 	return true;
 };
@@ -8074,7 +8072,7 @@ NES.prototype.ApuRun = function () {
 	this.ApuClockCounter += this.WaveSampleRate * this.CPUClock;
 	while(this.ApuClockCounter >= this.MainClock) {
 		this.ApuClockCounter -= this.MainClock;
-		if(this.Use_AudioContext && this.WaveOut) {
+		if(this.canAudioContext && this.WaveOut) {
 			this.WaveDatas.push(this.Mapper.OutEXSound(this.Out_Apu()));
 			this.WebAudioGainNode.gain.value = this.WaveVolume;
 		}
@@ -8895,9 +8893,11 @@ module.exports = NES;
 // ファミコン本体クラス
 var NES = require('./NES');
 
-var nes = new NES();
-nes.SetCanvas("mainCanvas");
+// canvas
+var canvas = document.getElementById('mainCanvas');
 
+var nes = new NES(canvas);
+nes.initCanvas();
 
 
 function nes_pause() {
