@@ -120,8 +120,12 @@ var NES = function(canvas) {
 	//////////////////////////////////////////////////////////////////
 	// NES PPU
 	//////////////////////////////////////////////////////////////////
+
+	// PPUSCROLLレジスタは2回書き込む。1度目の書き込みかどうか
 	this.ScrollRegisterFlag = false;
+	// PPUADDRレジスタは2回書き込む。1度目の書き込みかどうか
 	this.PPUAddressRegisterFlag = false;
+	// TODO: 調べる
 	this.HScrollTmp = 0;
 	this.PPUAddress = 0;
 	this.PPUAddressBuffer = 0;
@@ -172,7 +176,6 @@ var NES = function(canvas) {
 	this.ctx = canvas.getContext("2d");
 
 	this.Sprite0Line = false;
-	this.SpriteLimit = true;
 
 
 /* **** NES Header **** */
@@ -2029,7 +2032,7 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 			if(i === 0)
 				this.Sprite0Line = true;
 
-			if(++count === 9 && this.SpriteLimit)
+			if(++count === 9)
 				break;
 
 			var x = tmpSpRAM[i + 3];

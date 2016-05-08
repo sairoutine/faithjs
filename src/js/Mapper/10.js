@@ -162,7 +162,7 @@ Mapper10.prototype.BuildSpriteLine = function () {
 			if(i === 0)
 				this.nes.Sprite0Line = true;
 
-			if(++count === 9 && this.nes.SpriteLimit) {
+			if(++count === 9) {
 				i = 256;
 				continue;
 			}
