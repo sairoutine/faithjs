@@ -177,23 +177,28 @@ var NES = function(canvas) {
 
 	this.Sprite0Line = false;
 
+	//////////////////////////////////////////////////////////////////
+	// NES Header
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES Header **** */
 	this.PrgRomPageCount = 0;
 	this.ChrRomPageCount = 0;
 	this.HMirror = false;
 	this.VMirror = false;
-	this.SramEnable = false;
+	// TODO: ちゃんとSramEnableをチェックする
+	this.SramEnable = false; // Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory
 	this.TrainerEnable = false;
 	this.FourScreen = false;
 	this.MapperNumber = -1;
 
 
-/* **** NES Storage **** */
+	//////////////////////////////////////////////////////////////////
+	// NES Header
+	//////////////////////////////////////////////////////////////////
+
 	this.RAM = new Array(0x800);
 
-	this.INNERSRAM = new Array(0x2000);
-	this.SRAM = null;
+	this.SRAM = new Array(0x2000);
 
 	this.VRAM = new Array(16);
 
@@ -600,12 +605,14 @@ NES.prototype.GetAddressAbsoluteY = function () {
 };
 
 
+// スタックにpush
 NES.prototype.Push = function (data) {
 	this.RAM[0x100 + this.S] = data;
 	this.S = (this.S - 1) & 0xFF;
 };
 
 
+// スタックからpop
 NES.prototype.Pop = function () {
 	this.S = (this.S + 1) & 0xFF;
 	return this.RAM[0x100 + this.S];
@@ -2218,8 +2225,7 @@ NES.prototype.StorageClear = function () {
 		this.RAM[i] = 0;
 
 	for(i=0; i<this.INNERSRAM.length; i++)
-		this.INNERSRAM[i] = 0;
-	this.SRAM = this.INNERSRAM;
+		this.SRAM[i] = 0;
 
 	for(i=0; i<this.PRGROM_STATE.length; i++)
 		this.PRGROM_STATE[i] = 0;
