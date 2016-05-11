@@ -403,7 +403,7 @@ Mapper10.prototype.BuildSpriteLine = function () {
 			if(i === 0)
 				this.nes.Sprite0Line = true;
 
-			if(++count === 9 && this.nes.SpriteLimit) {
+			if(++count === 9) {
 				i = 256;
 				continue;
 			}
@@ -4820,7 +4820,7 @@ Mapper9.prototype.BuildSpriteLine = function () {
 			if(i === 0)
 				this.nes.Sprite0Line = true;
 
-			if(++count === 9 && this.nes.SpriteLimit) {
+			if(++count === 9) {
 				i = 256;
 				continue;
 			}
@@ -5310,8 +5310,12 @@ var NES = function(canvas) {
 	//////////////////////////////////////////////////////////////////
 	// NES PPU
 	//////////////////////////////////////////////////////////////////
+
+	// PPUSCROLLレジスタは2回書き込む。1度目の書き込みかどうか
 	this.ScrollRegisterFlag = false;
+	// PPUADDRレジスタは2回書き込む。1度目の書き込みかどうか
 	this.PPUAddressRegisterFlag = false;
+	// TODO: 調べる
 	this.HScrollTmp = 0;
 	this.PPUAddress = 0;
 	this.PPUAddressBuffer = 0;
@@ -5362,25 +5366,29 @@ var NES = function(canvas) {
 	this.ctx = canvas.getContext("2d");
 
 	this.Sprite0Line = false;
-	this.SpriteLimit = true;
 
+	//////////////////////////////////////////////////////////////////
+	// NES Header
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES Header **** */
 	this.PrgRomPageCount = 0;
 	this.ChrRomPageCount = 0;
 	this.HMirror = false;
 	this.VMirror = false;
-	this.SramEnable = false;
+	// TODO: ちゃんとSramEnableをチェックする
+	this.SramEnable = false; // Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory
 	this.TrainerEnable = false;
 	this.FourScreen = false;
 	this.MapperNumber = -1;
 
 
-/* **** NES Storage **** */
+	//////////////////////////////////////////////////////////////////
+	// NES Header
+	//////////////////////////////////////////////////////////////////
+
 	this.RAM = new Array(0x800);
 
-	this.INNERSRAM = new Array(0x2000);
-	this.SRAM = null;
+	this.SRAM = new Array(0x2000);
 
 	this.VRAM = new Array(16);
 
@@ -5401,18 +5409,21 @@ var NES = function(canvas) {
 	this.PRGROM_PAGES = null;
 	this.CHRROM_PAGES = null;
 
+	// PPU Registers
 	this.IO1 = new Array(8);
+	// APU Registers
 	this.IO2 = new Array(0x20);
 
+	// NES ROMデータ
 	this.Rom = null;
 
+	//////////////////////////////////////////////////////////////////
+	// JoyPad
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES JoyPad **** */
 	this.JoyPadStrobe = false;
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
-	this.JoyPadKeyUpFunction = null;
-	this.JoyPadKeyDownFunction = null;
 
 
 /* **** NES APU **** */
@@ -5620,6 +5631,26 @@ var NES = function(canvas) {
 
 
 /* **************************************************************** */
+
+// 1P, 2P
+NES.prototype.JOYPAD_1P = 0;
+NES.prototype.JOYPAD_2P = 1;
+
+// コントローラーのボタン
+NES.prototype.BUTTON_A = 0x01;
+NES.prototype.BUTTON_B = 0x02;
+NES.prototype.BUTTON_SELECT = 0x04;
+NES.prototype.BUTTON_START  = 0x08;
+NES.prototype.BUTTON_UP     = 0x10;
+NES.prototype.BUTTON_DOWN   = 0x20;
+NES.prototype.BUTTON_LEFT   = 0x40;
+NES.prototype.BUTTON_RIGHT  = 0x80;
+
+
+
+
+
+/* **************************************************************** */
 NES.prototype.Run = function () {
 	// Run
 	this.CpuRun();
@@ -5631,7 +5662,6 @@ NES.prototype.Run = function () {
 
 NES.prototype.Start = function () {
 	if(this.Mapper !== null && this.requestID === null) {
-		this.JoyPadInit();
 		this.Run();
 		return true;
 	}
@@ -5643,7 +5673,6 @@ NES.prototype.Pause = function () {
 	if(this.Mapper !== null && this.requestID !== null) {
 		window.cancelAnimationFrame(this.requestID);
 		this.requestID = null;
-		this.JoyPadRelease();
 		return true;
 	}
 	return false;
@@ -5787,12 +5816,14 @@ NES.prototype.GetAddressAbsoluteY = function () {
 };
 
 
+// スタックにpush
 NES.prototype.Push = function (data) {
 	this.RAM[0x100 + this.S] = data;
 	this.S = (this.S - 1) & 0xFF;
 };
 
 
+// スタックからpop
 NES.prototype.Pop = function () {
 	this.S = (this.S + 1) & 0xFF;
 	return this.RAM[0x100 + this.S];
@@ -7219,7 +7250,7 @@ NES.prototype.BuildSpriteLine_SUB = function () {
 			if(i === 0)
 				this.Sprite0Line = true;
 
-			if(++count === 9 && this.SpriteLimit)
+			if(++count === 9)
 				break;
 
 			var x = tmpSpRAM[i + 3];
@@ -7404,9 +7435,8 @@ NES.prototype.StorageClear = function () {
 	for(i=0; i<this.RAM.length; i++)
 		this.RAM[i] = 0;
 
-	for(i=0; i<this.INNERSRAM.length; i++)
-		this.INNERSRAM[i] = 0;
-	this.SRAM = this.INNERSRAM;
+	for(i=0; i<this.SRAM.length; i++)
+		this.SRAM[i] = 0;
 
 	for(i=0; i<this.PRGROM_STATE.length; i++)
 		this.PRGROM_STATE[i] = 0;
@@ -7660,122 +7690,98 @@ NES.prototype.ReadJoyPadRegister2 = function () {
 };
 
 
-NES.prototype.KeyUpFunction = function (evt){
-	switch (evt.keyCode){
-		//1CON
-		case 88:// A
-			this.JoyPadState[0] &= ~0x01;
-			break;
-		case 90:// B
-			this.JoyPadState[0] &= ~0x02;
-			break;
-		case 65:// SELECT
-			this.JoyPadState[0] &= ~0x04;
-			break;
-		case 83:// START
-			this.JoyPadState[0] &= ~0x08;
-			break;
-		case 38:// UP
-			this.JoyPadState[0] &= ~0x10;
-			break;
-		case 40:// DOWN
-			this.JoyPadState[0] &= ~0x20;
-			break;
-		case 37:// LEFT
-			this.JoyPadState[0] &= ~0x40;
-			break;
-		case 39:// RIGHT
-			this.JoyPadState[0] &= ~0x80;
-			break;
+// キーコードをBitに変換
+NES.prototype._keyCodeToBitCode = function(keyCode) {
+	var data = {
+		player: null,
+		flag:   null,
+	};
 
-		//2CON
-		case 105:// A
-			this.JoyPadState[1] &= ~0x01;
+	switch(keyCode) {
+		case 88:// X
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_A;
 			break;
-		case 103:// B
-			this.JoyPadState[1] &= ~0x02;
+		case 90:// Z
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_B;
 			break;
-		case 104:// UP
-			this.JoyPadState[1] &= ~0x10;
+		case 65:// A
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_SELECT;
 			break;
-		case 98:// DOWN
-			this.JoyPadState[1] &= ~0x20;
+		case 83:// S
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_START;
 			break;
-		case 100:// LEFT
-			this.JoyPadState[1] &= ~0x40;
+		case 38:// ↑
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_UP;
 			break;
-		case 102:// RIGHT
-			this.JoyPadState[1] &= ~0x80;
+		case 40:// ↓
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_DOWN;
+			break;
+		case 37:// ←
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_LEFT;
+			break;
+		case 39:// →
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_RIGHT;
+			break;
+		case 105:// Num7
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_A;
+			break;
+		case 103:// Num9
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_B;
+			break;
+		case 104:// Num8
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_UP;
+			break;
+		case 98:// Num2
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_DOWN;
+			break;
+		case 100:// Num4
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_LEFT;
+			break;
+		case 102:// Num6
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_RIGHT;
 			break;
 	}
-	evt.preventDefault();
+	return data;
 };
 
+NES.prototype.handleKeyUp = function (e){
+	var data = this._keyCodeToBitCode(e.keyCode);
+	var player = data.player;
+	var flag   = data.flag;
 
-NES.prototype.KeyDownFunction = function (evt){
-	switch (evt.keyCode){
-		//1CON
-		case 88:// A
-			this.JoyPadState[0] |= 0x01;
-			break;
-		case 90:// B
-			this.JoyPadState[0] |= 0x02;
-			break;
-		case 65:// SELECT
-			this.JoyPadState[0] |= 0x04;
-			break;
-		case 83:// START
-			this.JoyPadState[0] |= 0x08;
-			break;
-		case 38:// UP
-			this.JoyPadState[0] |= 0x10;
-			break;
-		case 40:// DOWN
-			this.JoyPadState[0] |= 0x20;
-			break;
-		case 37:// LEFT
-			this.JoyPadState[0] |= 0x40;
-			break;
-		case 39:// RIGHT
-			this.JoyPadState[0] |= 0x80;
-			break;
-
-		//2CON
-		case 105:// A
-			this.JoyPadState[1] |= 0x01;
-			break;
-		case 103:// B
-			this.JoyPadState[1] |= 0x02;
-			break;
-		case 104:// UP
-			this.JoyPadState[1] |= 0x10;
-			break;
-		case 98:// DOWN
-			this.JoyPadState[1] |= 0x20;
-			break;
-		case 100:// LEFT
-			this.JoyPadState[1] |= 0x40;
-			break;
-		case 102:// RIGHT
-			this.JoyPadState[1] |= 0x80;
-			break;
+	if(player !== null) {
+		this.JoyPadState[player] &= ~flag;
 	}
-	evt.preventDefault();
+	e.preventDefault();
 };
 
 
-NES.prototype.JoyPadInit = function () {
-	this.JoyPadKeyUpFunction = this.KeyUpFunction.bind(this);
-	this.JoyPadKeyDownFunction = this.KeyDownFunction.bind(this);
-	document.addEventListener("keyup", this.JoyPadKeyUpFunction, true);
-	document.addEventListener("keydown", this.JoyPadKeyDownFunction, true);
+NES.prototype.handleKeyDown = function (e){
+	var data = this._keyCodeToBitCode(e.keyCode);
+	var player = data.player;
+	var flag   = data.flag;
+
+	if(player !== null) {
+		this.JoyPadState[player] |= flag;
+	}
+
+	e.preventDefault();
 };
 
-
-NES.prototype.JoyPadRelease = function () {
-	document.removeEventListener("keyup", this.JoyPadKeyUpFunction, true);
-	document.removeEventListener("keydown", this.JoyPadKeyDownFunction, true);
-};
 
 /* **** NES APU **** */
 NES.prototype.WebAudioFunction = function (e) {
@@ -8897,8 +8903,10 @@ var NES = require('./NES');
 var canvas = document.getElementById('mainCanvas');
 
 var nes = new NES(canvas);
-nes.initCanvas();
 
+nes.initCanvas();
+window.onkeydown = function(e) { nes.handleKeyDown(e) };
+window.onkeyup   = function(e) { nes.handleKeyUp(e) };
 
 function nes_pause() {
 	if(nes.Pause()) {
