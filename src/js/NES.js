@@ -2229,7 +2229,7 @@ NES.prototype.StorageClear = function () {
 	for(i=0; i<this.RAM.length; i++)
 		this.RAM[i] = 0;
 
-	for(i=0; i<this.INNERSRAM.length; i++)
+	for(i=0; i<this.SRAM.length; i++)
 		this.SRAM[i] = 0;
 
 	for(i=0; i<this.PRGROM_STATE.length; i++)
