@@ -234,8 +234,6 @@ var NES = function(canvas) {
 	this.JoyPadStrobe = false;
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
-	this.JoyPadKeyUpFunction = null;
-	this.JoyPadKeyDownFunction = null;
 
 
 /* **** NES APU **** */
@@ -440,6 +438,26 @@ var NES = function(canvas) {
 /* **** NES Mapper **** */
 	this.Mapper = null;
 };
+
+
+/* **************************************************************** */
+
+// 1P, 2P
+NES.prototype.JOYPAD_1P = 0;
+NES.prototype.JOYPAD_2P = 1;
+
+// コントローラーのボタン
+NES.prototype.BUTTON_A = 0x01;
+NES.prototype.BUTTON_B = 0x02;
+NES.prototype.BUTTON_SELECT = 0x04;
+NES.prototype.BUTTON_START  = 0x08;
+NES.prototype.BUTTON_UP     = 0x10;
+NES.prototype.BUTTON_DOWN   = 0x20;
+NES.prototype.BUTTON_LEFT   = 0x40;
+NES.prototype.BUTTON_RIGHT  = 0x80;
+
+
+
 
 
 /* **************************************************************** */
@@ -2482,107 +2500,96 @@ NES.prototype.ReadJoyPadRegister2 = function () {
 };
 
 
-NES.prototype.handleKeyUp = function (evt){
-	switch (evt.keyCode){
-		//1CON
-		case 88:// A
-			this.JoyPadState[0] &= ~0x01;
-			break;
-		case 90:// B
-			this.JoyPadState[0] &= ~0x02;
-			break;
-		case 65:// SELECT
-			this.JoyPadState[0] &= ~0x04;
-			break;
-		case 83:// START
-			this.JoyPadState[0] &= ~0x08;
-			break;
-		case 38:// UP
-			this.JoyPadState[0] &= ~0x10;
-			break;
-		case 40:// DOWN
-			this.JoyPadState[0] &= ~0x20;
-			break;
-		case 37:// LEFT
-			this.JoyPadState[0] &= ~0x40;
-			break;
-		case 39:// RIGHT
-			this.JoyPadState[0] &= ~0x80;
-			break;
+// キーコードをBitに変換
+NES.prototype._keyCodeToBitCode = function(keyCode) {
+	var data = {
+		player: null,
+		flag:   null,
+	};
 
-		//2CON
-		case 105:// A
-			this.JoyPadState[1] &= ~0x01;
+	switch(keyCode) {
+		case 88:// X
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_A;
 			break;
-		case 103:// B
-			this.JoyPadState[1] &= ~0x02;
+		case 90:// Z
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_B;
 			break;
-		case 104:// UP
-			this.JoyPadState[1] &= ~0x10;
+		case 65:// A
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_SELECT;
 			break;
-		case 98:// DOWN
-			this.JoyPadState[1] &= ~0x20;
+		case 83:// S
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_START;
 			break;
-		case 100:// LEFT
-			this.JoyPadState[1] &= ~0x40;
+		case 38:// ↑
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_UP;
 			break;
-		case 102:// RIGHT
-			this.JoyPadState[1] &= ~0x80;
+		case 40:// ↓
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_DOWN;
+			break;
+		case 37:// ←
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_LEFT;
+			break;
+		case 39:// →
+			data.player = this.JOYPAD_1P;
+			data.flag   = this.BUTTON_RIGHT;
+			break;
+		case 105:// Num7
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_A;
+			break;
+		case 103:// Num9
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_B;
+			break;
+		case 104:// Num8
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_UP;
+			break;
+		case 98:// Num2
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_DOWN;
+			break;
+		case 100:// Num4
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_LEFT;
+			break;
+		case 102:// Num6
+			data.player = this.JOYPAD_2P;
+			data.flag   = this.BUTTON_RIGHT;
 			break;
 	}
-	evt.preventDefault();
+	return data;
+};
+
+NES.prototype.handleKeyUp = function (e){
+	var data = this._keyCodeToBitCode(e.keyCode);
+	var player = data.player;
+	var flag   = data.flag;
+
+	if(player !== null) {
+		this.JoyPadState[player] &= ~flag;
+	}
+	e.preventDefault();
 };
 
 
-NES.prototype.handleKeyDown = function (evt){
-	switch (evt.keyCode){
-		//1CON
-		case 88:// A
-			this.JoyPadState[0] |= 0x01;
-			break;
-		case 90:// B
-			this.JoyPadState[0] |= 0x02;
-			break;
-		case 65:// SELECT
-			this.JoyPadState[0] |= 0x04;
-			break;
-		case 83:// START
-			this.JoyPadState[0] |= 0x08;
-			break;
-		case 38:// UP
-			this.JoyPadState[0] |= 0x10;
-			break;
-		case 40:// DOWN
-			this.JoyPadState[0] |= 0x20;
-			break;
-		case 37:// LEFT
-			this.JoyPadState[0] |= 0x40;
-			break;
-		case 39:// RIGHT
-			this.JoyPadState[0] |= 0x80;
-			break;
+NES.prototype.handleKeyDown = function (e){
+	var data = this._keyCodeToBitCode(e.keyCode);
+	var player = data.player;
+	var flag   = data.flag;
 
-		//2CON
-		case 105:// A
-			this.JoyPadState[1] |= 0x01;
-			break;
-		case 103:// B
-			this.JoyPadState[1] |= 0x02;
-			break;
-		case 104:// UP
-			this.JoyPadState[1] |= 0x10;
-			break;
-		case 98:// DOWN
-			this.JoyPadState[1] |= 0x20;
-			break;
-		case 100:// LEFT
-			this.JoyPadState[1] |= 0x40;
-			break;
-		case 102:// RIGHT
-			this.JoyPadState[1] |= 0x80;
-			break;
+	if(player !== null) {
+		this.JoyPadState[player] |= flag;
 	}
-	evt.preventDefault();
+
+	e.preventDefault();
 };
 
 
