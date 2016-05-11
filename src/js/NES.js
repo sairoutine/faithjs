@@ -454,7 +454,6 @@ NES.prototype.Run = function () {
 
 NES.prototype.Start = function () {
 	if(this.Mapper !== null && this.requestID === null) {
-		this.JoyPadInit();
 		this.Run();
 		return true;
 	}
@@ -466,7 +465,6 @@ NES.prototype.Pause = function () {
 	if(this.Mapper !== null && this.requestID !== null) {
 		window.cancelAnimationFrame(this.requestID);
 		this.requestID = null;
-		this.JoyPadRelease();
 		return true;
 	}
 	return false;
@@ -2484,7 +2482,7 @@ NES.prototype.ReadJoyPadRegister2 = function () {
 };
 
 
-NES.prototype.KeyUpFunction = function (evt){
+NES.prototype.handleKeyUp = function (evt){
 	switch (evt.keyCode){
 		//1CON
 		case 88:// A
@@ -2536,7 +2534,7 @@ NES.prototype.KeyUpFunction = function (evt){
 };
 
 
-NES.prototype.KeyDownFunction = function (evt){
+NES.prototype.handleKeyDown = function (evt){
 	switch (evt.keyCode){
 		//1CON
 		case 88:// A
@@ -2587,19 +2585,6 @@ NES.prototype.KeyDownFunction = function (evt){
 	evt.preventDefault();
 };
 
-
-NES.prototype.JoyPadInit = function () {
-	this.JoyPadKeyUpFunction = this.KeyUpFunction.bind(this);
-	this.JoyPadKeyDownFunction = this.KeyDownFunction.bind(this);
-	document.addEventListener("keyup", this.JoyPadKeyUpFunction, true);
-	document.addEventListener("keydown", this.JoyPadKeyDownFunction, true);
-};
-
-
-NES.prototype.JoyPadRelease = function () {
-	document.removeEventListener("keyup", this.JoyPadKeyUpFunction, true);
-	document.removeEventListener("keydown", this.JoyPadKeyDownFunction, true);
-};
 
 /* **** NES APU **** */
 NES.prototype.WebAudioFunction = function (e) {

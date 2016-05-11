@@ -7,8 +7,10 @@ var NES = require('./NES');
 var canvas = document.getElementById('mainCanvas');
 
 var nes = new NES(canvas);
-nes.initCanvas();
 
+nes.initCanvas();
+window.onkeydown = function(e) { nes.handleKeyDown(e) };
+window.onkeyup   = function(e) { nes.handleKeyUp(e) };
 
 function nes_pause() {
 	if(nes.Pause()) {
