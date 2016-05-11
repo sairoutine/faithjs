@@ -219,13 +219,18 @@ var NES = function(canvas) {
 	this.PRGROM_PAGES = null;
 	this.CHRROM_PAGES = null;
 
+	// PPU Registers
 	this.IO1 = new Array(8);
+	// APU Registers
 	this.IO2 = new Array(0x20);
 
+	// NES ROMデータ
 	this.Rom = null;
 
+	//////////////////////////////////////////////////////////////////
+	// JoyPad
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES JoyPad **** */
 	this.JoyPadStrobe = false;
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
