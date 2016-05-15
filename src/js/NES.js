@@ -2236,39 +2236,52 @@ NES.prototype.ParseHeader = function () {
 
 /* **** NES Storage **** */
 NES.prototype.StorageClear = function () {
-	var i;
-	var j;
-
-	for(i=0; i<this.RAM.length; i++)
+	var i, j;
+	for(i=0; i<this.RAM.length; i++) {
 		this.RAM[i] = 0;
+	}
 
-	for(i=0; i<this.SRAM.length; i++)
+	for(i=0; i<this.SRAM.length; i++) {
 		this.SRAM[i] = 0;
+	}
 
-	for(i=0; i<this.PRGROM_STATE.length; i++)
+	for(i=0; i<this.PRGROM_STATE.length; i++) {
 		this.PRGROM_STATE[i] = 0;
-	for(i=0; i<this.CHRROM_STATE.length; i++)
+	}
+
+	for(i=0; i<this.CHRROM_STATE.length; i++) {
 		this.CHRROM_STATE[i] = 0;
+	}
 
 	for(i=0; i<this.VRAMS.length; i++) {
-		for(j=0; j<this.VRAMS[i].length; j++)
+		for(j=0; j<this.VRAMS[i].length; j++) {
 			this.VRAMS[i][j] = 0;
+		}
 		this.SetChrRomPage1K(i, i + 0x0100);
 	}
 
-	for(i=0; i<this.SPRITE_RAM.length; i++)
+	for(i=0; i<this.SPRITE_RAM.length; i++) {
 		this.SPRITE_RAM[i] = 0;
+	}
 
 	for(i=0; i<this.ROM_RAM.length; i++) {
-		for(j=0; j<this.ROM_RAM[i].length; j++)
+		for(j=0; j<this.ROM_RAM[i].length; j++) {
 			this.ROM_RAM[i][j] = 0;
+		}
+
 		this.SetPrgRomPage8K(i, -(i + 1));
 	}
 
-	for(i=0; i<this.IO1.length; i++)
+	for(i=0; i<this.IO1.length; i++) {
 		this.IO1[i] = 0;
-	for(i=0; i<this.IO2.length; i++)
+	}
+
+	for(i=0; i<this.IO2.length; i++) {
 		this.IO2[i] = 0;
+	}
+
+	// APU Frame Counter
+	// TODO: why?
 	this.IO2[0x17] = 0x40;
 };
 
@@ -2300,16 +2313,42 @@ NES.prototype.StorageInit = function () {
 	this.PRGROM_PAGES = null;
 	this.CHRROM_PAGES = null;
 
+	// iNES ファイルのヘッダーの長さ(16 Bytes)
+	var nes_header_length = 0x0010;
+
+	// PRGROMのページサイズ(16384 bytes)
+	var prgrom_pagesize = 0x4000;
+
+	// CHRROMのページサイズ(8192 bytes)
+	var chrrom_pagesize = 0x2000;
+
+
+
 	var i;
-	this.PRGROM_PAGES = new Array(this.PrgRomPageCount * 2);
-	for(i=0; i< this.PrgRomPageCount * 2; i++)
-		this.PRGROM_PAGES[i] = this.Rom.slice(i * 0x2000 + 0x0010, i * 0x2000 + 0x2010);
+
+	if(this.PrgRomPageCount > 0) {
+		// PRGROM読み込み(本プログラム上ではページをさらに 1/2 して扱う)
+		this.PRGROM_PAGES = new Array(this.PrgRomPageCount * 2);
+
+		for(i=0; i < this.PrgRomPageCount * 2; i++) {
+			var prgrom_offset = nes_header_length + prgrom_pagesize / 2 * i;
+			this.PRGROM_PAGES[i] = this.Rom.slice(
+				prgrom_offset,
+				prgrom_offset + prgrom_pagesize / 2
+			);
+		}
+	}
 
 	if(this.ChrRomPageCount > 0) {
+		// PRGROM読み込み(本プログラム上ではページをさらに 1/8 して扱う)
 		this.CHRROM_PAGES = new Array(this.ChrRomPageCount * 8);
-		for(i=0; i< this.ChrRomPageCount * 8; i++)
-			this.CHRROM_PAGES[i] = this.Rom.slice(this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0010,
-							this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0410);
+		for(i=0; i < this.ChrRomPageCount * 8; i++) {
+			var chrrom_offset = nes_header_length + prgrom_pagesize * this.PrgRomPageCount + chrrom_pagesize / 8 * i;
+			this.CHRROM_PAGES[i] = this.Rom.slice(
+				chrrom_offset,
+				chrrom_offset + chrrom_pagesize / 2
+			);
+		}
 	}
 };
 
