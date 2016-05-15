@@ -191,9 +191,11 @@ var NES = function(canvas) {
 	this.FourScreen = false;
 	this.MapperNumber = -1;
 
+	// NES Mapper
+	this.Mapper = null;
 
 	//////////////////////////////////////////////////////////////////
-	// NES Header
+	// NES Storage
 	//////////////////////////////////////////////////////////////////
 
 	this.RAM = new Array(0x800);
@@ -235,8 +237,11 @@ var NES = function(canvas) {
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
 
+	//////////////////////////////////////////////////////////////////
+	// APU
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES APU **** */
+	//TODO: APU周りを調べる
 	this.MainClock = 1789772.5;
 	this.WaveOut = true;
 	this.WaveDatas = [];
@@ -433,12 +438,7 @@ var NES = function(canvas) {
 				 45,   64,   90,  128,
 				181,  256,  362,  512,
 				724, 1023, 1447, 2047];
-
-
-/* **** NES Mapper **** */
-	this.Mapper = null;
 };
-
 
 /* **************************************************************** */
 
@@ -461,34 +461,6 @@ NES.prototype.BUTTON_RIGHT  = 0x80;
 
 
 /* **************************************************************** */
-NES.prototype.Run = function () {
-	// Run
-	this.CpuRun();
-
-	// 再帰的に自身を呼び出す。
-	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
-};
-
-
-NES.prototype.Start = function () {
-	if(this.Mapper !== null && this.requestID === null) {
-		this.Run();
-		return true;
-	}
-	return false;
-};
-
-
-NES.prototype.Pause = function () {
-	if(this.Mapper !== null && this.requestID !== null) {
-		window.cancelAnimationFrame(this.requestID);
-		this.requestID = null;
-		return true;
-	}
-	return false;
-};
-
-
 NES.prototype.Init = function () {
 	this.ParseHeader();
 	this.StorageClear();
@@ -506,6 +478,30 @@ NES.prototype.Init = function () {
 	return true;
 };
 
+NES.prototype.Start = function () {
+	if(this.Mapper !== null && this.requestID === null) {
+		this.Run();
+		return true;
+	}
+	return false;
+};
+
+NES.prototype.Run = function () {
+	// Run
+	this.CpuRun();
+
+	// 再帰的に自身を呼び出す。
+	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
+};
+
+NES.prototype.Pause = function () {
+	if(this.Mapper !== null && this.requestID !== null) {
+		window.cancelAnimationFrame(this.requestID);
+		this.requestID = null;
+		return true;
+	}
+	return false;
+};
 
 NES.prototype.Reset = function () {
 	if(this.Mapper !== null) {
@@ -2221,8 +2217,9 @@ NES.prototype.StartDMA = function (data) {
 
 /* **** NES Header **** */
 NES.prototype.ParseHeader = function () {
-	if(this.Rom.length < 0x10 || this.Rom[0] !== 0x4E || this.Rom[1] !== 0x45 ||  this.Rom[2] !== 0x53 || this.Rom[3] !== 0x1A)
-		return false;
+	if(!this.Rom) {
+		return;
+	}
 
 	this.PrgRomPageCount = this.Rom[4];
 	this.ChrRomPageCount = this.Rom[5];
