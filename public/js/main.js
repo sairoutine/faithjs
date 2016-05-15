@@ -5728,10 +5728,22 @@ NES.prototype.CpuReset = function () {
 
 NES.prototype.NMI = function () {
 	this.CPUClock += 7;
-	this.Push((this.PC >> 8) & 0xFF);
+	// PCの上位8バイト
+	this.Push((this.PC >> 8) & 0xFF); // 0xFF = 0b11111111
+	// PCの下位8バイト
 	this.Push(this.PC & 0xFF);
+
+	// 0xEF = 0b11101111, 0x20 = 0b00100000
+	// ステータスレジスタのブレークモードをクリア
+	// ステータスレジスタの予約済フラグを1に再度セット
+	// その状態でスタックにpush
 	this.Push((this.P & 0xEF) | 0x20);
-	this.P = (this.P | 0x04) & 0xEF;
+
+	// ステータスレジスタのIRQ禁止をON
+	// ステータスレジスタのブレークモードをクリア
+	this.P = (this.P | 0x04) & 0xEF; // 0x04 = 0b0100
+
+	// 割り込みベクタ
 	this.PC = this.Get16(0xFFFA);
 };
 
@@ -6166,6 +6178,7 @@ NES.prototype.CpuRun = function () {
 	var mapper = this.Mapper;
 
 	do {
+		// NMI割り込み
 		if(this.toNMI) {
 			this.NMI();
 			this.toNMI = false;
@@ -7086,6 +7099,7 @@ NES.prototype.PpuRun = function () {
 			this.ScrollRegisterFlag = false;
 			tmpIO1[0x02] = (tmpIO1[0x02] & 0x1F) | 0x80;
 
+			// VBlank時のNMI割り込み
 			this.toNMI = (tmpIO1[0x00] & 0x80) === 0x80;
 			continue;
 		}
