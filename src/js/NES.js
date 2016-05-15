@@ -181,6 +181,7 @@ var NES = function(canvas) {
 
 	this.RAM = new Array(0x800);
 
+	// セーブ用RAM
 	this.SRAM = new Array(0x2000);
 
 	this.VRAM = new Array(16);
@@ -2389,6 +2390,7 @@ NES.prototype.Get = function (address) {
 			}
 			return 0x40;
 		case 0x6000:
+			// セーブ用RAMを読み込み
 			return this.Mapper.ReadSRAM(address);
 		case 0x8000:
 			return this.ROM[0][address & 0x1FFF];
@@ -2486,6 +2488,7 @@ NES.prototype.Set = function (address, data) {
 			this.Mapper.WriteLow(address, data);
 			return;
 		case 0x6000:
+			// セーブ用RAMに書き込み
 			this.Mapper.WriteSRAM(address, data);
 			return;
 		case 0x8000:

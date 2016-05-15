@@ -31,10 +31,11 @@ Base.prototype.BuildSpriteLine = function () {
 	this.nes.BuildSpriteLine_SUB();
 };
 
+// セーブ用RAM読み込み
 Base.prototype.ReadSRAM = function(address) {
 	return this.nes.SRAM[address & 0x1FFF];
 };
-
+// セーブ用RAM書き込み
 Base.prototype.WriteSRAM = function(address, data) {
 	this.nes.SRAM[address & 0x1FFF] = data;
 };
@@ -61,28 +62,6 @@ Base.prototype.OutEXSound = function(soundin) {
 };
 
 Base.prototype.EXSoundSync = function(clock) {
-};
-
-Base.prototype.OutSRAM = function() {
-	var ret = "";
-	for(var i=0; i<this.nes.SRAM.length; i++) {
-		ret += (this.nes.SRAM[i] < 0x10 ? "0" : "") + this.nes.SRAM[i].toString(16);
-	}
-	return ret.toUpperCase();
-};
-
-Base.prototype.InSRAM = function(sram) {
-	var i;
-	for(i=0; i<this.nes.SRAM.length; i++)
-		this.nes.SRAM[i] = 0x00;
-
-	try{
-		for(i=0; i<(this.nes.SRAM.length * 2) && i<sram.length; i+=2)
-			this.nes.SRAM[i / 2] = parseInt(sram.substr(i, 2), 16);
-	} catch(e) {
-		return false;
-	}
-	return true;
 };
 
 Base.prototype.GetState = function() {

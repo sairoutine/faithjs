@@ -52,16 +52,6 @@ function nes_rom_change(arraybuffer) {
 		nes_start();
 }
 
-function SramOut() {
-	var tmp = nes.Mapper.OutSRAM();
-	document.getElementById("sramdata").value = tmp;
-}
-
-
-function SramIn() {
-	nes.Mapper.InSRAM(document.getElementById("sramdata").value);
-}
-
 // ローカル上のROMを読み込み
 var read_local_file = function(fileObj, cb) {
 	var reader = new FileReader();
@@ -111,9 +101,6 @@ var initialize_dom_events = function() {
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
-
-		document.getElementById("sramout").addEventListener("click", SramOut, false);
-		document.getElementById("sramin").addEventListener("click", SramIn, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
