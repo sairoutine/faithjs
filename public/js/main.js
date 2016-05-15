@@ -5114,10 +5114,11 @@ Base.prototype.BuildSpriteLine = function () {
 	this.nes.BuildSpriteLine_SUB();
 };
 
+// セーブ用RAM読み込み
 Base.prototype.ReadSRAM = function(address) {
 	return this.nes.SRAM[address & 0x1FFF];
 };
-
+// セーブ用RAM書き込み
 Base.prototype.WriteSRAM = function(address, data) {
 	this.nes.SRAM[address & 0x1FFF] = data;
 };
@@ -5144,28 +5145,6 @@ Base.prototype.OutEXSound = function(soundin) {
 };
 
 Base.prototype.EXSoundSync = function(clock) {
-};
-
-Base.prototype.OutSRAM = function() {
-	var ret = "";
-	for(var i=0; i<this.nes.SRAM.length; i++) {
-		ret += (this.nes.SRAM[i] < 0x10 ? "0" : "") + this.nes.SRAM[i].toString(16);
-	}
-	return ret.toUpperCase();
-};
-
-Base.prototype.InSRAM = function(sram) {
-	var i;
-	for(i=0; i<this.nes.SRAM.length; i++)
-		this.nes.SRAM[i] = 0x00;
-
-	try{
-		for(i=0; i<(this.nes.SRAM.length * 2) && i<sram.length; i+=2)
-			this.nes.SRAM[i / 2] = parseInt(sram.substr(i, 2), 16);
-	} catch(e) {
-		return false;
-	}
-	return true;
 };
 
 Base.prototype.GetState = function() {
@@ -5258,25 +5237,6 @@ var NES = function(canvas) {
 	//////////////////////////////////////////////////////////////////
 	// NES CPU
 	//////////////////////////////////////////////////////////////////
-
-	// 各命令で消費するCPUクロック数
-	this.CycleTable = [
-	 7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6, //0x00
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x10
-	 6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6, //0x20
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x30
-	 6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6, //0x40
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x50
-	 6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6, //0x60
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x70
-	 2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4, //0x80
-	 2, 5, 2, 6, 4, 4, 4, 4, 2, 4, 2, 5, 5, 4, 5, 5, //0x90
-	 2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4, //0xA0
-	 2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4, //0xB0
-	 2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xC0
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0xD0
-	 2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xE0
-	 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7];//0xF0
 
 	// レジスタ
 	this.A = 0;
@@ -5373,21 +5333,24 @@ var NES = function(canvas) {
 
 	this.PrgRomPageCount = 0;
 	this.ChrRomPageCount = 0;
-	this.HMirror = false;
-	this.VMirror = false;
+	this.HMirror = false; // Horizontal mirroring
+	this.VMirror = false; // Vertical mirroring
 	// TODO: ちゃんとSramEnableをチェックする
 	this.SramEnable = false; // Cartridge contains battery-backed PRG RAM ($6000-7FFF) or other persistent memory
 	this.TrainerEnable = false;
 	this.FourScreen = false;
 	this.MapperNumber = -1;
 
+	// NES Mapper
+	this.Mapper = null;
 
 	//////////////////////////////////////////////////////////////////
-	// NES Header
+	// NES Storage
 	//////////////////////////////////////////////////////////////////
 
 	this.RAM = new Array(0x800);
 
+	// セーブ用RAM
 	this.SRAM = new Array(0x2000);
 
 	this.VRAM = new Array(16);
@@ -5425,8 +5388,11 @@ var NES = function(canvas) {
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
 
+	//////////////////////////////////////////////////////////////////
+	// APU
+	//////////////////////////////////////////////////////////////////
 
-/* **** NES APU **** */
+	//TODO: APU周りを調べる
 	this.MainClock = 1789772.5;
 	this.WaveOut = true;
 	this.WaveDatas = [];
@@ -5623,12 +5589,7 @@ var NES = function(canvas) {
 				 45,   64,   90,  128,
 				181,  256,  362,  512,
 				724, 1023, 1447, 2047];
-
-
-/* **** NES Mapper **** */
-	this.Mapper = null;
 };
-
 
 /* **************************************************************** */
 
@@ -5646,19 +5607,54 @@ NES.prototype.BUTTON_DOWN   = 0x20;
 NES.prototype.BUTTON_LEFT   = 0x40;
 NES.prototype.BUTTON_RIGHT  = 0x80;
 
+// 各命令で消費するCPUクロック数
+NES.prototype.CycleTable = [
+	7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6, //0x00
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x10
+	6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6, //0x20
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x30
+	6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6, //0x40
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x50
+	6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6, //0x60
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0x70
+	2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4, //0x80
+	2, 5, 2, 6, 4, 4, 4, 4, 2, 4, 2, 5, 5, 4, 5, 5, //0x90
+	2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4, //0xA0
+	2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4, //0xB0
+	2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xC0
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7, //0xD0
+	2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6, //0xE0
+	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7  //0xF0
+];
+
+
 
 
 
 
 /* **************************************************************** */
-NES.prototype.Run = function () {
-	// Run
-	this.CpuRun();
+NES.prototype.Init = function () {
+	// iNES ヘッダーを読み込み
+	this.ParseHeader();
 
-	// 再帰的に自身を呼び出す。
-	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
+	// 各種メモリを初期化
+	this.StorageClear();
+
+	// PRGROM と CHRROMを読み込み
+	this.StorageInit();
+	this.PpuInit();
+	this.ApuInit();
+
+	// Mapper を読み込み
+	if(!this.MapperSelect()) {
+		window.alert("Unsupported Mapper: " + this.MapperNumber);
+		return false;
+	}
+
+	this.Mapper.Init();
+	this.CpuInit();
+	return true;
 };
-
 
 NES.prototype.Start = function () {
 	if(this.Mapper !== null && this.requestID === null) {
@@ -5668,6 +5664,13 @@ NES.prototype.Start = function () {
 	return false;
 };
 
+NES.prototype.Run = function () {
+	// Run
+	this.CpuRun();
+
+	// 再帰的に自身を呼び出す。
+	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
+};
 
 NES.prototype.Pause = function () {
 	if(this.Mapper !== null && this.requestID !== null) {
@@ -5677,25 +5680,6 @@ NES.prototype.Pause = function () {
 	}
 	return false;
 };
-
-
-NES.prototype.Init = function () {
-	this.ParseHeader();
-	this.StorageClear();
-	this.StorageInit();
-	this.PpuInit();
-	this.ApuInit();
-
-	if(!this.MapperSelect()) {
-		window.alert("Unsupported Mapper : " + this.MapperNumber);
-		return false;
-	}
-
-	this.Mapper.Init();
-	this.CpuInit();
-	return true;
-};
-
 
 NES.prototype.Reset = function () {
 	if(this.Mapper !== null) {
@@ -5712,14 +5696,19 @@ NES.prototype.Reset = function () {
 
 /* **** NES CPU **** */
 NES.prototype.CpuInit = function () {
+	// 各種レジスタ
 	this.A = 0;
 	this.X = 0;
 	this.Y = 0;
-	this.S = 0xFD;
-	this.P = 0x34;
+	this.S = 0xFD; // 11111101
+	this.P = 0x34; // 00110100
+
+	// RESET割り込みにより PC の下位バイトを$FFFCから、上位バイトを$FFFDからフェッチ
+	this.PC = this.Get16(0xFFFC);
+
+	// 割り込み
 	this.toNMI = false;
 	this.toIRQ = 0x00;
-	this.PC = this.Get16(0xFFFC);
 
 	this.Set(0x0008, 0xF7);
 	this.Set(0x0009, 0xEF);
@@ -6174,7 +6163,6 @@ NES.prototype.SRE = function (address) {
 
 NES.prototype.CpuRun = function () {
 	this.DrawFlag = false;
-	var cycletable = this.CycleTable;
 	var mapper = this.Mapper;
 
 	do {
@@ -6184,7 +6172,7 @@ NES.prototype.CpuRun = function () {
 		} else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00)
 			this.IRQ();
 		var opcode = this.Get(this.PC++);
-		this.CPUClock += cycletable[opcode];
+		this.CPUClock += this.CycleTable[opcode];
 		mapper.CPUSync(this.CPUClock);
 		this.PpuRun();
 		this.ApuRun();
@@ -7051,6 +7039,7 @@ NES.prototype.SetChrRomPage = function (num){
 };
 
 
+// Canvasを初期化(真っ黒画面にする)
 NES.prototype.initCanvas = function () {
 	if(!this.ctx) {
 		return false;
@@ -7059,7 +7048,7 @@ NES.prototype.initCanvas = function () {
 	this.ImageData = this.ctx.createImageData(256, 224);
 
 	for(var i=0; i<256*224*4; i+=4) {
-		this.ImageData.data[i + 3] = 255;
+		this.ImageData.data[i + 3] = 0xFF;
 	}
 	this.ctx.putImageData(this.ImageData, 0, 0);
 	return true;
@@ -7411,8 +7400,9 @@ NES.prototype.StartDMA = function (data) {
 
 /* **** NES Header **** */
 NES.prototype.ParseHeader = function () {
-	if(this.Rom.length < 0x10 || this.Rom[0] !== 0x4E || this.Rom[1] !== 0x45 ||  this.Rom[2] !== 0x53 || this.Rom[3] !== 0x1A)
-		return false;
+	if(!this.Rom) {
+		return;
+	}
 
 	this.PrgRomPageCount = this.Rom[4];
 	this.ChrRomPageCount = this.Rom[5];
@@ -7429,39 +7419,52 @@ NES.prototype.ParseHeader = function () {
 
 /* **** NES Storage **** */
 NES.prototype.StorageClear = function () {
-	var i;
-	var j;
-
-	for(i=0; i<this.RAM.length; i++)
+	var i, j;
+	for(i=0; i<this.RAM.length; i++) {
 		this.RAM[i] = 0;
+	}
 
-	for(i=0; i<this.SRAM.length; i++)
+	for(i=0; i<this.SRAM.length; i++) {
 		this.SRAM[i] = 0;
+	}
 
-	for(i=0; i<this.PRGROM_STATE.length; i++)
+	for(i=0; i<this.PRGROM_STATE.length; i++) {
 		this.PRGROM_STATE[i] = 0;
-	for(i=0; i<this.CHRROM_STATE.length; i++)
+	}
+
+	for(i=0; i<this.CHRROM_STATE.length; i++) {
 		this.CHRROM_STATE[i] = 0;
+	}
 
 	for(i=0; i<this.VRAMS.length; i++) {
-		for(j=0; j<this.VRAMS[i].length; j++)
+		for(j=0; j<this.VRAMS[i].length; j++) {
 			this.VRAMS[i][j] = 0;
+		}
 		this.SetChrRomPage1K(i, i + 0x0100);
 	}
 
-	for(i=0; i<this.SPRITE_RAM.length; i++)
+	for(i=0; i<this.SPRITE_RAM.length; i++) {
 		this.SPRITE_RAM[i] = 0;
+	}
 
 	for(i=0; i<this.ROM_RAM.length; i++) {
-		for(j=0; j<this.ROM_RAM[i].length; j++)
+		for(j=0; j<this.ROM_RAM[i].length; j++) {
 			this.ROM_RAM[i][j] = 0;
+		}
+
 		this.SetPrgRomPage8K(i, -(i + 1));
 	}
 
-	for(i=0; i<this.IO1.length; i++)
+	for(i=0; i<this.IO1.length; i++) {
 		this.IO1[i] = 0;
-	for(i=0; i<this.IO2.length; i++)
+	}
+
+	for(i=0; i<this.IO2.length; i++) {
 		this.IO2[i] = 0;
+	}
+
+	// APU Frame Counter
+	// TODO: why?
 	this.IO2[0x17] = 0x40;
 };
 
@@ -7488,21 +7491,45 @@ NES.prototype.SetRom = function (arraybuffer) {
 	return true;
 };
 
-
+// PRGROM と CHRROMを読み込み
 NES.prototype.StorageInit = function () {
 	this.PRGROM_PAGES = null;
 	this.CHRROM_PAGES = null;
 
+	// iNES ファイルのヘッダーの長さ(16 Bytes)
+	var nes_header_length = 0x0010;
+
+	// PRGROMのページサイズ(16384 bytes)
+	var prgrom_pagesize = 0x4000;
+
+	// CHRROMのページサイズ(8192 bytes)
+	var chrrom_pagesize = 0x2000;
+
 	var i;
-	this.PRGROM_PAGES = new Array(this.PrgRomPageCount * 2);
-	for(i=0; i< this.PrgRomPageCount * 2; i++)
-		this.PRGROM_PAGES[i] = this.Rom.slice(i * 0x2000 + 0x0010, i * 0x2000 + 0x2010);
+
+	if(this.PrgRomPageCount > 0) {
+		// PRGROM読み込み(本プログラム上ではページをさらに 1/2 して扱う)
+		this.PRGROM_PAGES = new Array(this.PrgRomPageCount * 2);
+
+		for(i=0; i < this.PrgRomPageCount * 2; i++) {
+			var prgrom_offset = nes_header_length + prgrom_pagesize / 2 * i;
+			this.PRGROM_PAGES[i] = this.Rom.slice(
+				prgrom_offset,
+				prgrom_offset + prgrom_pagesize / 2
+			);
+		}
+	}
 
 	if(this.ChrRomPageCount > 0) {
+		// PRGROM読み込み(本プログラム上ではページをさらに 1/8 して扱う)
 		this.CHRROM_PAGES = new Array(this.ChrRomPageCount * 8);
-		for(i=0; i< this.ChrRomPageCount * 8; i++)
-			this.CHRROM_PAGES[i] = this.Rom.slice(this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0010,
-							this.PrgRomPageCount * 0x4000 + i * 0x0400 + 0x0410);
+		for(i=0; i < this.ChrRomPageCount * 8; i++) {
+			var chrrom_offset = nes_header_length + prgrom_pagesize * this.PrgRomPageCount + chrrom_pagesize / 8 * i;
+			this.CHRROM_PAGES[i] = this.Rom.slice(
+				chrrom_offset,
+				chrrom_offset + chrrom_pagesize / 2
+			);
+		}
 	}
 };
 
@@ -7532,6 +7559,7 @@ NES.prototype.Get = function (address) {
 			}
 			return 0x40;
 		case 0x6000:
+			// セーブ用RAMを読み込み
 			return this.Mapper.ReadSRAM(address);
 		case 0x8000:
 			return this.ROM[0][address & 0x1FFF];
@@ -7545,6 +7573,7 @@ NES.prototype.Get = function (address) {
 };
 
 
+// 下位バイトをaddressから、上位バイトをaddress + 1からフェッチ
 NES.prototype.Get16 = function (address) {
 	return this.Get(address) | (this.Get(address + 1) << 8);
 };
@@ -7628,6 +7657,7 @@ NES.prototype.Set = function (address, data) {
 			this.Mapper.WriteLow(address, data);
 			return;
 		case 0x6000:
+			// セーブ用RAMに書き込み
 			this.Mapper.WriteSRAM(address, data);
 			return;
 		case 0x8000:
@@ -8709,9 +8739,8 @@ NES.prototype.Out_AY = function () {
 	return all_out;
 };
 
+// Mapper を読み込み
 NES.prototype.MapperSelect = function () {
-	//TODO: delete debug message
-	console.log("mapper is " + this.MapperNumber);
 	switch(this.MapperNumber) {
 		case 0:
 			this.Mapper = new Mapper0(this);
@@ -8750,6 +8779,7 @@ NES.prototype.MapperSelect = function () {
 			this.Mapper = new Mapper19(this);
 			break;
 		case 20:
+			// DiskSystem
 			//this.Mapper = new Mapper20(this);
 		case 21:
 			this.Mapper = new Mapper25(this);
@@ -8948,16 +8978,6 @@ function nes_rom_change(arraybuffer) {
 		nes_start();
 }
 
-function SramOut() {
-	var tmp = nes.Mapper.OutSRAM();
-	document.getElementById("sramdata").value = tmp;
-}
-
-
-function SramIn() {
-	nes.Mapper.InSRAM(document.getElementById("sramdata").value);
-}
-
 // ローカル上のROMを読み込み
 var read_local_file = function(fileObj, cb) {
 	var reader = new FileReader();
@@ -9007,9 +9027,6 @@ var initialize_dom_events = function() {
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
-
-		document.getElementById("sramout").addEventListener("click", SramOut, false);
-		document.getElementById("sramin").addEventListener("click", SramIn, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
