@@ -9,8 +9,8 @@ var canvas = document.getElementById('mainCanvas');
 var nes = new NES(canvas);
 
 nes.initCanvas();
-window.onkeydown = function(e) { nes.handleKeyDown(e) };
-window.onkeyup   = function(e) { nes.handleKeyUp(e) };
+window.onkeydown = function(e) { nes.handleKeyDown(e); };
+window.onkeyup   = function(e) { nes.handleKeyUp(e); };
 
 function nes_pause() {
 	if(nes.Pause()) {
@@ -118,7 +118,8 @@ window.onload = function() {
 
 	// onload でデフォルトのゲームを読み込む
 	//var url = 'rom/mario.nes';
-	var url = "rom/bad_apple_2_5.nes";
+	//var url = "rom/bad_apple_2_5.nes";
+	var url = "rom/megaari.nes";
 	read_url(url, nes_rom_change);
 };
 
