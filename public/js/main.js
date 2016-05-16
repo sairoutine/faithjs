@@ -5728,6 +5728,7 @@ NES.prototype.CpuReset = function () {
 
 NES.prototype.NMI = function () {
 	this.CPUClock += 7;
+
 	// PCの上位8バイト
 	this.Push((this.PC >> 8) & 0xFF); // 0xFF = 0b11111111
 	// PCの下位8バイト
@@ -5750,12 +5751,51 @@ NES.prototype.NMI = function () {
 
 NES.prototype.IRQ = function () {
 	this.CPUClock += 7;
+
+	// PCの上位8バイト
 	this.Push((this.PC >> 8) & 0xFF);
+	// PCの下位8バイト
 	this.Push(this.PC & 0xFF);
+
+	// 0xEF = 0b11101111, 0x20 = 0b00100000
+	// ステータスレジスタのブレークモードをクリア
+	// ステータスレジスタの予約済フラグを1に再度セット
+	// その状態でスタックにpush
 	this.Push((this.P & 0xEF) | 0x20);
+
+	// ステータスレジスタのIRQ禁止をON
+	// ステータスレジスタのブレークモードをクリア
 	this.P = (this.P | 0x04) & 0xEF;
+
+	// 割り込みベクタ
 	this.PC = this.Get16(0xFFFE);
 };
+
+NES.prototype.BRK = function () {
+	// BRK呼び出し側で CPUClock += 7 する
+
+	this.PC++;
+
+	// PCの上位8バイト
+	this.Push(this.PC >> 8);
+	// PCの下位8バイト
+	this.Push(this.PC & 0xFF);
+
+	// ステータスレジスタのブレークモードをセット
+	// ステータスレジスタの予約済フラグを1に再度セット
+	this.Push(this.P | 0x30); // 0x30 = 0b00110000
+
+
+	// ステータスレジスタのブレークモードをセット
+	// ステータスレジスタのインタラプトフラグをセット
+	this.P |= 0x14; // 0x14 = 0b00010100
+
+	// 割り込みベクタ
+	this.PC = this.Get16(0xFFFE);
+};
+
+
+
 
 
 NES.prototype.GetAddressZeroPage = function () {
@@ -6178,12 +6218,17 @@ NES.prototype.CpuRun = function () {
 	var mapper = this.Mapper;
 
 	do {
-		// NMI割り込み
 		if(this.toNMI) {
+			// NMI割り込み
 			this.NMI();
 			this.toNMI = false;
-		} else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00)
+		}
+		// ステータスレジスタにIRQ割り込み禁止フラグが立ってなければ
+		else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00) { // 0x04 = 0b0100
+			// IRQ割り込み
 			this.IRQ();
+		}
+
 		var opcode = this.Get(this.PC++);
 		this.CPUClock += this.CycleTable[opcode];
 		mapper.CPUSync(this.CPUClock);
@@ -6640,11 +6685,7 @@ NES.prototype.CpuRun = function () {
 				break;
 
 			case 0x00://BRK
-				this.Push(++this.PC >> 8);
-				this.Push(this.PC & 0xFF);
-				this.Push(this.P | 0x30);
-				this.P |= 0x14;
-				this.PC = this.Get16(0xFFFE);
+				this.BRK();
 				break;
 
 			case 0x4C://JMP ABS
