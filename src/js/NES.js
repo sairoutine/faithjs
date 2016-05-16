@@ -559,6 +559,7 @@ NES.prototype.CpuReset = function () {
 
 NES.prototype.NMI = function () {
 	this.CPUClock += 7;
+
 	// PCの上位8バイト
 	this.Push((this.PC >> 8) & 0xFF); // 0xFF = 0b11111111
 	// PCの下位8バイト
@@ -1009,12 +1010,17 @@ NES.prototype.CpuRun = function () {
 	var mapper = this.Mapper;
 
 	do {
-		// NMI割り込み
 		if(this.toNMI) {
+			// NMI割り込み
 			this.NMI();
 			this.toNMI = false;
-		} else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00)
+		}
+		// ステータスレジスタにIRQ割り込み禁止フラグが立ってなければ
+		else if((this.P & 0x04) === 0x00 && this.toIRQ !== 0x00) { // 0x04 = 0b0100
+			// IRQ割り込み
 			this.IRQ();
+		}
+
 		var opcode = this.Get(this.PC++);
 		this.CPUClock += this.CycleTable[opcode];
 		mapper.CPUSync(this.CPUClock);
