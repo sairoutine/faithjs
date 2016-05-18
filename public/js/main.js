@@ -5254,13 +5254,19 @@ var NES = function(canvas) {
 	//TODO: 削除
 	//this.HalfCarry = false;
 
-	// TODO: 調べる
+	//   0..127 -> 0b00000000
+	// 128..256 -> 0b10000000
 	this.ZNCacheTable = new Array(256);
-	this.ZNCacheTable[0] = 0x02;
+	this.ZNCacheTable[0] = 0x02; // 0b0010
 	var i;
-	for(i=1; i<256; i++)
-		this.ZNCacheTable[i] = i & 0x80;
+	for(i=1; i<256; i++) {
+		this.ZNCacheTable[i] = i & 0x80; // 0x80 = 0b10000000
+	}
 
+	//   0..127 -> 0b00000001
+	// 128..255 -> 0b10000001
+	// 256..383 -> 0b00000000
+	// 384..512 -> 0b10000000
 	this.ZNCacheTableCMP = new Array(512);
 	for(i=0; i<256; i++) {
 		this.ZNCacheTableCMP[i] = this.ZNCacheTable[i] | 0x01;
@@ -5873,18 +5879,21 @@ NES.prototype.Pop = function () {
 
 NES.prototype.LDA = function (address) {
 	this.A = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
 
 NES.prototype.LDX = function (address) {
 	this.X = this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X]; // 0x7D = 0b01111101
 };
 
 
 NES.prototype.LDY = function (address) {
 	this.Y = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
 };
 
@@ -7591,38 +7600,99 @@ NES.prototype.StorageInit = function () {
 
 NES.prototype.Get = function (address) {
 	switch(address & 0xE000) {
+		// 2KB of work RAM and Mirror
 		case 0x0000:
+			// 0x0800 以降はwork RAMのMirror
 			return this.RAM[address & 0x7FF];
+		// PPU Ctrl Registers
 		case 0x2000:
-			switch (address & 0x07) {
-				case 0x02:
+			// TODO: 実装
+			// 0x0008 以降は PPU Ctrl Registers のMirror
+			switch (address & 0x0007) {
+				case 0x0000:
+					// PPUCTRL
+				case 0x0001:
+					// PPUMASK
+				case 0x0002:
+					// PPUSTATUS
 					return this.ReadPPUStatus();
-				case 0x07:
+				case 0x0003:
+					// OAMADDR
+				case 0x0004:
+					// OAMDATA
+				case 0x0005:
+					// PPUSCROLL
+				case 0x0006:
+					// PPUADDR
+				case 0x0007:
+					// PPUDATA
 					return this.ReadPPUData();
 			}
 			return 0;
 		case 0x4000:
-			if(address >= 0x4020)
+			// 拡張ROM
+			if(address >= 0x4020) {
 				return this.Mapper.ReadLow(address);
+			}
+
+			// TODO: 実装
+			// Registers(Mostly APU)
 			switch (address) {
+				case 0x4000:
+				case 0x4001:
+				case 0x4002:
+				case 0x4003:
+				case 0x4004:
+				case 0x4005:
+				case 0x4006:
+				case 0x4007:
+				case 0x4008:
+				case 0x4009:
+				case 0x400A:
+				case 0x400B:
+				case 0x400C:
+				case 0x400D:
+				case 0x400E:
+				case 0x400F:
+				case 0x4010:
+				case 0x4011:
+				case 0x4012:
+				case 0x4013:
+				case 0x4014:
+					// PPU OAMDMA
 				case 0x4015:
 					return this.ReadWaveControl();
 				case 0x4016:
+					// PAD I/O Register(1P)
 					return this.ReadJoyPadRegister1();
 				case 0x4017:
+					// PAD I/O Register(2P)
 					return this.ReadJoyPadRegister2();
+				case 0x4018:
+				case 0x4019:
+				case 0x401A:
+				case 0x401B:
+				case 0x401C:
+				case 0x401D:
+				case 0x401E:
+				case 0x401F:
 			}
 			return 0x40;
 		case 0x6000:
+			// 拡張RAM
 			// セーブ用RAMを読み込み
 			return this.Mapper.ReadSRAM(address);
 		case 0x8000:
+			// PRG-ROM
 			return this.ROM[0][address & 0x1FFF];
 		case 0xA000:
+			// PRG-ROM
 			return this.ROM[1][address & 0x1FFF];
 		case 0xC000:
+			// PRG-ROM
 			return this.ROM[2][address & 0x1FFF];
 		case 0xE000:
+			// PRG-ROM
 			return this.ROM[3][address & 0x1FFF];
 	}
 };
