@@ -87,10 +87,11 @@ var NES = function(canvas) {
 
 	// TODO: 調べる
 	this.ZNCacheTable = new Array(256);
-	this.ZNCacheTable[0] = 0x02;
+	this.ZNCacheTable[0] = 0x02; // 0b0010
 	var i;
-	for(i=1; i<256; i++)
-		this.ZNCacheTable[i] = i & 0x80;
+	for(i=1; i<256; i++) {
+		this.ZNCacheTable[i] = i & 0x80; // 0x80 = 0b10000000
+	}
 
 	this.ZNCacheTableCMP = new Array(512);
 	for(i=0; i<256; i++) {
