@@ -85,7 +85,8 @@ var NES = function(canvas) {
 	//TODO: 削除
 	//this.HalfCarry = false;
 
-	// TODO: 調べる
+	//   0..127 -> 0b00000000
+	// 128..256 -> 0b10000000
 	this.ZNCacheTable = new Array(256);
 	this.ZNCacheTable[0] = 0x02; // 0b0010
 	var i;
@@ -93,6 +94,10 @@ var NES = function(canvas) {
 		this.ZNCacheTable[i] = i & 0x80; // 0x80 = 0b10000000
 	}
 
+	//   0..127 -> 0b00000001
+	// 128..255 -> 0b10000001
+	// 256..383 -> 0b00000000
+	// 384..512 -> 0b10000000
 	this.ZNCacheTableCMP = new Array(512);
 	for(i=0; i<256; i++) {
 		this.ZNCacheTableCMP[i] = this.ZNCacheTable[i] | 0x01;
@@ -705,18 +710,21 @@ NES.prototype.Pop = function () {
 
 NES.prototype.LDA = function (address) {
 	this.A = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
 
 NES.prototype.LDX = function (address) {
 	this.X = this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X]; // 0x7D = 0b01111101
 };
 
 
 NES.prototype.LDY = function (address) {
 	this.Y = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
 };
 
