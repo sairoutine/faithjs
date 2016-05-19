@@ -199,10 +199,6 @@ var NES = function(canvas) {
 	this.SPRITE_RAM = new Array(0x100);
 
 	this.ROM = new Array(4);
-	this.ROM_RAM = new Array(4);
-	for(i=0; i<4; i++)
-		this.ROM_RAM[i] = new Array(0x2000);
-
 	this.PRGROM_STATE = new Array(4);
 	this.CHRROM_STATE = new Array(8);
 
@@ -464,7 +460,11 @@ NES.prototype.CycleTable = [
 	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7  //0xF0
 ];
 
-
+// ZERO PRG-ROM
+NES.prototype.ZEROS_ROM_PAGE = new Array(0x2000);
+for(var i = 0; i < NES.prototype.ZEROS_ROM_PAGE.length; i++) {
+	NES.prototype.ZEROS_ROM_PAGE[i] = 0;
+}
 
 
 
@@ -2342,11 +2342,7 @@ NES.prototype.StorageClear = function () {
 		this.SPRITE_RAM[i] = 0;
 	}
 
-	for(i=0; i<this.ROM_RAM.length; i++) {
-		for(j=0; j<this.ROM_RAM[i].length; j++) {
-			this.ROM_RAM[i][j] = 0;
-		}
-
+	for(i=0; i < 4; i++) {
 		this.SetPrgRomPage8K(i, -(i + 1));
 	}
 
@@ -2625,11 +2621,10 @@ NES.prototype.Set = function (address, data) {
 	}
 };
 
-
 NES.prototype.SetPrgRomPage8K = function (page, romPage){
 	if(romPage < 0) {
 		this.PRGROM_STATE[page] = romPage;
-		this.ROM[page] = this.ROM_RAM[-(romPage + 1)];
+		this.ROM[page] = this.ZEROS_ROM_PAGE; //All 0
 	} else {
 		this.PRGROM_STATE[page] = romPage % (this.PrgRomPageCount * 2);
 		this.ROM[page] = this.PRGROM_PAGES[this.PRGROM_STATE[page]];
