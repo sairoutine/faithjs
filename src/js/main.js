@@ -62,13 +62,13 @@ var read_local_file = function(fileObj, cb) {
 // URL からROMを読み込み
 var read_url = function (url, cb) {
 	var request = new XMLHttpRequest();
-	request.responseType = 'arraybuffer';
 
 	request.onload = function() { cb(request.response); };
 	request.onerror = function(e) {
 		console.error("can't get rom binary");
 	};
 	request.open('GET', url, true);
+	request.responseType = 'arraybuffer';
 	request.send(null);
 };
 
