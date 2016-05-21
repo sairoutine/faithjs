@@ -5254,6 +5254,7 @@ var NES = function(canvas) {
 	//TODO: 削除
 	//this.HalfCarry = false;
 
+	//TODO: 削除
 	//   0..127 -> 0b00000000
 	// 128..256 -> 0b10000000
 	this.ZNCacheTable = new Array(256);
@@ -5368,10 +5369,6 @@ var NES = function(canvas) {
 	this.SPRITE_RAM = new Array(0x100);
 
 	this.ROM = new Array(4);
-	this.ROM_RAM = new Array(4);
-	for(i=0; i<4; i++)
-		this.ROM_RAM[i] = new Array(0x2000);
-
 	this.PRGROM_STATE = new Array(4);
 	this.CHRROM_STATE = new Array(8);
 
@@ -5633,7 +5630,11 @@ NES.prototype.CycleTable = [
 	2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7  //0xF0
 ];
 
-
+// ZERO PRG-ROM
+NES.prototype.ZEROS_ROM_PAGE = new Array(0x2000);
+for(var i = 0; i < NES.prototype.ZEROS_ROM_PAGE.length; i++) {
+	NES.prototype.ZEROS_ROM_PAGE[i] = 0;
+}
 
 
 
@@ -5716,6 +5717,7 @@ NES.prototype.CpuInit = function () {
 	this.toNMI = false;
 	this.toIRQ = 0x00;
 
+	//TODO: why?
 	this.Set(0x0008, 0xF7);
 	this.Set(0x0009, 0xEF);
 	this.Set(0x000A, 0xDF);
@@ -5865,6 +5867,7 @@ NES.prototype.GetAddressAbsoluteY = function () {
 
 // スタックにpush
 NES.prototype.Push = function (data) {
+	// スタック領域: 0x0100~0x01FF
 	this.RAM[0x100 + this.S] = data;
 	this.S = (this.S - 1) & 0xFF;
 };
@@ -5872,6 +5875,7 @@ NES.prototype.Push = function (data) {
 
 // スタックからpop
 NES.prototype.Pop = function () {
+	// スタック領域: 0x0100~0x01FF
 	this.S = (this.S + 1) & 0xFF;
 	return this.RAM[0x100 + this.S];
 };
@@ -7511,11 +7515,7 @@ NES.prototype.StorageClear = function () {
 		this.SPRITE_RAM[i] = 0;
 	}
 
-	for(i=0; i<this.ROM_RAM.length; i++) {
-		for(j=0; j<this.ROM_RAM[i].length; j++) {
-			this.ROM_RAM[i][j] = 0;
-		}
-
+	for(i=0; i < 4; i++) {
 		this.SetPrgRomPage8K(i, -(i + 1));
 	}
 
@@ -7606,7 +7606,6 @@ NES.prototype.Get = function (address) {
 			return this.RAM[address & 0x7FF];
 		// PPU Ctrl Registers
 		case 0x2000:
-			// TODO: 実装
 			// 0x0008 以降は PPU Ctrl Registers のMirror
 			switch (address & 0x0007) {
 				case 0x0000:
@@ -7630,12 +7629,11 @@ NES.prototype.Get = function (address) {
 			}
 			return 0;
 		case 0x4000:
-			// 拡張ROM
 			if(address >= 0x4020) {
+				// 拡張ROM
 				return this.Mapper.ReadLow(address);
 			}
 
-			// TODO: 実装
 			// Registers(Mostly APU)
 			switch (address) {
 				case 0x4000:
@@ -7706,46 +7704,66 @@ NES.prototype.Get16 = function (address) {
 
 NES.prototype.Set = function (address, data) {
 	switch(address & 0xE000) {
+		// 2KB of work RAM and Mirror
 		case 0x0000:
+			// 0x0800 以降はwork RAMのMirror
 			this.RAM[address & 0x7FF] = data;
 			return;
+		// PPU Ctrl Registers
 		case 0x2000:
+			// 0x0008 以降は PPU Ctrl Registers のMirror
 			switch (address & 0x07) {
-				case 0:
+				case 0x00:
+					// PPUCTRL
 					this.WritePPUControlRegister0(data);
 					return;
-				case 1:
+				case 0x01:
+					// PPUMASK
 					this.WritePPUControlRegister1(data);
 					return;
-				case 2:
+				case 0x02:
+					// PPUSTATUS
 					return;
-				case 3:
+				case 0x03:
+					// OAMADDR
 					this.WriteSpriteAddressRegister(data);
 					return;
-				case 4:
+				case 0x04:
+					// OAMDATA
 					this.WriteSpriteData(data);
 					return;
-				case 5:
+				case 0x05:
+					// PPUSCROLL
 					this.WriteScrollRegister(data);
 					return;
-				case 6:
+				case 0x06:
+					// PPUADDR
 					this.WritePPUAddressRegister(data);
 					return;
-				case 7:
+				case 0x07:
+					// PPUDATA
 					this.WritePPUData(data);
 					return;
 			}
 			return;
 		case 0x4000:
+			// Registers(Mostly APU)
 			if(address < 0x4020) {
+				// APU Registers
+				// TODO: why?
 				this.IO2[address & 0x00FF] = data;
+				// TODO: 実装
 				switch (address) {
+					case 0x4000:
+					case 0x4001:
 					case 0x4002:
 						this.WriteCh1Length0();
 						return;
 					case 0x4003:
 						this.WriteCh1Length1();
 						return;
+					case 0x4004:
+					case 0x4005:
 					case 0x4006:
 						this.WriteCh2Length0();
 						return;
@@ -7755,9 +7773,14 @@ NES.prototype.Set = function (address, data) {
 					case 0x4008:
 						this.WriteCh3LinearCounter();
 						return;
+					case 0x4009:
+					case 0x400A:
 					case 0x400B:
 						this.WriteCh3Length1();
 						return;
+					case 0x400C:
+					case 0x400D:
+					case 0x400E:
 					case 0x400F:
 						this.WriteCh4Length1();
 						return;
@@ -7767,38 +7790,60 @@ NES.prototype.Set = function (address, data) {
 					case 0x4011:
 						this.WriteCh5DeltaCounter();
 						return;
+					case 0x4012:
+					case 0x4013:
 					case 0x4014:
+						// PPU OAMDMA
 						this.StartDMA(data);
 						return;
 					case 0x4015:
 						this.WriteWaveControl();
 						return;
 					case 0x4016:
+						// PAD I/O Register(1P)
 						this.WriteJoyPadRegister1(data);
 						return;
+					case 0x4017:
+						// PAD I/O Register(2P)
+						// TODO: 実装
+						//this.WriteJoyPadRegister2(data);
+						return;
+					case 0x4018:
+					case 0x4019:
+					case 0x401A:
+					case 0x401B:
+					case 0x401C:
+					case 0x401D:
+					case 0x401E:
+					case 0x401F:
 				}
 				return;
 			}
+			// 拡張ROM
 			this.Mapper.WriteLow(address, data);
 			return;
 		case 0x6000:
+			// 拡張RAM
 			// セーブ用RAMに書き込み
 			this.Mapper.WriteSRAM(address, data);
 			return;
 		case 0x8000:
+			// PRG-ROM
 		case 0xA000:
+			// PRG-ROM
 		case 0xC000:
+			// PRG-ROM
 		case 0xE000:
+			// PRG-ROM
 			this.Mapper.Write(address, data);
 			return;
 	}
 };
 
-
 NES.prototype.SetPrgRomPage8K = function (page, romPage){
 	if(romPage < 0) {
 		this.PRGROM_STATE[page] = romPage;
-		this.ROM[page] = this.ROM_RAM[-(romPage + 1)];
+		this.ROM[page] = this.ZEROS_ROM_PAGE; //All 0
 	} else {
 		this.PRGROM_STATE[page] = romPage % (this.PrgRomPageCount * 2);
 		this.ROM[page] = this.PRGROM_PAGES[this.PRGROM_STATE[page]];
@@ -9113,13 +9158,13 @@ var read_local_file = function(fileObj, cb) {
 // URL からROMを読み込み
 var read_url = function (url, cb) {
 	var request = new XMLHttpRequest();
-	request.responseType = 'arraybuffer';
 
 	request.onload = function() { cb(request.response); };
 	request.onerror = function(e) {
 		console.error("can't get rom binary");
 	};
 	request.open('GET', url, true);
+	request.responseType = 'arraybuffer';
 	request.send(null);
 };
 
