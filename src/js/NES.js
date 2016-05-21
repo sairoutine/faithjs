@@ -547,6 +547,7 @@ NES.prototype.CpuInit = function () {
 	this.toNMI = false;
 	this.toIRQ = 0x00;
 
+	//TODO: why?
 	this.Set(0x0008, 0xF7);
 	this.Set(0x0009, 0xEF);
 	this.Set(0x000A, 0xDF);
@@ -696,6 +697,7 @@ NES.prototype.GetAddressAbsoluteY = function () {
 
 // スタックにpush
 NES.prototype.Push = function (data) {
+	// スタック領域: 0x0100~0x01FF
 	this.RAM[0x100 + this.S] = data;
 	this.S = (this.S - 1) & 0xFF;
 };
@@ -703,6 +705,7 @@ NES.prototype.Push = function (data) {
 
 // スタックからpop
 NES.prototype.Pop = function () {
+	// スタック領域: 0x0100~0x01FF
 	this.S = (this.S + 1) & 0xFF;
 	return this.RAM[0x100 + this.S];
 };
