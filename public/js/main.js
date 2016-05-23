@@ -5169,6 +5169,10 @@ module.exports = Base;
 },{}],56:[function(require,module,exports){
 "use strict";
 
+/* **************************************************************** */
+/* Mapper
+/* **************************************************************** */
+
 var Mapper0   = require('./Mapper/0');
 var Mapper1   = require('./Mapper/1');
 var Mapper10  = require('./Mapper/10');
@@ -5223,6 +5227,10 @@ var Mapper93  = require('./Mapper/93');
 var Mapper94  = require('./Mapper/94');
 var Mapper95  = require('./Mapper/95');
 var Mapper97  = require('./Mapper/97');
+
+/* **************************************************************** */
+/* コンストラクタ
+/* **************************************************************** */
 
 var NES = function(canvas) {
 	// requestAnimationFrame 対応ブラウザのみ遊べます
@@ -5595,6 +5603,8 @@ var NES = function(canvas) {
 };
 
 /* **************************************************************** */
+/* 定数
+/* **************************************************************** */
 
 // 1P, 2P
 NES.prototype.JOYPAD_1P = 0;
@@ -5663,6 +5673,204 @@ NES.prototype.Init = function () {
 	return true;
 };
 
+NES.prototype.ParseHeader = function () {
+	if(!this.Rom) {
+		return;
+	}
+
+	this.PrgRomPageCount = this.Rom[4];
+	this.ChrRomPageCount = this.Rom[5];
+	this.HMirror  = (this.Rom[6] & 0x01) === 0;
+	this.VMirror  = (this.Rom[6] & 0x01) !== 0;
+	this.SramEnable = (this.Rom[6] & 0x02) !== 0;
+	this.TrainerEnable = (this.Rom[6] & 0x04) !== 0;
+	this.FourScreen = (this.Rom[6] & 0x08) !== 0;
+	this.MapperNumber = (this.Rom[6] >> 4) | (this.Rom[7] & 0xF0);
+
+	return true;
+};
+
+// Mapper を読み込み
+NES.prototype.MapperSelect = function () {
+	switch(this.MapperNumber) {
+		case 0:
+			this.Mapper = new Mapper0(this);
+			break;
+		case 1:
+			this.Mapper = new Mapper1(this);
+			break;
+		case 2:
+			this.Mapper = new Mapper2(this);
+			break;
+		case 3:
+			this.Mapper = new Mapper3(this);
+			break;
+		case 4:
+			this.Mapper = new Mapper4(this);
+			break;
+		case 5:
+			this.Mapper = new Mapper5(this);
+			break;
+		case 7:
+			this.Mapper = new Mapper7(this);
+			break;
+		case 9:
+			this.Mapper = new Mapper9(this);
+			break;
+		case 10:
+			this.Mapper = new Mapper10(this);
+			break;
+		case 16:
+			this.Mapper = new Mapper16(this);
+			break;
+		case 18:
+			this.Mapper = new Mapper18(this);
+			break;
+		case 19:
+			this.Mapper = new Mapper19(this);
+			break;
+		case 20:
+			// DiskSystem
+			//this.Mapper = new Mapper20(this);
+		case 21:
+			this.Mapper = new Mapper25(this);
+			break;
+		case 22:
+			this.Mapper = new Mapper22(this);
+			break;
+		case 23:
+			this.Mapper = new Mapper23(this);
+			break;
+		case 24:
+			this.Mapper = new Mapper24(this);
+			break;
+		case 25:
+			this.Mapper = new Mapper25(this);
+			break;
+		case 26:
+			this.Mapper = new Mapper26(this);
+			break;
+		case 32:
+			this.Mapper = new Mapper32(this);
+			break;
+		case 33:
+			this.Mapper = new Mapper33(this);
+			break;
+		case 34:
+			this.Mapper = new Mapper34(this);
+			break;
+		case 48:
+			this.Mapper = new Mapper48(this);
+			break;
+		case 65:
+			this.Mapper = new Mapper65(this);
+			break;
+		case 66:
+			this.Mapper = new Mapper66(this);
+			break;
+		case 67:
+			this.Mapper = new Mapper67(this);
+			break;
+		case 68:
+			this.Mapper = new Mapper68(this);
+			break;
+		case 69:
+			this.Mapper = new Mapper69(this);
+			break;
+		case 70:
+			this.Mapper = new Mapper70(this);
+			break;
+		case 72:
+			this.Mapper = new Mapper72(this);
+			break;
+		case 73:
+			this.Mapper = new Mapper73(this);
+			break;
+		case 75:
+			this.Mapper = new Mapper75(this);
+			break;
+		case 76:
+			this.Mapper = new Mapper76(this);
+			break;
+		case 77:
+			this.Mapper = new Mapper77(this);
+			break;
+		case 78:
+			this.Mapper = new Mapper78(this);
+			break;
+		case 80:
+			this.Mapper = new Mapper80(this);
+			break;
+		case 82:
+			this.Mapper = new Mapper82(this);
+			break;
+		case 85:
+			this.Mapper = new Mapper85(this);
+			break;
+		case 86:
+			this.Mapper = new Mapper86(this);
+			break;
+		case 87:
+			this.Mapper = new Mapper87(this);
+			break;
+		case 88:
+			this.Mapper = new Mapper88(this);
+			break;
+		case 89:
+			this.Mapper = new Mapper89(this);
+			break;
+		case 92:
+			this.Mapper = new Mapper92(this);
+			break;
+		case 93:
+			this.Mapper = new Mapper93(this);
+			break;
+		case 94:
+			this.Mapper = new Mapper94(this);
+			break;
+		case 95:
+			this.Mapper = new Mapper95(this);
+			break;
+		case 97:
+			this.Mapper = new Mapper97(this);
+			break;
+		case 101:
+			this.Mapper = new Mapper101(this);
+			break;
+		case 118:
+			this.Mapper = new Mapper118(this);
+			break;
+		case 119:
+			this.Mapper = new Mapper119(this);
+			break;
+		case 140:
+			this.Mapper = new Mapper140(this);
+			break;
+		case 152:
+			this.Mapper = new Mapper152(this);
+			break;
+		case 180:
+			this.Mapper = new Mapper180(this);
+			break;
+		case 184:
+			this.Mapper = new Mapper184(this);
+			break;
+		case 185:
+			this.Mapper = new Mapper185(this);
+			break;
+		case 207:
+			this.Mapper = new Mapper207(this);
+			break;
+		case 210:
+			this.Mapper = new Mapper19(this);
+			break;
+		default:
+			return false;
+	}
+	return true;
+};
+
+
 NES.prototype.Start = function () {
 	if(this.Mapper !== null && this.requestID === null) {
 		this.Run();
@@ -5701,7 +5909,10 @@ NES.prototype.Reset = function () {
 	return false;
 };
 
-/* **** NES CPU **** */
+/* **************************************************************** */
+/* NES CPU
+/* **************************************************************** */
+
 NES.prototype.CpuInit = function () {
 	// 各種レジスタ
 	this.A = 0;
@@ -5724,511 +5935,8 @@ NES.prototype.CpuInit = function () {
 	this.Set(0x000F, 0xBF);
 };
 
-
-NES.prototype.CpuReset = function () {
-	this.S = (this.S - 3) & 0xFF;
-	this.P |= 0x04;
-	this.toNMI = false;
-	this.toIRQ = 0x00;
-	this.PC = this.Get16(0xFFFC);
-};
-
-
-NES.prototype.NMI = function () {
-	this.CPUClock += 7;
-
-	// PCの上位8バイト
-	this.Push((this.PC >> 8) & 0xFF); // 0xFF = 0b11111111
-	// PCの下位8バイト
-	this.Push(this.PC & 0xFF);
-
-	// 0xEF = 0b11101111, 0x20 = 0b00100000
-	// ステータスレジスタのブレークモードをクリア
-	// ステータスレジスタの予約済フラグを1に再度セット
-	// その状態でスタックにpush
-	this.Push((this.P & 0xEF) | 0x20);
-
-	// ステータスレジスタのIRQ禁止をON
-	// ステータスレジスタのブレークモードをクリア
-	this.P = (this.P | 0x04) & 0xEF; // 0x04 = 0b0100
-
-	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFA);
-};
-
-
-NES.prototype.IRQ = function () {
-	this.CPUClock += 7;
-
-	// PCの上位8バイト
-	this.Push((this.PC >> 8) & 0xFF);
-	// PCの下位8バイト
-	this.Push(this.PC & 0xFF);
-
-	// 0xEF = 0b11101111, 0x20 = 0b00100000
-	// ステータスレジスタのブレークモードをクリア
-	// ステータスレジスタの予約済フラグを1に再度セット
-	// その状態でスタックにpush
-	this.Push((this.P & 0xEF) | 0x20);
-
-	// ステータスレジスタのIRQ禁止をON
-	// ステータスレジスタのブレークモードをクリア
-	this.P = (this.P | 0x04) & 0xEF;
-
-	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
-};
-
-NES.prototype.BRK = function () {
-	// BRK呼び出し側で CPUClock += 7 する
-
-	this.PC++;
-
-	// PCの上位8バイト
-	this.Push(this.PC >> 8);
-	// PCの下位8バイト
-	this.Push(this.PC & 0xFF);
-
-	// ステータスレジスタのブレークモードをセット
-	// ステータスレジスタの予約済フラグを1に再度セット
-	this.Push(this.P | 0x30); // 0x30 = 0b00110000
-
-
-	// ステータスレジスタのブレークモードをセット
-	// ステータスレジスタのインタラプトフラグをセット
-	this.P |= 0x14; // 0x14 = 0b00010100
-
-	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
-};
-
-
-
-
-
-NES.prototype.GetAddressZeroPage = function () {
-	return this.Get(this.PC++);
-};
-
-
-NES.prototype.GetAddressImmediate = function () {
-	return this.PC++;
-};
-
-
-NES.prototype.GetAddressAbsolute = function () {
-	return this.Get(this.PC++) | (this.Get(this.PC++) << 8);
-};
-
-
-NES.prototype.GetAddressZeroPageX = function () {
-	return (this.X + this.Get(this.PC++)) & 0xFF;
-};
-
-
-NES.prototype.GetAddressZeroPageY = function () {
-	return (this.Y + this.Get(this.PC++)) & 0xFF;
-};
-
-
-NES.prototype.GetAddressIndirectX = function () {
-	var tmp = (this.Get(this.PC++) + this.X) & 0xFF;
-	return this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
-};
-
-
-NES.prototype.GetAddressIndirectY = function () {
-	var tmp = this.Get(this.PC++);
-	tmp = this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
-	var address = tmp + this.Y;
-	if(((address ^ tmp) & 0x100) > 0)
-		this.CPUClock += 1;
-	return address;
-};
-
-
-NES.prototype.GetAddressAbsoluteX = function () {
-	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
-	var address = tmp + this.X;
-	if(((address ^ tmp) & 0x100) > 0)
-		this.CPUClock += 1;
-	return address;
-};
-
-
-NES.prototype.GetAddressAbsoluteY = function () {
-	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
-	var address = tmp + this.Y;
-	if(((address ^ tmp) & 0x100) > 0)
-		this.CPUClock += 1;
-	return address;
-};
-
-
-// スタックにpush
-NES.prototype.Push = function (data) {
-	// スタック領域: 0x0100~0x01FF
-	this.RAM[0x100 + this.S] = data;
-	this.S = (this.S - 1) & 0xFF;
-};
-
-
-// スタックからpop
-NES.prototype.Pop = function () {
-	// スタック領域: 0x0100~0x01FF
-	this.S = (this.S + 1) & 0xFF;
-	return this.RAM[0x100 + this.S];
-};
-
-
-NES.prototype.LDA = function (address) {
-	this.A = this.Get(address);
-	// N と Z をクリア -> 演算結果のbit7をNにストア
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.LDX = function (address) {
-	this.X = this.Get(address);
-	// N と Z をクリア -> 演算結果のbit7をNにストア
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.X]; // 0x7D = 0b01111101
-};
-
-
-NES.prototype.LDY = function (address) {
-	this.Y = this.Get(address);
-	// N と Z をクリア -> 演算結果のbit7をNにストア
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
-};
-
-
-NES.prototype.STA = function (address) {
-	this.Set(address, this.A);
-};
-
-
-NES.prototype.STX = function (address) {
-	this.Set(address, this.X);
-};
-
-
-NES.prototype.STY = function (address) {
-	this.Set(address, this.Y);
-};
-
-
-NES.prototype.Adder = function (data1) {
-	/*var data0 = this.A;
-	this.HalfCarry = ((data0 & 0x0F) + (data1 & 0x0F) + (this.P & 0x01)) >= 0x10 ? true : false;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];*/
-
-	var data0 = this.A;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.ADC = function (address) {
-	this.Adder(this.Get(address));
-
-	/*if((this.P & 0x08) === 0x08) {
-		if((this.A & 0x0F) > 0x09 || this.HalfCarry)
-			this.A += 0x06;
-		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x01)
-			this.A += 0x60;
-		if(this.A > 0xFF) {
-			this.A &= 0xFF;
-			this.P |= 0x01;
-		}
-	}*/
-};
-
-
-NES.prototype.SBC = function (address) {
-	this.Adder(~this.Get(address) & 0xFF);
-
-	/*if((this.P & 0x08) === 0x08) {
-		if((this.A & 0x0F) > 0x09 || !this.HalfCarry)
-			this.A -= 0x06;
-		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x00)
-			this.A -= 0x60;
-	}*/
-};
-
-
-NES.prototype.CMP = function (address) {
-	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - this.Get(address)) & 0x1FF];
-};
-
-
-NES.prototype.CPX = function (address) {
-	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.X - this.Get(address)) & 0x1FF];
-};
-
-
-NES.prototype.CPY = function (address) {
-	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.Y - this.Get(address)) & 0x1FF];
-};
-
-
-NES.prototype.AND = function (address) {
-	this.A &= this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.EOR = function (address) {
-	this.A ^= this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.ORA = function (address) {
-	this.A |= this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.BIT = function (address) {
-	var x = this.Get(address);
-	this.P = this.P & 0x3D | this.ZNCacheTable[x & this.A] & 0x02 | x & 0xC0;
-};
-
-
-NES.prototype.ASL_Sub = function (data) {
-	this.P = this.P & 0xFE | (data >> 7);
-	data = (data << 1) & 0xFF;
-	this.P = this.P & 0x7D | this.ZNCacheTable[data];
-	return data;
-};
-
-
-NES.prototype.ASL = function (address) {
-	this.Set(address, this.ASL_Sub(this.Get(address)));
-};
-
-
-NES.prototype.LSR_Sub = function (data) {
-	this.P = this.P & 0x7C | data & 0x01;
-	data >>= 1;
-	this.P |= this.ZNCacheTable[data];
-	return data;
-};
-
-
-NES.prototype.LSR = function (address) {
-	this.Set(address, this.LSR_Sub(this.Get(address)));
-};
-
-
-NES.prototype.ROL_Sub = function (data) {
-	var carry = data >> 7;
-	data = (data << 1) & 0xFF | this.P & 0x01;
-	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
-	return data;
-};
-
-
-NES.prototype.ROL = function (address) {
-	this.Set(address, this.ROL_Sub(this.Get(address)));
-};
-
-
-NES.prototype.ROR_Sub = function (data) {
-	var carry = data & 0x01;
-	data = (data >> 1) | ((this.P & 0x01) << 7);
-	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
-	return  data;
-};
-
-
-NES.prototype.ROR = function (address) {
-	this.Set(address, this.ROR_Sub(this.Get(address)));
-};
-
-
-NES.prototype.INC = function (address) {
-	var data = (this.Get(address) + 1) & 0xFF;
-	this.P = this.P & 0x7D | this.ZNCacheTable[data];
-	this.Set(address, data);
-};
-
-
-NES.prototype.DEC = function (address) {
-	var data = (this.Get(address) - 1) & 0xFF;
-	this.P = this.P & 0x7D | this.ZNCacheTable[data];
-	this.Set(address, data);
-};
-
-
-NES.prototype.Branch = function (state) {
-	if(!state) {
-		this.PC++;
-		return;
-	}
-	var displace = this.Get(this.PC);
-	var tmp = this.PC + 1;
-	this.PC = (tmp + (displace >= 128 ? displace - 256 : displace)) & 0xFFFF;
-
-	this.CPUClock += (((tmp ^ this.PC) & 0x100) > 0) ? 2 : 1;
-};
-
-
-/* Undocument */
-NES.prototype.ANC = function (address) {
-	this.A &= this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-	this.P = this.P & 0xFE | (this.A >>> 7);
-};
-
-
-NES.prototype.ANE = function (address) {
-	this.A = (this.A | 0xEE) & this.X & this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.ARR = function (address) {
-	this.A &= this.Get(address);
-	this.A = (this.A >> 1) | ((this.P & 0x01) << 7);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-
-	this.P = (this.P & 0xFE) | ((this.A & 0x40) >> 6);
-
-	var tmp = (this.A ^ (this.A << 1)) & 0x40;
-	this.P = (this.P & 0xBF) | tmp;
-};
-
-
-NES.prototype.ASR = function (address) {
-	this.A &= this.Get(address);
-
-	this.P = (this.P & 0xFE) | (this.A & 0x01);
-
-	this.A = this.A >> 1;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.DCP = function (address) {
-	var tmp = (this.Get(address) - 1) & 0xFF;
-	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - tmp) & 0x1FF];
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.ISB = function (address) {
-	var tmp = (this.Get(address) + 1) & 0xFF;
-	this.Adder(~tmp & 0xFF);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.LAS = function (address) {
-	var tmp = this.Get(address) & this.S;
-	this.A = this.X = this.S = tmp;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.LAX = function (address) {
-	this.A = this.X = this.Get(address);
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.LXA = function (address) {
-	var tmp = (this.A | 0xEE) & this.Get(address);
-	this.A = this.X = tmp;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-};
-
-
-NES.prototype.RLA = function (address) {
-	var tmp = this.Get(address);
-	tmp = (tmp << 1) | (this.P & 0x01);
-	this.P = (this.P & 0xFE) | (tmp >> 8);
-	this.A &= tmp;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.RRA = function (address) {
-	var tmp = this.Get(address);
-	var c = tmp & 0x01;
-	tmp = (tmp >> 1) | ((this.P & 0x01) << 7);
-	this.P = (this.P & 0xFE) | c;
-	this.Adder(tmp);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SAX = function (address) {
-	var tmp = this.A & this.X;
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SBX = function (address) {
-	var tmp = (this.A & this.X) - this.Get(address);
-	this.P = (this.P & 0xFE) | ((~tmp >> 8) & 0x01);
-	this.X = tmp & 0xFF;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-};
-
-
-NES.prototype.SHA = function (address) {
-	var tmp = this.A & this.X & ((address >> 8) + 1);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SHS = function (address) {
-	this.S = this.A & this.X;
-	var tmp = this.S & ((address >> 8) + 1);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SHX = function (address) {
-	var tmp = this.X & ((address >> 8) + 1);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SHY = function (address) {
-	var tmp = this.Y & ((address >> 8) + 1);
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SLO = function (address) {
-	var tmp = this.Get(address);
-	this.P = (this.P & 0xFE) | (tmp >> 7);
-	tmp = (tmp << 1) & 0xFF;
-	this.A |= tmp;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-	this.Set(address, tmp);
-};
-
-
-NES.prototype.SRE = function (address) {
-	var tmp = this.Get(address);
-	this.P = (this.P & 0xFE) | (tmp & 0x01);
-	tmp >>= 1;
-	this.A ^= tmp;
-	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-	this.Set(address, tmp);
-};
-
-
 NES.prototype.CpuRun = function () {
 	this.DrawFlag = false;
-	var mapper = this.Mapper;
 
 	do {
 		if(this.toNMI) {
@@ -6244,7 +5952,7 @@ NES.prototype.CpuRun = function () {
 
 		var opcode = this.Get(this.PC++);
 		this.CPUClock += this.CycleTable[opcode];
-		mapper.CPUSync(this.CPUClock);
+		this.Mapper.CPUSync(this.CPUClock);
 		this.PpuRun();
 		this.ApuRun();
 		this.CPUClock = 0;
@@ -7024,7 +6732,521 @@ NES.prototype.CpuRun = function () {
 };
 
 
-/* **** NES PPU **** */
+/* **************************************************************** */
+/* NES CPU 割り込み
+/* **************************************************************** */
+
+NES.prototype.CpuReset = function () {
+	this.S = (this.S - 3) & 0xFF;
+	this.P |= 0x04;
+	this.toNMI = false;
+	this.toIRQ = 0x00;
+	this.PC = this.Get16(0xFFFC);
+};
+
+
+NES.prototype.NMI = function () {
+	this.CPUClock += 7;
+
+	// PCの上位8バイト
+	this.Push((this.PC >> 8) & 0xFF); // 0xFF = 0b11111111
+	// PCの下位8バイト
+	this.Push(this.PC & 0xFF);
+
+	// 0xEF = 0b11101111, 0x20 = 0b00100000
+	// ステータスレジスタのブレークモードをクリア
+	// ステータスレジスタの予約済フラグを1に再度セット
+	// その状態でスタックにpush
+	this.Push((this.P & 0xEF) | 0x20);
+
+	// ステータスレジスタのIRQ禁止をON
+	// ステータスレジスタのブレークモードをクリア
+	this.P = (this.P | 0x04) & 0xEF; // 0x04 = 0b0100
+
+	// 割り込みベクタ
+	this.PC = this.Get16(0xFFFA);
+};
+
+
+NES.prototype.IRQ = function () {
+	this.CPUClock += 7;
+
+	// PCの上位8バイト
+	this.Push((this.PC >> 8) & 0xFF);
+	// PCの下位8バイト
+	this.Push(this.PC & 0xFF);
+
+	// 0xEF = 0b11101111, 0x20 = 0b00100000
+	// ステータスレジスタのブレークモードをクリア
+	// ステータスレジスタの予約済フラグを1に再度セット
+	// その状態でスタックにpush
+	this.Push((this.P & 0xEF) | 0x20);
+
+	// ステータスレジスタのIRQ禁止をON
+	// ステータスレジスタのブレークモードをクリア
+	this.P = (this.P | 0x04) & 0xEF;
+
+	// 割り込みベクタ
+	this.PC = this.Get16(0xFFFE);
+};
+
+NES.prototype.BRK = function () {
+	// BRK呼び出し側で CPUClock += 7 する
+
+	this.PC++;
+
+	// PCの上位8バイト
+	this.Push(this.PC >> 8);
+	// PCの下位8バイト
+	this.Push(this.PC & 0xFF);
+
+	// ステータスレジスタのブレークモードをセット
+	// ステータスレジスタの予約済フラグを1に再度セット
+	this.Push(this.P | 0x30); // 0x30 = 0b00110000
+
+
+	// ステータスレジスタのブレークモードをセット
+	// ステータスレジスタのインタラプトフラグをセット
+	this.P |= 0x14; // 0x14 = 0b00010100
+
+	// 割り込みベクタ
+	this.PC = this.Get16(0xFFFE);
+};
+
+/* **************************************************************** */
+/* NES CPU アドレッシングモード
+/* **************************************************************** */
+
+NES.prototype.GetAddressZeroPage = function () {
+	return this.Get(this.PC++);
+};
+
+
+NES.prototype.GetAddressImmediate = function () {
+	return this.PC++;
+};
+
+
+NES.prototype.GetAddressAbsolute = function () {
+	return this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+};
+
+
+NES.prototype.GetAddressZeroPageX = function () {
+	return (this.X + this.Get(this.PC++)) & 0xFF;
+};
+
+
+NES.prototype.GetAddressZeroPageY = function () {
+	return (this.Y + this.Get(this.PC++)) & 0xFF;
+};
+
+
+NES.prototype.GetAddressIndirectX = function () {
+	var tmp = (this.Get(this.PC++) + this.X) & 0xFF;
+	return this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
+};
+
+
+NES.prototype.GetAddressIndirectY = function () {
+	var tmp = this.Get(this.PC++);
+	tmp = this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
+	var address = tmp + this.Y;
+	if(((address ^ tmp) & 0x100) > 0)
+		this.CPUClock += 1;
+	return address;
+};
+
+
+NES.prototype.GetAddressAbsoluteX = function () {
+	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+	var address = tmp + this.X;
+	if(((address ^ tmp) & 0x100) > 0)
+		this.CPUClock += 1;
+	return address;
+};
+
+
+NES.prototype.GetAddressAbsoluteY = function () {
+	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+	var address = tmp + this.Y;
+	if(((address ^ tmp) & 0x100) > 0)
+		this.CPUClock += 1;
+	return address;
+};
+
+/* **************************************************************** */
+/* NES CPU スタック
+/* **************************************************************** */
+
+// スタックにpush
+NES.prototype.Push = function (data) {
+	// スタック領域: 0x0100~0x01FF
+	this.RAM[0x100 + this.S] = data;
+	this.S = (this.S - 1) & 0xFF;
+};
+
+
+// スタックからpop
+NES.prototype.Pop = function () {
+	// スタック領域: 0x0100~0x01FF
+	this.S = (this.S + 1) & 0xFF;
+	return this.RAM[0x100 + this.S];
+};
+
+/* **************************************************************** */
+/* NES CPU オペコード
+/* **************************************************************** */
+
+NES.prototype.LDA = function (address) {
+	this.A = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.LDX = function (address) {
+	this.X = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X]; // 0x7D = 0b01111101
+};
+
+
+NES.prototype.LDY = function (address) {
+	this.Y = this.Get(address);
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+};
+
+
+NES.prototype.STA = function (address) {
+	this.Set(address, this.A);
+};
+
+
+NES.prototype.STX = function (address) {
+	this.Set(address, this.X);
+};
+
+
+NES.prototype.STY = function (address) {
+	this.Set(address, this.Y);
+};
+
+
+NES.prototype.Adder = function (data1) {
+	/*var data0 = this.A;
+	this.HalfCarry = ((data0 & 0x0F) + (data1 & 0x0F) + (this.P & 0x01)) >= 0x10 ? true : false;
+	var tmp = data0 + data1 + (this.P & 0x01);
+	this.A = tmp & 0xFF;
+	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];*/
+
+	var data0 = this.A;
+	var tmp = data0 + data1 + (this.P & 0x01);
+	this.A = tmp & 0xFF;
+	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.ADC = function (address) {
+	this.Adder(this.Get(address));
+
+	/*if((this.P & 0x08) === 0x08) {
+		if((this.A & 0x0F) > 0x09 || this.HalfCarry)
+			this.A += 0x06;
+		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x01)
+			this.A += 0x60;
+		if(this.A > 0xFF) {
+			this.A &= 0xFF;
+			this.P |= 0x01;
+		}
+	}*/
+};
+
+
+NES.prototype.SBC = function (address) {
+	this.Adder(~this.Get(address) & 0xFF);
+
+	/*if((this.P & 0x08) === 0x08) {
+		if((this.A & 0x0F) > 0x09 || !this.HalfCarry)
+			this.A -= 0x06;
+		if((this.A & 0xF0) > 0x90 || (this.P & 0x01) === 0x00)
+			this.A -= 0x60;
+	}*/
+};
+
+
+NES.prototype.CMP = function (address) {
+	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - this.Get(address)) & 0x1FF];
+};
+
+
+NES.prototype.CPX = function (address) {
+	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.X - this.Get(address)) & 0x1FF];
+};
+
+
+NES.prototype.CPY = function (address) {
+	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.Y - this.Get(address)) & 0x1FF];
+};
+
+
+NES.prototype.AND = function (address) {
+	this.A &= this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.EOR = function (address) {
+	this.A ^= this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.ORA = function (address) {
+	this.A |= this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.BIT = function (address) {
+	var x = this.Get(address);
+	this.P = this.P & 0x3D | this.ZNCacheTable[x & this.A] & 0x02 | x & 0xC0;
+};
+
+
+NES.prototype.ASL_Sub = function (data) {
+	this.P = this.P & 0xFE | (data >> 7);
+	data = (data << 1) & 0xFF;
+	this.P = this.P & 0x7D | this.ZNCacheTable[data];
+	return data;
+};
+
+
+NES.prototype.ASL = function (address) {
+	this.Set(address, this.ASL_Sub(this.Get(address)));
+};
+
+
+NES.prototype.LSR_Sub = function (data) {
+	this.P = this.P & 0x7C | data & 0x01;
+	data >>= 1;
+	this.P |= this.ZNCacheTable[data];
+	return data;
+};
+
+
+NES.prototype.LSR = function (address) {
+	this.Set(address, this.LSR_Sub(this.Get(address)));
+};
+
+
+NES.prototype.ROL_Sub = function (data) {
+	var carry = data >> 7;
+	data = (data << 1) & 0xFF | this.P & 0x01;
+	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
+	return data;
+};
+
+
+NES.prototype.ROL = function (address) {
+	this.Set(address, this.ROL_Sub(this.Get(address)));
+};
+
+
+NES.prototype.ROR_Sub = function (data) {
+	var carry = data & 0x01;
+	data = (data >> 1) | ((this.P & 0x01) << 7);
+	this.P = this.P & 0x7C | carry | this.ZNCacheTable[data];
+	return  data;
+};
+
+
+NES.prototype.ROR = function (address) {
+	this.Set(address, this.ROR_Sub(this.Get(address)));
+};
+
+
+NES.prototype.INC = function (address) {
+	var data = (this.Get(address) + 1) & 0xFF;
+	this.P = this.P & 0x7D | this.ZNCacheTable[data];
+	this.Set(address, data);
+};
+
+
+NES.prototype.DEC = function (address) {
+	var data = (this.Get(address) - 1) & 0xFF;
+	this.P = this.P & 0x7D | this.ZNCacheTable[data];
+	this.Set(address, data);
+};
+
+
+NES.prototype.Branch = function (state) {
+	if(!state) {
+		this.PC++;
+		return;
+	}
+	var displace = this.Get(this.PC);
+	var tmp = this.PC + 1;
+	this.PC = (tmp + (displace >= 128 ? displace - 256 : displace)) & 0xFFFF;
+
+	this.CPUClock += (((tmp ^ this.PC) & 0x100) > 0) ? 2 : 1;
+};
+
+
+/* Undocument */
+NES.prototype.ANC = function (address) {
+	this.A &= this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+	this.P = this.P & 0xFE | (this.A >>> 7);
+};
+
+
+NES.prototype.ANE = function (address) {
+	this.A = (this.A | 0xEE) & this.X & this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.ARR = function (address) {
+	this.A &= this.Get(address);
+	this.A = (this.A >> 1) | ((this.P & 0x01) << 7);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+
+	this.P = (this.P & 0xFE) | ((this.A & 0x40) >> 6);
+
+	var tmp = (this.A ^ (this.A << 1)) & 0x40;
+	this.P = (this.P & 0xBF) | tmp;
+};
+
+
+NES.prototype.ASR = function (address) {
+	this.A &= this.Get(address);
+
+	this.P = (this.P & 0xFE) | (this.A & 0x01);
+
+	this.A = this.A >> 1;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.DCP = function (address) {
+	var tmp = (this.Get(address) - 1) & 0xFF;
+	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - tmp) & 0x1FF];
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.ISB = function (address) {
+	var tmp = (this.Get(address) + 1) & 0xFF;
+	this.Adder(~tmp & 0xFF);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.LAS = function (address) {
+	var tmp = this.Get(address) & this.S;
+	this.A = this.X = this.S = tmp;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.LAX = function (address) {
+	this.A = this.X = this.Get(address);
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.LXA = function (address) {
+	var tmp = (this.A | 0xEE) & this.Get(address);
+	this.A = this.X = tmp;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+
+NES.prototype.RLA = function (address) {
+	var tmp = this.Get(address);
+	tmp = (tmp << 1) | (this.P & 0x01);
+	this.P = (this.P & 0xFE) | (tmp >> 8);
+	this.A &= tmp;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.RRA = function (address) {
+	var tmp = this.Get(address);
+	var c = tmp & 0x01;
+	tmp = (tmp >> 1) | ((this.P & 0x01) << 7);
+	this.P = (this.P & 0xFE) | c;
+	this.Adder(tmp);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SAX = function (address) {
+	var tmp = this.A & this.X;
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SBX = function (address) {
+	var tmp = (this.A & this.X) - this.Get(address);
+	this.P = (this.P & 0xFE) | ((~tmp >> 8) & 0x01);
+	this.X = tmp & 0xFF;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+
+NES.prototype.SHA = function (address) {
+	var tmp = this.A & this.X & ((address >> 8) + 1);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SHS = function (address) {
+	this.S = this.A & this.X;
+	var tmp = this.S & ((address >> 8) + 1);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SHX = function (address) {
+	var tmp = this.X & ((address >> 8) + 1);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SHY = function (address) {
+	var tmp = this.Y & ((address >> 8) + 1);
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SLO = function (address) {
+	var tmp = this.Get(address);
+	this.P = (this.P & 0xFE) | (tmp >> 7);
+	tmp = (tmp << 1) & 0xFF;
+	this.A |= tmp;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+	this.Set(address, tmp);
+};
+
+
+NES.prototype.SRE = function (address) {
+	var tmp = this.Get(address);
+	this.P = (this.P & 0xFE) | (tmp & 0x01);
+	tmp >>= 1;
+	this.A ^= tmp;
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+	this.Set(address, tmp);
+};
+
+
+/* **************************************************************** */
+/* NES PPU
+/* **************************************************************** */
+
 NES.prototype.PpuInit = function () {
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
@@ -7466,26 +7688,10 @@ NES.prototype.StartDMA = function (data) {
 	this.CPUClock += 514;
 };
 
-/* **** NES Header **** */
-NES.prototype.ParseHeader = function () {
-	if(!this.Rom) {
-		return;
-	}
+/* **************************************************************** */
+/* NES RAM or ROM
+/* **************************************************************** */
 
-	this.PrgRomPageCount = this.Rom[4];
-	this.ChrRomPageCount = this.Rom[5];
-	this.HMirror  = (this.Rom[6] & 0x01) === 0;
-	this.VMirror  = (this.Rom[6] & 0x01) !== 0;
-	this.SramEnable = (this.Rom[6] & 0x02) !== 0;
-	this.TrainerEnable = (this.Rom[6] & 0x04) !== 0;
-	this.FourScreen = (this.Rom[6] & 0x08) !== 0;
-	this.MapperNumber = (this.Rom[6] >> 4) | (this.Rom[7] & 0xF0);
-
-	return true;
-};
-
-
-/* **** NES Storage **** */
 NES.prototype.StorageClear = function () {
 	var i, j;
 	for(i=0; i<this.RAM.length; i++) {
@@ -7865,7 +8071,10 @@ NES.prototype.SetPrgRomPage = function (no, num){
 };
 
 
-/* **** NES JoyPad **** */
+/* **************************************************************** */
+/* NES JoyPad
+/* **************************************************************** */
+
 NES.prototype.WriteJoyPadRegister1 = function (value) {
 	var s = (value & 0x01) === 0x01 ? true : false;
 	if(this.JoyPadStrobe && !s) {
@@ -7982,8 +8191,10 @@ NES.prototype.handleKeyDown = function (e){
 	e.preventDefault();
 };
 
+/* **************************************************************** */
+/* NES APU
+/* **************************************************************** */
 
-/* **** NES APU **** */
 NES.prototype.WebAudioFunction = function (e) {
 	var output = e.outputBuffer.getChannelData(0);
 
@@ -8908,188 +9119,6 @@ NES.prototype.Out_AY = function () {
 	}
 	return all_out;
 };
-
-// Mapper を読み込み
-NES.prototype.MapperSelect = function () {
-	switch(this.MapperNumber) {
-		case 0:
-			this.Mapper = new Mapper0(this);
-			break;
-		case 1:
-			this.Mapper = new Mapper1(this);
-			break;
-		case 2:
-			this.Mapper = new Mapper2(this);
-			break;
-		case 3:
-			this.Mapper = new Mapper3(this);
-			break;
-		case 4:
-			this.Mapper = new Mapper4(this);
-			break;
-		case 5:
-			this.Mapper = new Mapper5(this);
-			break;
-		case 7:
-			this.Mapper = new Mapper7(this);
-			break;
-		case 9:
-			this.Mapper = new Mapper9(this);
-			break;
-		case 10:
-			this.Mapper = new Mapper10(this);
-			break;
-		case 16:
-			this.Mapper = new Mapper16(this);
-			break;
-		case 18:
-			this.Mapper = new Mapper18(this);
-			break;
-		case 19:
-			this.Mapper = new Mapper19(this);
-			break;
-		case 20:
-			// DiskSystem
-			//this.Mapper = new Mapper20(this);
-		case 21:
-			this.Mapper = new Mapper25(this);
-			break;
-		case 22:
-			this.Mapper = new Mapper22(this);
-			break;
-		case 23:
-			this.Mapper = new Mapper23(this);
-			break;
-		case 24:
-			this.Mapper = new Mapper24(this);
-			break;
-		case 25:
-			this.Mapper = new Mapper25(this);
-			break;
-		case 26:
-			this.Mapper = new Mapper26(this);
-			break;
-		case 32:
-			this.Mapper = new Mapper32(this);
-			break;
-		case 33:
-			this.Mapper = new Mapper33(this);
-			break;
-		case 34:
-			this.Mapper = new Mapper34(this);
-			break;
-		case 48:
-			this.Mapper = new Mapper48(this);
-			break;
-		case 65:
-			this.Mapper = new Mapper65(this);
-			break;
-		case 66:
-			this.Mapper = new Mapper66(this);
-			break;
-		case 67:
-			this.Mapper = new Mapper67(this);
-			break;
-		case 68:
-			this.Mapper = new Mapper68(this);
-			break;
-		case 69:
-			this.Mapper = new Mapper69(this);
-			break;
-		case 70:
-			this.Mapper = new Mapper70(this);
-			break;
-		case 72:
-			this.Mapper = new Mapper72(this);
-			break;
-		case 73:
-			this.Mapper = new Mapper73(this);
-			break;
-		case 75:
-			this.Mapper = new Mapper75(this);
-			break;
-		case 76:
-			this.Mapper = new Mapper76(this);
-			break;
-		case 77:
-			this.Mapper = new Mapper77(this);
-			break;
-		case 78:
-			this.Mapper = new Mapper78(this);
-			break;
-		case 80:
-			this.Mapper = new Mapper80(this);
-			break;
-		case 82:
-			this.Mapper = new Mapper82(this);
-			break;
-		case 85:
-			this.Mapper = new Mapper85(this);
-			break;
-		case 86:
-			this.Mapper = new Mapper86(this);
-			break;
-		case 87:
-			this.Mapper = new Mapper87(this);
-			break;
-		case 88:
-			this.Mapper = new Mapper88(this);
-			break;
-		case 89:
-			this.Mapper = new Mapper89(this);
-			break;
-		case 92:
-			this.Mapper = new Mapper92(this);
-			break;
-		case 93:
-			this.Mapper = new Mapper93(this);
-			break;
-		case 94:
-			this.Mapper = new Mapper94(this);
-			break;
-		case 95:
-			this.Mapper = new Mapper95(this);
-			break;
-		case 97:
-			this.Mapper = new Mapper97(this);
-			break;
-		case 101:
-			this.Mapper = new Mapper101(this);
-			break;
-		case 118:
-			this.Mapper = new Mapper118(this);
-			break;
-		case 119:
-			this.Mapper = new Mapper119(this);
-			break;
-		case 140:
-			this.Mapper = new Mapper140(this);
-			break;
-		case 152:
-			this.Mapper = new Mapper152(this);
-			break;
-		case 180:
-			this.Mapper = new Mapper180(this);
-			break;
-		case 184:
-			this.Mapper = new Mapper184(this);
-			break;
-		case 185:
-			this.Mapper = new Mapper185(this);
-			break;
-		case 207:
-			this.Mapper = new Mapper207(this);
-			break;
-		case 210:
-			this.Mapper = new Mapper19(this);
-			break;
-		default:
-			return false;
-	}
-	return true;
-};
-
-
 
 module.exports = NES;
 
