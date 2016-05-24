@@ -1649,63 +1649,92 @@ NES.prototype.BRK = function () {
 /* NES CPU アドレッシングモード
 /* **************************************************************** */
 
+// Zero Page Addressing
+// 上位アドレスとして$00、下位アドレスとして2番目のバイトを使用し実効アドレスとします。
 NES.prototype.GetAddressZeroPage = function () {
 	return this.Get(this.PC++);
 };
 
-
+// Immediate Addressing
+// 2番目のバイトをデータそのものとして使用します。
 NES.prototype.GetAddressImmediate = function () {
 	return this.PC++;
 };
 
+// Absolute Addressing
 // 2番目のバイトを下位アドレス、 3番目のバイトを上位アドレスとして実効アドレスとします。
 NES.prototype.GetAddressAbsolute = function () {
-	var res = this.Get16(this.PC);
+	var address = this.Get16(this.PC);
 	this.PC += 2;
-	return res;
+	return address;
 };
 
-
+// Indexed Zero Page Addressing X
+// 上位アドレスとして$00、 下位アドレスとして2番目のバイトにインデックスレジスタXを加算した値を実効アドレスとします。
 NES.prototype.GetAddressZeroPageX = function () {
-	return (this.X + this.Get(this.PC++)) & 0xFF;
+	return (this.GetAddressZeroPage() + this.X) & 0xFF;
 };
 
 
+// Indexed Zero Page Addressing Y
+// 上位アドレスとして$00、 下位アドレスとして2番目のバイトにインデックスレジスタYを加算した値を実効アドレスとします。
 NES.prototype.GetAddressZeroPageY = function () {
-	return (this.Y + this.Get(this.PC++)) & 0xFF;
+	return (this.GetAddressZeroPage() + this.Y) & 0xFF;
 };
 
-
+// Indexed Indirect Addressing
+// 上位アドレスを$00とし、 また2番目のバイトにインデックスレジスタXを加算した値を下位アドレスとします。
+// このアドレスに格納されている値を実効アドレスの下位バイト、
+// そしてその次のアドレスに格納されている値を実効アドレスの上位バイトとします。
+// このインクリメントにおいてキャリーは無視します。
 NES.prototype.GetAddressIndirectX = function () {
-	var tmp = (this.Get(this.PC++) + this.X) & 0xFF;
+	var tmp = (this.GetAddressZeroPage() + this.X) & 0xFF;
 	return this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
 };
 
-
+// Indirect Indexed Addressing
+// まず上位アドレスを$00とし、下位アドレスとして2番目のバイトを使用します。
+// このアドレスに格納されている値を次の上位アドレス、
+// その次のアドレスに格納されている値を次の下位アドレスとします。
+// このときのインクリメントにおけるキャリーは無視します。
+// 得られたアドレスにインデックスレジスタYを加算したものを実効アドレスとします。
 NES.prototype.GetAddressIndirectY = function () {
-	var tmp = this.Get(this.PC++);
+	var tmp = this.GetAddressZeroPage();
 	tmp = this.Get(tmp) | (this.Get((tmp + 1) & 0xFF) << 8);
 	var address = tmp + this.Y;
-	if(((address ^ tmp) & 0x100) > 0)
+
+	// 加算によって桁上りしたら
+	if(((address ^ tmp) & 0x100) > 0) {
 		this.CPUClock += 1;
+	}
 	return address;
 };
 
-
+// Indexed Absolute Addressing X
+// 2番目のバイトを下位アドレス、3番目のバイトを上位アドレスとして、
+// このアドレスにインデックスレジスタXを加算したものを実効アドレスとします。
 NES.prototype.GetAddressAbsoluteX = function () {
-	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+	var tmp = this.GetAddressAbsolute();
 	var address = tmp + this.X;
-	if(((address ^ tmp) & 0x100) > 0)
+
+	// 加算によって桁上りしたら
+	if(((address ^ tmp) & 0x100) > 0) {
 		this.CPUClock += 1;
+	}
 	return address;
 };
 
-
+// Indexed Absolute Addressing Y
+// 2番目のバイトを下位アドレス、3番目のバイトを上位アドレスとして、
+// このアドレスにインデックスレジスタYを加算したものを実効アドレスとします。
 NES.prototype.GetAddressAbsoluteY = function () {
-	var tmp = this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+	var tmp = this.GetAddressAbsolute();
 	var address = tmp + this.Y;
-	if(((address ^ tmp) & 0x100) > 0)
+
+	// 加算によって桁上りしたら
+	if(((address ^ tmp) & 0x100) > 0) {
 		this.CPUClock += 1;
+	}
 	return address;
 };
 
