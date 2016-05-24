@@ -98,6 +98,18 @@ var initialize_dom_events = function() {
 				read_local_file(e.target.files[0], nes_rom_change);
 			}, false);
 
+		// プルダウンから ROM読み込み
+		document.getElementById("romload").addEventListener("click",
+			function (e) {
+				e.preventDefault();
+
+				// ROM の場所
+				var url = document.getElementById("romlist").value;
+
+				read_url(url, nes_rom_change);
+			}, false);
+
+
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
@@ -113,14 +125,6 @@ var initialize_dom_events = function() {
 window.onload = function() {
 	// DOMのイベントを設定
 	initialize_dom_events();
-
-	// TODO: Now Loading...的なものを入れる
-
-	// onload でデフォルトのゲームを読み込む
-	//var url = 'rom/mario.nes';
-	//var url = "rom/bad_apple_2_5.nes";
-	var url = "rom/megaari.nes";
-	read_url(url, nes_rom_change);
 };
 
 

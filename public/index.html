@@ -3,17 +3,32 @@
 	<title>FaithJS</title>
 </head>
 <body>
+
 	<canvas id="mainCanvas" width="256" height="224" style="border:1px solid black; width:512px; height:448px;">
 		Unsupported CANVAS
 	</canvas>
 	<br />
+	ROM選択：
+	<select id="romlist">
+		<option value="./rom/bad_apple_2_5.nes">Bad Apple!! PV-FC 2.5</option>
+		<option value="./rom/megaari.nes">MegaAri</option>
+		<option value="./rom/nittori.nes">河童ニットリちゃん</option>
+		<option value="./rom/nestest.nes">nestest</option>
+	</select>
+	<button id="romload">ロード</button>
+	<br />
+	<br />
+
 	<span id="usefileapi">
-		ROMファイル（.nes）を選択または、ドロップしてください。<br>
+		ROMファイル（.nes）を選択または、ドラッグ＆ドロップすることで<br />
+		自分の持っているROMファイルも遊べます。<br />
 		<input type="file" id="file">
 	</span>
-	<br>
+	<br />
+	<br />
 
-	<button id="start">START</button><button id="pause">PAUSE</button><button id="reset">RESET</button><br>
+	<button id="start">START</button><button id="pause">PAUSE</button><button id="reset">RESET</button>
+	<br />
 
 	<table>
 		<tr><td></td><td>1P</td><td>2P</td></tr>
