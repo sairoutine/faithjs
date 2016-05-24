@@ -1658,9 +1658,11 @@ NES.prototype.GetAddressImmediate = function () {
 	return this.PC++;
 };
 
-
+// 2番目のバイトを下位アドレス、 3番目のバイトを上位アドレスとして実効アドレスとします。
 NES.prototype.GetAddressAbsolute = function () {
-	return this.Get(this.PC++) | (this.Get(this.PC++) << 8);
+	var res = this.Get16(this.PC);
+	this.PC += 2;
+	return res;
 };
 
 
