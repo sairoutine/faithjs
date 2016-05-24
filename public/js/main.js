@@ -5396,6 +5396,7 @@ var NES = function(canvas) {
 	//////////////////////////////////////////////////////////////////
 
 	this.JoyPadStrobe = false;
+	// 押下されたの状態
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
 
@@ -8076,22 +8077,22 @@ NES.prototype.SetPrgRomPage = function (no, num){
 /* **************************************************************** */
 
 NES.prototype.WriteJoyPadRegister1 = function (value) {
+	// value の 0bit目が立っているかどうか
 	var s = (value & 0x01) === 0x01 ? true : false;
-	if(this.JoyPadStrobe && !s) {
+
+	if(this.JoyPadStrobe && !s) { // 前回立ってて今回立ってない
 		this.JoyPadBuffer[0] = this.JoyPadState[0];
 		this.JoyPadBuffer[1] = this.JoyPadState[1];
 	}
 	this.JoyPadStrobe = s;
 };
 
-
+// N回読みだして、0bit目がセットされていれば押下されている
 NES.prototype.ReadJoyPadRegister1 = function () {
 	var result = this.JoyPadBuffer[0] & 0x01;
 	this.JoyPadBuffer[0] >>>= 1;
 	return result;
 };
-
-
 NES.prototype.ReadJoyPadRegister2 = function () {
 	var result = this.JoyPadBuffer[1] & 0x01;
 	this.JoyPadBuffer[1] >>>= 1;
@@ -9223,6 +9224,18 @@ var initialize_dom_events = function() {
 				read_local_file(e.target.files[0], nes_rom_change);
 			}, false);
 
+		// プルダウンから ROM読み込み
+		document.getElementById("romload").addEventListener("click",
+			function (e) {
+				e.preventDefault();
+
+				// ROM の場所
+				var url = document.getElementById("romlist").value;
+
+				read_url(url, nes_rom_change);
+			}, false);
+
+
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
@@ -9238,14 +9251,6 @@ var initialize_dom_events = function() {
 window.onload = function() {
 	// DOMのイベントを設定
 	initialize_dom_events();
-
-	// TODO: Now Loading...的なものを入れる
-
-	// onload でデフォルトのゲームを読み込む
-	//var url = 'rom/mario.nes';
-	//var url = "rom/bad_apple_2_5.nes";
-	var url = "rom/megaari.nes";
-	read_url(url, nes_rom_change);
 };
 
 
