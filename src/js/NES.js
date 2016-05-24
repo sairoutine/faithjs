@@ -227,6 +227,7 @@ var NES = function(canvas) {
 	//////////////////////////////////////////////////////////////////
 
 	this.JoyPadStrobe = false;
+	// 押下されたの状態
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
 
@@ -2907,22 +2908,22 @@ NES.prototype.SetPrgRomPage = function (no, num){
 /* **************************************************************** */
 
 NES.prototype.WriteJoyPadRegister1 = function (value) {
+	// value の 0bit目が立っているかどうか
 	var s = (value & 0x01) === 0x01 ? true : false;
-	if(this.JoyPadStrobe && !s) {
+
+	if(this.JoyPadStrobe && !s) { // 前回立ってて今回立ってない
 		this.JoyPadBuffer[0] = this.JoyPadState[0];
 		this.JoyPadBuffer[1] = this.JoyPadState[1];
 	}
 	this.JoyPadStrobe = s;
 };
 
-
+// N回読みだして、0bit目がセットされていれば押下されている
 NES.prototype.ReadJoyPadRegister1 = function () {
 	var result = this.JoyPadBuffer[0] & 0x01;
 	this.JoyPadBuffer[0] >>>= 1;
 	return result;
 };
-
-
 NES.prototype.ReadJoyPadRegister2 = function () {
 	var result = this.JoyPadBuffer[1] & 0x01;
 	this.JoyPadBuffer[1] >>>= 1;
