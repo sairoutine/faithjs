@@ -892,30 +892,27 @@ NES.prototype.CpuRun = function () {
 				break;
 
 			case 0x8A://TXA
-				this.A = this.X;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+				this.TXA();
 				break;
 			case 0x98://TYA
-				this.A = this.Y;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+				this.TYA();
 				break;
 			case 0x9A://TXS
-				this.S = this.X;
+				this.TXS();
 				break;
 			case 0xA8://TAY
-				this.Y = this.A;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+				this.TAY();
 				break;
 			case 0xAA://TAX
-				this.X = this.A;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+				this.TAX();
 				break;
 			case 0xBA://TSX
-				this.X = this.S;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+				this.TSX();
 				break;
 
 			case 0x08://PHP
+				// BRK割り込みをセット
+				// 0x30 = 0b00110000
 				this.Push(this.P | 0x30);
 				break;
 			case 0x28://PLP
@@ -1763,6 +1760,7 @@ NES.prototype.Pop = function () {
 /* NES CPU オペコード
 /* **************************************************************** */
 
+// Aレジスタにロード
 NES.prototype.LDA = function (address) {
 	this.A = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -1770,6 +1768,7 @@ NES.prototype.LDA = function (address) {
 };
 
 
+// Xレジスタにロード
 NES.prototype.LDX = function (address) {
 	this.X = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -1777,6 +1776,7 @@ NES.prototype.LDX = function (address) {
 };
 
 
+// Yレジスタにロード
 NES.prototype.LDY = function (address) {
 	this.Y = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -1784,18 +1784,66 @@ NES.prototype.LDY = function (address) {
 };
 
 
+// Aレジスタをストア
 NES.prototype.STA = function (address) {
 	this.Set(address, this.A);
 };
 
 
+// Xレジスタをストア
 NES.prototype.STX = function (address) {
 	this.Set(address, this.X);
 };
 
 
+// Yレジスタをストア
 NES.prototype.STY = function (address) {
 	this.Set(address, this.Y);
+};
+
+// XレジスタをAレジスタにコピー
+NES.prototype.TXA = function () {
+	this.A = this.X;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// YレジスタをAレジスタにコピー
+NES.prototype.TYA = function () {
+	this.A = this.Y;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// XレジスタをSレジスタにコピー
+NES.prototype.TXS = function () {
+	this.S = this.X;
+};
+
+// AレジスタをYレジスタにコピー
+NES.prototype.TAY = function () {
+	this.Y = this.A;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// AレジスタをXレジスタにコピー
+NES.prototype.TAX = function () {
+	this.X = this.A;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// SレジスタをXレジスタにコピー
+NES.prototype.TSX = function () {
+	this.X = this.S;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
 };
 
 
