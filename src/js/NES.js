@@ -94,6 +94,8 @@ var NES = function(canvas) {
 	//this.HalfCarry = false;
 
 	//TODO: 削除
+	// ゼロフラグ、ネガティブフラグを
+	// 簡単にセットするためのキャッシュテーブル
 	//   0..127 -> 0b00000000
 	// 128..256 -> 0b10000000
 	this.ZNCacheTable = new Array(256);
