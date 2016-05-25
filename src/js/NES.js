@@ -497,6 +497,12 @@ NES.prototype.REG_P_ZERO     = 0x02;
 // キャリーフラグ(0bit目)
 NES.prototype.REG_P_CARRY    = 0x01;
 
+// 割り込みベクタ 1 (マスク不可割り込み)
+NES.prototype.IRQ_NMI_ADDR   = 0xFFFA;
+// 割り込みベクタ 2 (リセット)
+NES.prototype.IRQ_RESET_ADDR = 0xFFFC;
+// 割り込みベクタ 3 (ソフトウェア割り込み)
+NES.prototype.IRQ_BRK_ADDR   = 0xFFFE;
 
 
 
@@ -773,7 +779,7 @@ NES.prototype.CpuInit = function () {
 	this.P = 0x34; // 00110100
 
 	// RESET割り込みにより PC の下位バイトを$FFFCから、上位バイトを$FFFDからフェッチ
-	this.PC = this.Get16(0xFFFC);
+	this.PC = this.Get16(this.IRQ_RESET_ADDR);
 
 	// 割り込み
 	this.toNMI = false;
@@ -1653,7 +1659,7 @@ NES.prototype.CpuReset = function () {
 	this.P |= 0x04;
 	this.toNMI = false;
 	this.toIRQ = 0x00;
-	this.PC = this.Get16(0xFFFC);
+	this.PC = this.Get16(this.IRQ_RESET_ADDR);
 };
 
 
@@ -1676,7 +1682,7 @@ NES.prototype.NMI = function () {
 	this.P = (this.P | 0x04) & 0xEF; // 0x04 = 0b0100
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFA);
+	this.PC = this.Get16(this.IRQ_NMI_ADDR);
 };
 
 
@@ -1699,7 +1705,7 @@ NES.prototype.IRQ = function () {
 	this.P = (this.P | 0x04) & 0xEF;
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
+	this.PC = this.Get16(this.IRQ_BRK_ADDR);
 };
 
 NES.prototype.BRK = function () {
@@ -1722,7 +1728,7 @@ NES.prototype.BRK = function () {
 	this.P |= 0x14; // 0x14 = 0b00010100
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
+	this.PC = this.Get16(this.IRQ_BRK_ADDR);
 };
 
 /* **************************************************************** */
