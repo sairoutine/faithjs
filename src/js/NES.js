@@ -480,6 +480,23 @@ for(var i = 0; i < NES.prototype.ZEROS_ROM_PAGE.length; i++) {
 	NES.prototype.ZEROS_ROM_PAGE[i] = 0;
 }
 
+// ネガティブフラグ(7bit目)
+NES.prototype.REG_P_NEGATIVE = 0x80;
+// オーバーフローフラグ(6bit目)
+NES.prototype.REG_P_OVERFLOW = 0x40;
+// 未使用フラグ(5bit目) (フラグとして使われていない)
+NES.prototype.REG_P_NOTUSED  = 0x20;
+// ソフトウェア割り込みフラグ(4bit目)
+NES.prototype.REG_P_BREAK    = 0x10;
+// 10 進モードステータスフラグ(3bit目)
+NES.prototype.REG_P_DECIMAL  = 0x08;
+// 割り込み禁止フラグ(2bit目)
+NES.prototype.REG_P_INTERRUPT= 0x04;
+// ゼロフラグ(1bit目)
+NES.prototype.REG_P_ZERO     = 0x02;
+// キャリーフラグ(0bit目)
+NES.prototype.REG_P_CARRY    = 0x01;
+
 
 
 
@@ -1564,6 +1581,67 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			this.PC--;
 			break;
 	}
+};
+
+
+/* **************************************************************** */
+/* NES CPU ステータスレジスタ
+/* **************************************************************** */
+
+// ネガティブフラグ
+NES.prototype.SetNegativeFlag = function() {
+	this.P |=  this.REG_P_NEGATIVE;
+};
+NES.prototype.ClearNegativeFlag = function() {
+	this.P &= ~this.REG_P_NEGATIVE;
+};
+
+// オーバーフローフラグ
+NES.prototype.SetOverflowFlag = function() {
+	this.P |=  this.REG_P_OVERFLOW;
+};
+NES.prototype.ClearOverflowFlag = function() {
+	this.P &= ~this.REG_P_OVERFLOW;
+};
+
+// 割り込みフラグ
+NES.prototype.SetBreakFlag = function() {
+	this.P |=  this.REG_P_BREAK;
+};
+NES.prototype.ClearBreakFlag = function() {
+	this.P &= ~this.REG_P_BREAK;
+};
+
+// 10 進モードステータスフラグ
+NES.prototype.SetDecimalModeFlag = function() {
+	this.P |=  this.REG_P_DECIMAL;
+};
+NES.prototype.ClearDecimalModeFlag = function() {
+	this.P &= ~this.REG_P_DECIMAL;
+};
+
+// 割り込み禁止フラグ
+NES.prototype.SetInterruptFlag = function() {
+	this.P |=  this.REG_P_INTERRUPT;
+};
+NES.prototype.ClearInterruptFlag = function() {
+	this.P &= ~this.REG_P_INTERRUPT;
+};
+
+// ゼロフラグ
+NES.prototype.SetZeroFlag = function() {
+	this.P |=  this.REG_P_INTERRUPT;
+};
+NES.prototype.ClearZeroFlag = function() {
+	this.P &= ~this.REG_P_INTERRUPT;
+};
+
+// キャリーフラグをセット
+NES.prototype.SetCarryFlag = function() {
+	this.P |=  this.REG_P_CARRY;
+};
+NES.prototype.ClearCarryFlag = function() {
+	this.P &= ~this.REG_P_CARRY;
 };
 
 /* **************************************************************** */
