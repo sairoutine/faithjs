@@ -939,19 +939,16 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			break;
 
 		case 0x08://PHP
-			// BRK割り込みをセット
-			// 0x30 = 0b00110000
-			this.Push(this.P | 0x30);
+			this.PHP();
 			break;
 		case 0x28://PLP
-			this.P = this.Pop();
+			this.PLP();
 			break;
 		case 0x48://PHA
-			this.Push(this.A);
+			this.PHA();
 			break;
 		case 0x68://PLA
-			this.A = this.Pop();
-			this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+			this.PLA();
 			break;
 
 		case 0x61://ADC XIND
@@ -1209,12 +1206,10 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			break;
 
 		case 0xE8://INX
-			this.X = (this.X + 1) & 0xFF;
-			this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+			this.INX();
 			break;
 		case 0xC8://INY
-			this.Y = (this.Y + 1) & 0xFF;
-			this.P = this.P & 0x7D | this.ZNCacheTable[this.Y]; 
+			this.INY();
 			break;
 
 		case 0xC6://DEC ZP
@@ -1231,12 +1226,10 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			break;
 
 		case 0xCA://DEX
-			this.X = (this.X - 1) & 0xFF;
-			this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+			this.DEX();
 			break;
 		case 0x88://DEY
-			this.Y = (this.Y - 1) & 0xFF;
-			this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+			this.DEY();
 			break;
 
 		case 0x18://CLC
@@ -1262,6 +1255,7 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			break;
 
 		case 0xEA://NOP
+			this.NOP();
 			break;
 
 		case 0x00://BRK
@@ -1269,52 +1263,48 @@ NES.prototype.ExecuteOpCode = function (opcode) {
 			break;
 
 		case 0x4C://JMP ABS
-			this.PC = this.GetAddressAbsolute();
+			this.JMP(this.GetAddressAbsolute());
 			break;
 		case 0x6C://JMP IND
+			//TODO: refactor
 			var address = this.GetAddressAbsolute();
 			var tmp = (((address + 1) & 0x00FF) | (address & 0xFF00));
-			this.PC = this.Get(address) | (this.Get(tmp) << 8);
+			this.JMP(this.Get(address) | (this.Get(tmp) << 8));
 			break;
 
 		case 0x20://JSR ABS
-			var PC = (this.PC + 1) & 0xFFFF;
-			this.Push(PC >> 8);
-			this.Push(PC & 0xFF);
-			this.PC = this.GetAddressAbsolute();
+			this.JSR();
 			break;
-
 		case 0x60://RTS
-			this.PC = (this.Pop() | (this.Pop() << 8)) + 1;
+			this.RTS();
 			break;
 		case 0x40://RTI
-			this.P = this.Pop();
-			this.PC = this.Pop() | (this.Pop() << 8);
+			this.RTI();
 			break;
 
 		case 0x10://BPL REL
-			this.Branch((this.P & 0x80) === 0);
+			this.BPL();
 			break;
 		case 0x30://BMI REL
-			this.Branch((this.P & 0x80) !== 0);
+			this.BMI();
 			break;
 		case 0x50://BVC REL
-			this.Branch((this.P & 0x40) === 0);
+			this.BVC();
 			break;
 		case 0x70://BVS REL
-			this.Branch((this.P & 0x40) !== 0);
+			this.BVS();
 			break;
 		case 0x90://BCC REL
-			this.Branch((this.P & 0x01) === 0);
+			this.BCC();
 			break;
 		case 0xB0://BCS REL
-			this.Branch((this.P & 0x01) !== 0);
+			this.BCS();
 			break;
 		case 0xD0://BNE REL
-			this.Branch((this.P & 0x02) === 0);
+			this.BNE();
 			break;
 		case 0xF0://BEQ REL
-			this.Branch((this.P & 0x02) !== 0);
+			this.BEQ();
 			break;
 
 		/* Undocument */
@@ -1933,21 +1923,48 @@ NES.prototype.TSX = function () {
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
 };
 
-
-NES.prototype.Adder = function (data1) {
-	/*var data0 = this.A;
-	this.HalfCarry = ((data0 & 0x0F) + (data1 & 0x0F) + (this.P & 0x01)) >= 0x10 ? true : false;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];*/
-
-	var data0 = this.A;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];
+// ステータスレジスタをプッシュする
+NES.prototype.PHP = function () {
+	// BRK割り込みをセット
+	// 0x30 = 0b00110000
+	this.Push(this.P | 0x30);
 };
 
+// ステータスレジスタをポップする
+NES.prototype.PLP = function () {
+	this.P = this.Pop();
+};
 
+// Aレジスタをプッシュする
+NES.prototype.PHA = function () {
+	this.Push(this.A);
+};
+
+// Aレジスタをポップする
+NES.prototype.PLA = function () {
+	this.A = this.Pop();
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+NES.prototype.Adder = function (data) {
+	var carry_flag = this.P & 0x01;
+	var tmp = this.A + data + carry_flag;
+
+	//this.HalfCarry = ((this.A & 0x0F) + (data & 0x0F) + carry_flag) >= 0x10 ? true : false;
+
+	// 0x3C = 0b00111100
+	this.P = this.P & 0x3C;
+
+	// TODO: 引き続き調査
+	// 0x80 = 0b10000000
+	this.P |= (~(this.A ^ data) & (this.A ^ tmp) & 0x80) >>> 1;
+	this.P |= (tmp >>> 8);
+	this.P |= this.ZNCacheTable[tmp & 0xFF];
+	this.A = tmp & 0xFF;
+};
+
+// (A + メモリ + キャリーフラグ) を演算して結果をAへ返します
 NES.prototype.ADC = function (address) {
 	this.Adder(this.Get(address));
 
@@ -1964,6 +1981,7 @@ NES.prototype.ADC = function (address) {
 };
 
 
+// (A - メモリ + キャリーフラグ) を演算して結果をAへ返します
 NES.prototype.SBC = function (address) {
 	this.Adder(~this.Get(address) & 0xFF);
 
@@ -1975,42 +1993,58 @@ NES.prototype.SBC = function (address) {
 	}*/
 };
 
-
+// TODO: 調べる
+// Aレジスタと比較する
 NES.prototype.CMP = function (address) {
+	// 0x7C = 0b01111100
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - this.Get(address)) & 0x1FF];
 };
 
 
+// TODO: 調べる
+// Xレジスタと比較する
 NES.prototype.CPX = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.X - this.Get(address)) & 0x1FF];
 };
 
 
+// TODO: 調べる
+// Yレジスタと比較する
 NES.prototype.CPY = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.Y - this.Get(address)) & 0x1FF];
 };
 
-
+// AレジスタとAND演算をする
 NES.prototype.AND = function (address) {
 	this.A &= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとEX-OR演算をする
 NES.prototype.EOR = function (address) {
 	this.A ^= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとOR演算をする
 NES.prototype.ORA = function (address) {
 	this.A |= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとAND比較をする
 NES.prototype.BIT = function (address) {
 	var x = this.Get(address);
+	// 0x3D = 0b00111101
+	// 0x02 = 0b00000010
+	// 0xC0 = 0b11000000
+	// TODO: 調べる
 	this.P = this.P & 0x3D | this.ZNCacheTable[x & this.A] & 0x02 | x & 0xC0;
 };
 
@@ -2022,7 +2056,8 @@ NES.prototype.ASL_Sub = function (data) {
 	return data;
 };
 
-
+// 左シフト
+// TODO: 調べる
 NES.prototype.ASL = function (address) {
 	this.Set(address, this.ASL_Sub(this.Get(address)));
 };
@@ -2035,7 +2070,8 @@ NES.prototype.LSR_Sub = function (data) {
 	return data;
 };
 
-
+// 右シフト
+// TODO: 調べる
 NES.prototype.LSR = function (address) {
 	this.Set(address, this.LSR_Sub(this.Get(address)));
 };
@@ -2048,7 +2084,8 @@ NES.prototype.ROL_Sub = function (data) {
 	return data;
 };
 
-
+// 左ローテイト
+// TODO: 調べる
 NES.prototype.ROL = function (address) {
 	this.Set(address, this.ROL_Sub(this.Get(address)));
 };
@@ -2062,25 +2099,166 @@ NES.prototype.ROR_Sub = function (data) {
 };
 
 
+// 右ローテイト
+// TODO: 調べる
 NES.prototype.ROR = function (address) {
 	this.Set(address, this.ROR_Sub(this.Get(address)));
 };
 
-
+// 1を加算する
 NES.prototype.INC = function (address) {
 	var data = (this.Get(address) + 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
 };
 
-
+// 1を減算する
 NES.prototype.DEC = function (address) {
 	var data = (this.Get(address) - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
 };
 
+// Xレジスタに1を加算
+NES.prototype.INX = function () {
+	this.X = (this.X + 1) & 0xFF;
 
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+// Yレジスタに1を加算
+NES.prototype.INY = function () {
+	this.Y = (this.Y + 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+};
+
+// Xレジスタに1を減算
+NES.prototype.DEX = function () {
+	this.X = (this.X - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+// Yレジスタに1を減算
+NES.prototype.DEY = function () {
+	this.Y = (this.Y - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+};
+
+// 何もしない
+NES.prototype.NOP = function () {
+};
+
+// Cフラグをクリア
+NES.prototype.CLC = function () {
+	this.P &= 0xFE;
+};
+
+// Iフラグをクリア
+NES.prototype.CLC = function () {
+	this.P &= 0xFB;
+};
+
+// Iフラグをクリア
+NES.prototype.CLV = function () {
+	this.P &= 0xBF;
+};
+
+// Dフラグをクリア
+NES.prototype.CLD = function () {
+	this.P &= 0xF7;
+};
+
+// Cフラグをセット
+NES.prototype.SEC = function () {
+	this.P |= 0x01;
+};
+
+// Iフラグをセット
+NES.prototype.SEI = function () {
+	this.P |= 0x04;
+};
+
+// Dフラグをセット
+NES.prototype.SED = function () {
+	this.P |= 0x08;
+};
+
+// ジャンプ
+NES.prototype.JMP = function (address) {
+	this.PC = address;
+};
+
+// サブルーチン呼び出し
+NES.prototype.JSR = function () {
+	var PC = (this.PC + 1) & 0xFFFF;
+	this.Push(PC >> 8);
+	this.Push(PC & 0xFF);
+	this.JMP(this.GetAddressAbsolute());
+};
+
+// サブルーチンから復帰
+NES.prototype.RTS = function () {
+	this.PC = (this.Pop() | (this.Pop() << 8)) + 1;
+};
+
+// 割り込みから復帰
+NES.prototype.RTI = function () {
+	this.P = this.Pop();
+	this.PC = this.Pop() | (this.Pop() << 8);
+};
+
+// キャリーフラグが立っていない時ジャンプ
+NES.prototype.BCC = function () {
+	this.Branch((this.P & 0x01) === 0);
+};
+
+// キャリーフラグが立っている時ジャンプ
+NES.prototype.BCS = function () {
+	this.Branch((this.P & 0x01) !== 0);
+};
+
+// ネガティブフラグが立っていない時ジャンプ
+NES.prototype.BPL = function () {
+	this.Branch((this.P & 0x80) === 0);
+};
+
+// ネガティブフラグが立っている時ジャンプ
+NES.prototype.BMI = function () {
+	this.Branch((this.P & 0x80) !== 0);
+};
+
+// オーバーフローフラグが立っていない時ジャンプ
+NES.prototype.BVC = function () {
+	this.Branch((this.P & 0x40) === 0);
+};
+
+// オーバーフローフラグが立っている時ジャンプ
+NES.prototype.BVS = function () {
+	this.Branch((this.P & 0x40) !== 0);
+};
+
+// ゼロフラグが立っていない時ジャンプ
+NES.prototype.BNE = function () {
+	this.Branch((this.P & 0x02) === 0);
+};
+
+// ゼロフラグが立っている時ジャンプ
+NES.prototype.BEQ = function () {
+	this.Branch((this.P & 0x02) !== 0);
+};
+
+// 条件分岐命令
 NES.prototype.Branch = function (state) {
 	if(!state) {
 		this.PC++;
