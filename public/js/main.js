@@ -5263,6 +5263,8 @@ var NES = function(canvas) {
 	//this.HalfCarry = false;
 
 	//TODO: 削除
+	// ゼロフラグ、ネガティブフラグを
+	// 簡単にセットするためのキャッシュテーブル
 	//   0..127 -> 0b00000000
 	// 128..256 -> 0b10000000
 	this.ZNCacheTable = new Array(256);
@@ -5647,6 +5649,29 @@ for(var i = 0; i < NES.prototype.ZEROS_ROM_PAGE.length; i++) {
 	NES.prototype.ZEROS_ROM_PAGE[i] = 0;
 }
 
+// ネガティブフラグ(7bit目)
+NES.prototype.REG_P_NEGATIVE = 0x80;
+// オーバーフローフラグ(6bit目)
+NES.prototype.REG_P_OVERFLOW = 0x40;
+// 未使用フラグ(5bit目) (フラグとして使われていない)
+NES.prototype.REG_P_NOTUSED  = 0x20;
+// ソフトウェア割り込みフラグ(4bit目)
+NES.prototype.REG_P_BREAK    = 0x10;
+// 10 進モードステータスフラグ(3bit目)
+NES.prototype.REG_P_DECIMAL  = 0x08;
+// 割り込み禁止フラグ(2bit目)
+NES.prototype.REG_P_INTERRUPT= 0x04;
+// ゼロフラグ(1bit目)
+NES.prototype.REG_P_ZERO     = 0x02;
+// キャリーフラグ(0bit目)
+NES.prototype.REG_P_CARRY    = 0x01;
+
+// 割り込みベクタ 1 (マスク不可割り込み)
+NES.prototype.IRQ_NMI_ADDR   = 0xFFFA;
+// 割り込みベクタ 2 (リセット)
+NES.prototype.IRQ_RESET_ADDR = 0xFFFC;
+// 割り込みベクタ 3 (ソフトウェア割り込み)
+NES.prototype.IRQ_BRK_ADDR   = 0xFFFE;
 
 
 
@@ -5923,7 +5948,7 @@ NES.prototype.CpuInit = function () {
 	this.P = 0x34; // 00110100
 
 	// RESET割り込みにより PC の下位バイトを$FFFCから、上位バイトを$FFFDからフェッチ
-	this.PC = this.Get16(0xFFFC);
+	this.PC = this.Get16(this.IRQ_RESET_ADDR);
 
 	// 割り込み
 	this.toNMI = false;
@@ -5957,781 +5982,832 @@ NES.prototype.CpuRun = function () {
 		this.PpuRun();
 		this.ApuRun();
 		this.CPUClock = 0;
+		this.ExecuteOpCode(opcode);
 
-		switch(opcode){
-			case 0xA1://LDA XIND
-				this.LDA(this.GetAddressIndirectX());
-				break;
-			case 0xA5://LDA ZP
-				this.LDA(this.GetAddressZeroPage());
-				break;
-			case 0xA9://LDA IMM
-				this.LDA(this.GetAddressImmediate());
-				break;
-			case 0xAD://LDA ABS
-				this.LDA(this.GetAddressAbsolute());
-				break;
-			case 0xB1://LDA INDY
-				this.LDA(this.GetAddressIndirectY());
-				break;
-			case 0xB5://LDA ZPX
-				this.LDA(this.GetAddressZeroPageX());
-				break;
-			case 0xB9://LDA ABSY
-				this.LDA(this.GetAddressAbsoluteY());
-				break;
-			case 0xBD://LDA ABSX
-				this.LDA(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xA2://LDX IMM
-				this.LDX(this.GetAddressImmediate());
-				break;
-			case 0xA6://LDX ZP
-				this.LDX(this.GetAddressZeroPage());
-				break;
-			case 0xAE://LDX ABS
-				this.LDX(this.GetAddressAbsolute());
-				break;
-			case 0xB6://LDX ZPY
-				this.LDX(this.GetAddressZeroPageY());
-				break;
-			case 0xBE://LDX ABSY
-				this.LDX(this.GetAddressAbsoluteY());
-				break;
-
-			case 0xA0://LDY IMM
-				this.LDY(this.GetAddressImmediate());
-				break;
-			case 0xA4://LDY ZP
-				this.LDY(this.GetAddressZeroPage());
-				break;
-			case 0xAC://LDY ABS
-				this.LDY(this.GetAddressAbsolute());
-				break;
-			case 0xB4://LDY ZPX
-				this.LDY(this.GetAddressZeroPageX());
-				break;
-			case 0xBC://LDY ABSX
-				this.LDY(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x81://STA XIND
-				this.STA(this.GetAddressIndirectX());
-				break;
-			case 0x85://STA ZP
-				this.STA(this.GetAddressZeroPage());
-				break;
-			case 0x8D://STA ABS
-				this.STA(this.GetAddressAbsolute());
-				break;
-			case 0x91://STA INDY
-				this.STA(this.GetAddressIndirectY());
-				break;
-			case 0x95://STA ZPX
-				this.STA(this.GetAddressZeroPageX());
-				break;
-			case 0x99://STA ABSY
-				this.STA(this.GetAddressAbsoluteY());
-				break;
-			case 0x9D://STA ABSX
-				this.STA(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x86://STX ZP
-				this.STX(this.GetAddressZeroPage());
-				break;
-			case 0x8E://STX ABS
-				this.STX(this.GetAddressAbsolute());
-				break;
-			case 0x96://STX ZPY
-				this.STX(this.GetAddressZeroPageY());
-				break;
-
-			case 0x84://STY ZP
-				this.STY(this.GetAddressZeroPage());
-				break;
-			case 0x8C://STY ABS
-				this.STY(this.GetAddressAbsolute());
-				break;
-			case 0x94://STY ZPX
-				this.STY(this.GetAddressZeroPageX());
-				break;
-
-			case 0x8A://TXA
-				this.A = this.X;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-				break;
-			case 0x98://TYA
-				this.A = this.Y;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-				break;
-			case 0x9A://TXS
-				this.S = this.X;
-				break;
-			case 0xA8://TAY
-				this.Y = this.A;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-				break;
-			case 0xAA://TAX
-				this.X = this.A;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-				break;
-			case 0xBA://TSX
-				this.X = this.S;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-				break;
-
-			case 0x08://PHP
-				this.Push(this.P | 0x30);
-				break;
-			case 0x28://PLP
-				this.P = this.Pop();
-				break;
-			case 0x48://PHA
-				this.Push(this.A);
-				break;
-			case 0x68://PLA
-				this.A = this.Pop();
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
-				break;
-
-			case 0x61://ADC XIND
-				this.ADC(this.GetAddressIndirectX());
-				break;
-			case 0x65://ADC ZP
-				this.ADC(this.GetAddressZeroPage());
-				break;
-			case 0x69://ADC IMM
-				this.ADC(this.GetAddressImmediate());
-				break;
-			case 0x6D://ADC ABS
-				this.ADC(this.GetAddressAbsolute());
-				break;
-			case 0x71://ADC INDY
-				this.ADC(this.GetAddressIndirectY());
-				break;
-			case 0x75://ADC ZPX
-				this.ADC(this.GetAddressZeroPageX());
-				break;
-			case 0x79://ADC ABSY
-				this.ADC(this.GetAddressAbsoluteY());
-				break;
-			case 0x7D://ADC ABSX
-				this.ADC(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xE1://SBC XIND
-				this.SBC(this.GetAddressIndirectX());
-				break;
-			case 0xE5://SBC ZP
-				this.SBC(this.GetAddressZeroPage());
-				break;
-			case 0xE9://SBC IMM
-				this.SBC(this.GetAddressImmediate());
-				break;
-			case 0xED://SBC ABS
-				this.SBC(this.GetAddressAbsolute());
-				break;
-			case 0xF1://SBC INDY
-				this.SBC(this.GetAddressIndirectY());
-				break;
-			case 0xF5://SBC ZPX
-				this.SBC(this.GetAddressZeroPageX());
-				break;
-			case 0xF9://SBC ABSY
-				this.SBC(this.GetAddressAbsoluteY());
-				break;
-			case 0xFD://SBC ABSX
-				this.SBC(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xC1://CMP XIND
-				this.CMP(this.GetAddressIndirectX());
-				break;
-			case 0xC5://CMP ZP
-				this.CMP(this.GetAddressZeroPage());
-				break;
-			case 0xC9://CMP IMM
-				this.CMP(this.GetAddressImmediate());
-				break;
-			case 0xCD://CMP ABS
-				this.CMP(this.GetAddressAbsolute());
-				break;
-			case 0xD1://CMP INDY
-				this.CMP(this.GetAddressIndirectY());
-				break;
-			case 0xD5://CMP ZPX
-				this.CMP(this.GetAddressZeroPageX());
-				break;
-			case 0xD9://CMP ABSY
-				this.CMP(this.GetAddressAbsoluteY());
-				break;
-			case 0xDD://CMP ABSX
-				this.CMP(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xE0://CPX IMM
-				this.CPX(this.GetAddressImmediate());
-				break;
-			case 0xE4://CPX ZP
-				this.CPX(this.GetAddressZeroPage());
-				break;
-			case 0xEC://CPX ABS
-				this.CPX(this.GetAddressAbsolute());
-				break;
-
-			case 0xC0://CPY IMM
-				this.CPY(this.GetAddressImmediate());
-				break;
-			case 0xC4://CPY ZP
-				this.CPY(this.GetAddressZeroPage());
-				break;
-			case 0xCC://CPY ABS
-				this.CPY(this.GetAddressAbsolute());
-				break;
-
-			case 0x21://AND XIND
-				this.AND(this.GetAddressIndirectX());
-				break;
-			case 0x25://AND ZP
-				this.AND(this.GetAddressZeroPage());
-				break;
-			case 0x29://AND IMM
-				this.AND(this.GetAddressImmediate());
-				break;
-			case 0x2D://AND ABS
-				this.AND(this.GetAddressAbsolute());
-				break;
-			case 0x31://AND INDY
-				this.AND(this.GetAddressIndirectY());
-				break;
-			case 0x35://AND ZPX
-				this.AND(this.GetAddressZeroPageX());
-				break;
-			case 0x39://AND ABSY
-				this.AND(this.GetAddressAbsoluteY());
-				break;
-			case 0x3D://AND ABSX
-				this.AND(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x41://EOR XIND
-				this.EOR(this.GetAddressIndirectX());
-				break;
-			case 0x45://EOR ZP
-				this.EOR(this.GetAddressZeroPage());
-				break;
-			case 0x49://EOR IMM
-				this.EOR(this.GetAddressImmediate());
-				break;
-			case 0x4D://EOR ABS
-				this.EOR(this.GetAddressAbsolute());
-				break;
-			case 0x51://EOR INDY
-				this.EOR(this.GetAddressIndirectY());
-				break;
-			case 0x55://EOR ZPX
-				this.EOR(this.GetAddressZeroPageX());
-				break;
-			case 0x59://EOR ABSY
-				this.EOR(this.GetAddressAbsoluteY());
-				break;
-			case 0x5D://EOR ABSX
-				this.EOR(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x01://ORA XIND
-				this.ORA(this.GetAddressIndirectX());
-				break;
-			case 0x05://ORA ZP
-				this.ORA(this.GetAddressZeroPage());
-				break;
-			case 0x09://ORA IMM
-				this.ORA(this.GetAddressImmediate());
-				break;
-			case 0x0D://ORA ABS
-				this.ORA(this.GetAddressAbsolute());
-				break;
-			case 0x11://ORA INDY
-				this.ORA(this.GetAddressIndirectY());
-				break;
-			case 0x15://ORA ZPX
-				this.ORA(this.GetAddressZeroPageX());
-				break;
-			case 0x19://ORA ABSY
-				this.ORA(this.GetAddressAbsoluteY());
-				break;
-			case 0x1D://ORA ABSX
-				this.ORA(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x24://BIT ZP
-				this.BIT(this.GetAddressZeroPage());
-				break;
-			case 0x2C://BIT ABS
-				this.BIT(this.GetAddressAbsolute());
-				break;
-
-			case 0x06://ASL ZP
-				this.ASL(this.GetAddressZeroPage());
-				break;
-			case 0x0A://ASL A
-				this.A = this.ASL_Sub(this.A);
-				break;
-			case 0x0E://ASL ABS
-				this.ASL(this.GetAddressAbsolute());
-				break;
-			case 0x16://ASL ZPX
-				this.ASL(this.GetAddressZeroPageX());
-				break;
-			case 0x1E://ASL ABSX
-				this.ASL(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x46://LSR ZP
-				this.LSR(this.GetAddressZeroPage());
-				break;
-			case 0x4A://LSR A
-				this.A = this.LSR_Sub(this.A);
-				break;
-			case 0x4E://LSR ABS
-				this.LSR(this.GetAddressAbsolute());
-				break;
-			case 0x56://LSR ZPX
-				this.LSR(this.GetAddressZeroPageX());
-				break;
-			case 0x5E://LSR ABSX
-				this.LSR(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x26://ROL ZP
-				this.ROL(this.GetAddressZeroPage());
-				break;
-			case 0x2A://ROL A
-				this.A = this.ROL_Sub(this.A);
-				break;
-			case 0x2E://ROL ABS
-				this.ROL(this.GetAddressAbsolute());
-				break;
-			case 0x36://ROL ZPX
-				this.ROL(this.GetAddressZeroPageX());
-				break;
-			case 0x3E://ROL ABSX
-				this.ROL(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x66://ROR ZP
-				this.ROR(this.GetAddressZeroPage());
-				break;
-			case 0x6A://ROR A
-				this.A = this.ROR_Sub(this.A);
-				break;
-			case 0x6E://ROR ABS
-				this.ROR(this.GetAddressAbsolute());
-				break;
-			case 0x76://ROR ZPX
-				this.ROR(this.GetAddressZeroPageX());
-				break;
-			case 0x7E://ROR ABSX
-				this.ROR(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xE6://INC ZP
-				this.INC(this.GetAddressZeroPage());
-				break;
-			case 0xEE://INC ABS
-				this.INC(this.GetAddressAbsolute());
-				break;
-			case 0xF6://INC ZPX
-				this.INC(this.GetAddressZeroPageX());
-				break;
-			case 0xFE://INC ABSX
-				this.INC(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xE8://INX
-				this.X = (this.X + 1) & 0xFF;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-				break;
-			case 0xC8://INY
-				this.Y = (this.Y + 1) & 0xFF;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.Y]; 
-				break;
-
-			case 0xC6://DEC ZP
-				this.DEC(this.GetAddressZeroPage());
-				break;
-			case 0xCE://DEC ABS
-				this.DEC(this.GetAddressAbsolute());
-				break;
-			case 0xD6://DEC ZPX
-				this.DEC(this.GetAddressZeroPageX());
-				break;
-			case 0xDE://DEC ABSX
-				this.DEC(this.GetAddressAbsoluteX());
-				break;
-
-			case 0xCA://DEX
-				this.X = (this.X - 1) & 0xFF;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
-				break;
-			case 0x88://DEY
-				this.Y = (this.Y - 1) & 0xFF;
-				this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
-				break;
-
-			case 0x18://CLC
-				this.P &= 0xFE;
-				break;
-			case 0x58://CLI
-				this.P &= 0xFB;
-				break;
-			case 0xB8://CLV
-				this.P &= 0xBF;
-				break;
-			case 0xD8://CLD
-				this.P &= 0xF7;
-				break;
-			case 0x38://SEC
-				this.P |= 0x01;
-				break;
-			case 0x78://SEI
-				this.P |= 0x04;
-				break;
-			case 0xF8://SED
-				this.P |= 0x08;
-				break;
-
-			case 0xEA://NOP
-				break;
-
-			case 0x00://BRK
-				this.BRK();
-				break;
-
-			case 0x4C://JMP ABS
-				this.PC = this.GetAddressAbsolute();
-				break;
-			case 0x6C://JMP IND
-				var address = this.GetAddressAbsolute();
-				var tmp = (((address + 1) & 0x00FF) | (address & 0xFF00));
-				this.PC = this.Get(address) | (this.Get(tmp) << 8);
-				break;
-
-			case 0x20://JSR ABS
-				var PC = (this.PC + 1) & 0xFFFF;
-				this.Push(PC >> 8);
-				this.Push(PC & 0xFF);
-				this.PC = this.GetAddressAbsolute();
-				break;
-
-			case 0x60://RTS
-				this.PC = (this.Pop() | (this.Pop() << 8)) + 1;
-				break;
-			case 0x40://RTI
-				this.P = this.Pop();
-				this.PC = this.Pop() | (this.Pop() << 8);
-				break;
-
-			case 0x10://BPL REL
-				this.Branch((this.P & 0x80) === 0);
-				break;
-			case 0x30://BMI REL
-				this.Branch((this.P & 0x80) !== 0);
-				break;
-			case 0x50://BVC REL
-				this.Branch((this.P & 0x40) === 0);
-				break;
-			case 0x70://BVS REL
-				this.Branch((this.P & 0x40) !== 0);
-				break;
-			case 0x90://BCC REL
-				this.Branch((this.P & 0x01) === 0);
-				break;
-			case 0xB0://BCS REL
-				this.Branch((this.P & 0x01) !== 0);
-				break;
-			case 0xD0://BNE REL
-				this.Branch((this.P & 0x02) === 0);
-				break;
-			case 0xF0://BEQ REL
-				this.Branch((this.P & 0x02) !== 0);
-				break;
-
-			/* Undocument */
-			case 0x0B://ANC IMM
-			case 0x2B://ANC IMM
-				this.ANC(this.GetAddressImmediate());
-				break;
-
-			case 0x8B://ANE IMM
-				this.ANE(this.GetAddressImmediate());
-				break;
-
-			case 0x6B://ARR IMM
-				this.ARR(this.GetAddressImmediate());
-				break;
-
-			case 0x4B://ASR IMM
-				this.ASR(this.GetAddressImmediate());
-				break;
-
-			case 0xC7://DCP ZP
-				this.DCP(this.GetAddressZeroPage());
-				break;
-			case 0xD7://DCP ZPX
-				this.DCP(this.GetAddressZeroPageX());
-				break;
-			case 0xCF://DCP ABS
-				this.DCP(this.GetAddressAbsolute());
-				break;
-			case 0xDF://DCP ABSX
-				this.DCP(this.GetAddressAbsoluteX());
-				break;
-			case 0xDB://DCP ABSY
-				this.DCP(this.GetAddressAbsoluteY());
-				break;
-			case 0xC3://DCP XIND
-				this.DCP(this.GetAddressIndirectX());
-				break;
-			case 0xD3://DCP INDY
-				this.DCP(this.GetAddressIndirectY());
-				break;
-
-			case 0xE7://ISB ZP
-				this.ISB(this.GetAddressZeroPage());
-				break;
-			case 0xF7://ISB ZPX
-				this.ISB(this.GetAddressZeroPageX());
-				break;
-			case 0xEF://ISB ABS
-				this.ISB(this.GetAddressAbsolute());
-				break;
-			case 0xFF://ISB ABSX
-				this.ISB(this.GetAddressAbsoluteX());
-				break;
-			case 0xFB://ISB ABSY
-				this.ISB(this.GetAddressAbsoluteY());
-				break;
-			case 0xE3://ISB XIND
-				this.ISB(this.GetAddressIndirectX());
-				break;
-			case 0xF3://ISB INDY
-				this.ISB(this.GetAddressIndirectY());
-				break;
-
-			case 0xBB://LAS ABSY
-				this.LAS(this.GetAddressAbsoluteY());
-				break;
-
-			case 0xA7://LAX ZP
-				this.LAX(this.GetAddressZeroPage());
-				break;
-			case 0xB7://LAX ZPY
-				this.LAX(this.GetAddressZeroPageY());
-				break;
-			case 0xAF://LAX ABS
-				this.LAX(this.GetAddressAbsolute());
-				break;
-			case 0xBF://LAX ABSY
-				this.LAX(this.GetAddressAbsoluteY());
-				break;
-			case 0xA3://LAX XIND
-				this.LAX(this.GetAddressIndirectX());
-				break;
-			case 0xB3://LAX INDY
-				this.LAX(this.GetAddressIndirectY());
-				break;
-
-			case 0xAB://LXA IMM
-				this.LXA(this.GetAddressImmediate());
-				break;
-
-			case 0x27://RLA ZP
-				this.RLA(this.GetAddressZeroPage());
-				break;
-			case 0x37://RLA ZPX
-				this.RLA(this.GetAddressZeroPageX());
-				break;
-			case 0x2F://RLA ABS
-				this.RLA(this.GetAddressAbsolute());
-				break;
-			case 0x3F://RLA ABSX
-				this.RLA(this.GetAddressAbsoluteX());
-				break;
-			case 0x3B://RLA ABSY
-				this.RLA(this.GetAddressAbsoluteY());
-				break;
-			case 0x23://RLA XIND
-				this.RLA(this.GetAddressIndirectX());
-				break;
-			case 0x33://RLA INDY
-				this.RLA(this.GetAddressIndirectY());
-				break;
-
-			case 0x67://RRA ZP
-				this.RRA(this.GetAddressZeroPage());
-				break;
-			case 0x77://RRA ZPX
-				this.RRA(this.GetAddressZeroPageX());
-				break;
-			case 0x6F://RRA ABS
-				this.RRA(this.GetAddressAbsolute());
-				break;
-			case 0x7F://RRA ABSX
-				this.RRA(this.GetAddressAbsoluteX());
-				break;
-			case 0x7B://RRA ABSY
-				this.RRA(this.GetAddressAbsoluteY());
-				break;
-			case 0x63://RRA XIND
-				this.RRA(this.GetAddressIndirectX());
-				break;
-			case 0x73://RRA INDY
-				this.RRA(this.GetAddressIndirectY());
-				break;
-
-			case 0x87://SAX ZP
-				this.SAX(this.GetAddressZeroPage());
-				break;
-			case 0x97://SAX ZPY
-				this.SAX(this.GetAddressZeroPageY());
-				break;
-			case 0x8F://SAX ABS
-				this.SAX(this.GetAddressAbsolute());
-				break;
-			case 0x83://SAX XIND
-				this.SAX(this.GetAddressIndirectX());
-				break;
-
-			case 0xCB://SBX IMM
-				this.SBX(this.GetAddressImmediate());
-				break;
-
-			case 0x9F://SHA ABSY
-				this.SHA(this.GetAddressAbsoluteY());
-				break;
-			case 0x93://SHA INDY
-				this.SHA(this.GetAddressIndirectY());
-				break;
-
-			case 0x9B://SHS ABSY
-				this.SHS(this.GetAddressAbsoluteY());
-				break;
-
-			case 0x9E://SHX ABSY
-				this.SHX(this.GetAddressAbsoluteY());
-				break;
-
-			case 0x9C://SHY ABSX
-				this.SHY(this.GetAddressAbsoluteX());
-				break;
-
-			case 0x07://SLO ZP
-				this.SLO(this.GetAddressZeroPage());
-				break;
-			case 0x17://SLO ZPX
-				this.SLO(this.GetAddressZeroPageX());
-				break;
-			case 0x0F://SLO ABS
-				this.SLO(this.GetAddressAbsolute());
-				break;
-			case 0x1F://SLO ABSX
-				this.SLO(this.GetAddressAbsoluteX());
-				break;
-			case 0x1B://SLO ABSY
-				this.SLO(this.GetAddressAbsoluteY());
-				break;
-			case 0x03://SLO XIND
-				this.SLO(this.GetAddressIndirectX());
-				break;
-			case 0x13://SLO INDY
-				this.SLO(this.GetAddressIndirectY());
-				break;
-
-			case 0x47://SRE ZP
-				this.SRE(this.GetAddressZeroPage());
-				break;
-			case 0x57://SRE ZPX
-				this.SRE(this.GetAddressZeroPageX());
-				break;
-			case 0x4F://SRE ABS
-				this.SRE(this.GetAddressAbsolute());
-				break;
-			case 0x5F://SRE ABSX
-				this.SRE(this.GetAddressAbsoluteX());
-				break;
-			case 0x5B://SRE ABSY
-				this.SRE(this.GetAddressAbsoluteY());
-				break;
-			case 0x43://SRE XIND
-				this.SRE(this.GetAddressIndirectX());
-				break;
-			case 0x53://SRE INDY
-				this.SRE(this.GetAddressIndirectY());
-				break;
-
-			case 0xEB://SBC IMM
-				this.SBC(this.GetAddressImmediate());
-				break;
-
-			case 0x1A://NOP
-			case 0x3A://NOP
-			case 0x5A://NOP
-			case 0x7A://NOP
-			case 0xDA://NOP
-			case 0xFA://NOP
-				break;
-
-			case 0x80://DOP IMM
-			case 0x82://DOP IMM
-			case 0x89://DOP IMM
-			case 0xC2://DOP IMM
-			case 0xE2://DOP IMM
-			case 0x04://DOP ZP
-			case 0x44://DOP ZP
-			case 0x64://DOP ZP
-			case 0x14://DOP ZPX
-			case 0x34://DOP ZPX
-			case 0x54://DOP ZPX
-			case 0x74://DOP ZPX
-			case 0xD4://DOP ZPX
-			case 0xF4://DOP ZPX
-				this.PC++;
-				break;
-
-			case 0x0C://TOP ABS
-			case 0x1C://TOP ABSX
-			case 0x3C://TOP ABSX
-			case 0x5C://TOP ABSX
-			case 0x7C://TOP ABSX
-			case 0xDC://TOP ABSX
-			case 0xFC://TOP ABSX
-				this.PC += 2;
-				break;
-
-			case 0x02://JAM
-			case 0x12://JAM
-			case 0x22://JAM
-			case 0x32://JAM
-			case 0x42://JAM
-			case 0x52://JAM
-			case 0x62://JAM
-			case 0x72://JAM
-			case 0x92://JAM
-			case 0xB2://JAM
-			case 0xD2://JAM
-			case 0xF2://JAM
-			/* falls through */
-			default:
-				window.alert("oops");
-				this.PC--;
-				break;
-		}
 	} while(!this.DrawFlag);
 };
 
+NES.prototype.ExecuteOpCode = function (opcode) {
+	switch(opcode){
+		case 0xA1://LDA XIND
+			this.LDA(this.GetAddressIndirectX());
+			break;
+		case 0xA5://LDA ZP
+			this.LDA(this.GetAddressZeroPage());
+			break;
+		case 0xA9://LDA IMM
+			this.LDA(this.GetAddressImmediate());
+			break;
+		case 0xAD://LDA ABS
+			this.LDA(this.GetAddressAbsolute());
+			break;
+		case 0xB1://LDA INDY
+			this.LDA(this.GetAddressIndirectY());
+			break;
+		case 0xB5://LDA ZPX
+			this.LDA(this.GetAddressZeroPageX());
+			break;
+		case 0xB9://LDA ABSY
+			this.LDA(this.GetAddressAbsoluteY());
+			break;
+		case 0xBD://LDA ABSX
+			this.LDA(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xA2://LDX IMM
+			this.LDX(this.GetAddressImmediate());
+			break;
+		case 0xA6://LDX ZP
+			this.LDX(this.GetAddressZeroPage());
+			break;
+		case 0xAE://LDX ABS
+			this.LDX(this.GetAddressAbsolute());
+			break;
+		case 0xB6://LDX ZPY
+			this.LDX(this.GetAddressZeroPageY());
+			break;
+		case 0xBE://LDX ABSY
+			this.LDX(this.GetAddressAbsoluteY());
+			break;
+
+		case 0xA0://LDY IMM
+			this.LDY(this.GetAddressImmediate());
+			break;
+		case 0xA4://LDY ZP
+			this.LDY(this.GetAddressZeroPage());
+			break;
+		case 0xAC://LDY ABS
+			this.LDY(this.GetAddressAbsolute());
+			break;
+		case 0xB4://LDY ZPX
+			this.LDY(this.GetAddressZeroPageX());
+			break;
+		case 0xBC://LDY ABSX
+			this.LDY(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x81://STA XIND
+			this.STA(this.GetAddressIndirectX());
+			break;
+		case 0x85://STA ZP
+			this.STA(this.GetAddressZeroPage());
+			break;
+		case 0x8D://STA ABS
+			this.STA(this.GetAddressAbsolute());
+			break;
+		case 0x91://STA INDY
+			this.STA(this.GetAddressIndirectY());
+			break;
+		case 0x95://STA ZPX
+			this.STA(this.GetAddressZeroPageX());
+			break;
+		case 0x99://STA ABSY
+			this.STA(this.GetAddressAbsoluteY());
+			break;
+		case 0x9D://STA ABSX
+			this.STA(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x86://STX ZP
+			this.STX(this.GetAddressZeroPage());
+			break;
+		case 0x8E://STX ABS
+			this.STX(this.GetAddressAbsolute());
+			break;
+		case 0x96://STX ZPY
+			this.STX(this.GetAddressZeroPageY());
+			break;
+
+		case 0x84://STY ZP
+			this.STY(this.GetAddressZeroPage());
+			break;
+		case 0x8C://STY ABS
+			this.STY(this.GetAddressAbsolute());
+			break;
+		case 0x94://STY ZPX
+			this.STY(this.GetAddressZeroPageX());
+			break;
+
+		case 0x8A://TXA
+			this.TXA();
+			break;
+		case 0x98://TYA
+			this.TYA();
+			break;
+		case 0x9A://TXS
+			this.TXS();
+			break;
+		case 0xA8://TAY
+			this.TAY();
+			break;
+		case 0xAA://TAX
+			this.TAX();
+			break;
+		case 0xBA://TSX
+			this.TSX();
+			break;
+
+		case 0x08://PHP
+			this.PHP();
+			break;
+		case 0x28://PLP
+			this.PLP();
+			break;
+		case 0x48://PHA
+			this.PHA();
+			break;
+		case 0x68://PLA
+			this.PLA();
+			break;
+
+		case 0x61://ADC XIND
+			this.ADC(this.GetAddressIndirectX());
+			break;
+		case 0x65://ADC ZP
+			this.ADC(this.GetAddressZeroPage());
+			break;
+		case 0x69://ADC IMM
+			this.ADC(this.GetAddressImmediate());
+			break;
+		case 0x6D://ADC ABS
+			this.ADC(this.GetAddressAbsolute());
+			break;
+		case 0x71://ADC INDY
+			this.ADC(this.GetAddressIndirectY());
+			break;
+		case 0x75://ADC ZPX
+			this.ADC(this.GetAddressZeroPageX());
+			break;
+		case 0x79://ADC ABSY
+			this.ADC(this.GetAddressAbsoluteY());
+			break;
+		case 0x7D://ADC ABSX
+			this.ADC(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xE1://SBC XIND
+			this.SBC(this.GetAddressIndirectX());
+			break;
+		case 0xE5://SBC ZP
+			this.SBC(this.GetAddressZeroPage());
+			break;
+		case 0xE9://SBC IMM
+			this.SBC(this.GetAddressImmediate());
+			break;
+		case 0xED://SBC ABS
+			this.SBC(this.GetAddressAbsolute());
+			break;
+		case 0xF1://SBC INDY
+			this.SBC(this.GetAddressIndirectY());
+			break;
+		case 0xF5://SBC ZPX
+			this.SBC(this.GetAddressZeroPageX());
+			break;
+		case 0xF9://SBC ABSY
+			this.SBC(this.GetAddressAbsoluteY());
+			break;
+		case 0xFD://SBC ABSX
+			this.SBC(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xC1://CMP XIND
+			this.CMP(this.GetAddressIndirectX());
+			break;
+		case 0xC5://CMP ZP
+			this.CMP(this.GetAddressZeroPage());
+			break;
+		case 0xC9://CMP IMM
+			this.CMP(this.GetAddressImmediate());
+			break;
+		case 0xCD://CMP ABS
+			this.CMP(this.GetAddressAbsolute());
+			break;
+		case 0xD1://CMP INDY
+			this.CMP(this.GetAddressIndirectY());
+			break;
+		case 0xD5://CMP ZPX
+			this.CMP(this.GetAddressZeroPageX());
+			break;
+		case 0xD9://CMP ABSY
+			this.CMP(this.GetAddressAbsoluteY());
+			break;
+		case 0xDD://CMP ABSX
+			this.CMP(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xE0://CPX IMM
+			this.CPX(this.GetAddressImmediate());
+			break;
+		case 0xE4://CPX ZP
+			this.CPX(this.GetAddressZeroPage());
+			break;
+		case 0xEC://CPX ABS
+			this.CPX(this.GetAddressAbsolute());
+			break;
+
+		case 0xC0://CPY IMM
+			this.CPY(this.GetAddressImmediate());
+			break;
+		case 0xC4://CPY ZP
+			this.CPY(this.GetAddressZeroPage());
+			break;
+		case 0xCC://CPY ABS
+			this.CPY(this.GetAddressAbsolute());
+			break;
+
+		case 0x21://AND XIND
+			this.AND(this.GetAddressIndirectX());
+			break;
+		case 0x25://AND ZP
+			this.AND(this.GetAddressZeroPage());
+			break;
+		case 0x29://AND IMM
+			this.AND(this.GetAddressImmediate());
+			break;
+		case 0x2D://AND ABS
+			this.AND(this.GetAddressAbsolute());
+			break;
+		case 0x31://AND INDY
+			this.AND(this.GetAddressIndirectY());
+			break;
+		case 0x35://AND ZPX
+			this.AND(this.GetAddressZeroPageX());
+			break;
+		case 0x39://AND ABSY
+			this.AND(this.GetAddressAbsoluteY());
+			break;
+		case 0x3D://AND ABSX
+			this.AND(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x41://EOR XIND
+			this.EOR(this.GetAddressIndirectX());
+			break;
+		case 0x45://EOR ZP
+			this.EOR(this.GetAddressZeroPage());
+			break;
+		case 0x49://EOR IMM
+			this.EOR(this.GetAddressImmediate());
+			break;
+		case 0x4D://EOR ABS
+			this.EOR(this.GetAddressAbsolute());
+			break;
+		case 0x51://EOR INDY
+			this.EOR(this.GetAddressIndirectY());
+			break;
+		case 0x55://EOR ZPX
+			this.EOR(this.GetAddressZeroPageX());
+			break;
+		case 0x59://EOR ABSY
+			this.EOR(this.GetAddressAbsoluteY());
+			break;
+		case 0x5D://EOR ABSX
+			this.EOR(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x01://ORA XIND
+			this.ORA(this.GetAddressIndirectX());
+			break;
+		case 0x05://ORA ZP
+			this.ORA(this.GetAddressZeroPage());
+			break;
+		case 0x09://ORA IMM
+			this.ORA(this.GetAddressImmediate());
+			break;
+		case 0x0D://ORA ABS
+			this.ORA(this.GetAddressAbsolute());
+			break;
+		case 0x11://ORA INDY
+			this.ORA(this.GetAddressIndirectY());
+			break;
+		case 0x15://ORA ZPX
+			this.ORA(this.GetAddressZeroPageX());
+			break;
+		case 0x19://ORA ABSY
+			this.ORA(this.GetAddressAbsoluteY());
+			break;
+		case 0x1D://ORA ABSX
+			this.ORA(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x24://BIT ZP
+			this.BIT(this.GetAddressZeroPage());
+			break;
+		case 0x2C://BIT ABS
+			this.BIT(this.GetAddressAbsolute());
+			break;
+
+		case 0x06://ASL ZP
+			this.ASL(this.GetAddressZeroPage());
+			break;
+		case 0x0A://ASL A
+			this.A = this.ASL_Sub(this.A);
+			break;
+		case 0x0E://ASL ABS
+			this.ASL(this.GetAddressAbsolute());
+			break;
+		case 0x16://ASL ZPX
+			this.ASL(this.GetAddressZeroPageX());
+			break;
+		case 0x1E://ASL ABSX
+			this.ASL(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x46://LSR ZP
+			this.LSR(this.GetAddressZeroPage());
+			break;
+		case 0x4A://LSR A
+			this.A = this.LSR_Sub(this.A);
+			break;
+		case 0x4E://LSR ABS
+			this.LSR(this.GetAddressAbsolute());
+			break;
+		case 0x56://LSR ZPX
+			this.LSR(this.GetAddressZeroPageX());
+			break;
+		case 0x5E://LSR ABSX
+			this.LSR(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x26://ROL ZP
+			this.ROL(this.GetAddressZeroPage());
+			break;
+		case 0x2A://ROL A
+			this.A = this.ROL_Sub(this.A);
+			break;
+		case 0x2E://ROL ABS
+			this.ROL(this.GetAddressAbsolute());
+			break;
+		case 0x36://ROL ZPX
+			this.ROL(this.GetAddressZeroPageX());
+			break;
+		case 0x3E://ROL ABSX
+			this.ROL(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x66://ROR ZP
+			this.ROR(this.GetAddressZeroPage());
+			break;
+		case 0x6A://ROR A
+			this.A = this.ROR_Sub(this.A);
+			break;
+		case 0x6E://ROR ABS
+			this.ROR(this.GetAddressAbsolute());
+			break;
+		case 0x76://ROR ZPX
+			this.ROR(this.GetAddressZeroPageX());
+			break;
+		case 0x7E://ROR ABSX
+			this.ROR(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xE6://INC ZP
+			this.INC(this.GetAddressZeroPage());
+			break;
+		case 0xEE://INC ABS
+			this.INC(this.GetAddressAbsolute());
+			break;
+		case 0xF6://INC ZPX
+			this.INC(this.GetAddressZeroPageX());
+			break;
+		case 0xFE://INC ABSX
+			this.INC(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xE8://INX
+			this.INX();
+			break;
+		case 0xC8://INY
+			this.INY();
+			break;
+
+		case 0xC6://DEC ZP
+			this.DEC(this.GetAddressZeroPage());
+			break;
+		case 0xCE://DEC ABS
+			this.DEC(this.GetAddressAbsolute());
+			break;
+		case 0xD6://DEC ZPX
+			this.DEC(this.GetAddressZeroPageX());
+			break;
+		case 0xDE://DEC ABSX
+			this.DEC(this.GetAddressAbsoluteX());
+			break;
+
+		case 0xCA://DEX
+			this.DEX();
+			break;
+		case 0x88://DEY
+			this.DEY();
+			break;
+
+		case 0x18://CLC
+			this.P &= 0xFE;
+			break;
+		case 0x58://CLI
+			this.P &= 0xFB;
+			break;
+		case 0xB8://CLV
+			this.P &= 0xBF;
+			break;
+		case 0xD8://CLD
+			this.P &= 0xF7;
+			break;
+		case 0x38://SEC
+			this.P |= 0x01;
+			break;
+		case 0x78://SEI
+			this.P |= 0x04;
+			break;
+		case 0xF8://SED
+			this.P |= 0x08;
+			break;
+
+		case 0xEA://NOP
+			this.NOP();
+			break;
+
+		case 0x00://BRK
+			this.BRK();
+			break;
+
+		case 0x4C://JMP ABS
+			this.JMP(this.GetAddressAbsolute());
+			break;
+		case 0x6C://JMP IND
+			//TODO: refactor
+			var address = this.GetAddressAbsolute();
+			var tmp = (((address + 1) & 0x00FF) | (address & 0xFF00));
+			this.JMP(this.Get(address) | (this.Get(tmp) << 8));
+			break;
+
+		case 0x20://JSR ABS
+			this.JSR();
+			break;
+		case 0x60://RTS
+			this.RTS();
+			break;
+		case 0x40://RTI
+			this.RTI();
+			break;
+
+		case 0x10://BPL REL
+			this.BPL();
+			break;
+		case 0x30://BMI REL
+			this.BMI();
+			break;
+		case 0x50://BVC REL
+			this.BVC();
+			break;
+		case 0x70://BVS REL
+			this.BVS();
+			break;
+		case 0x90://BCC REL
+			this.BCC();
+			break;
+		case 0xB0://BCS REL
+			this.BCS();
+			break;
+		case 0xD0://BNE REL
+			this.BNE();
+			break;
+		case 0xF0://BEQ REL
+			this.BEQ();
+			break;
+
+		/* Undocument */
+		case 0x0B://ANC IMM
+		case 0x2B://ANC IMM
+			this.ANC(this.GetAddressImmediate());
+			break;
+
+		case 0x8B://ANE IMM
+			this.ANE(this.GetAddressImmediate());
+			break;
+
+		case 0x6B://ARR IMM
+			this.ARR(this.GetAddressImmediate());
+			break;
+
+		case 0x4B://ASR IMM
+			this.ASR(this.GetAddressImmediate());
+			break;
+
+		case 0xC7://DCP ZP
+			this.DCP(this.GetAddressZeroPage());
+			break;
+		case 0xD7://DCP ZPX
+			this.DCP(this.GetAddressZeroPageX());
+			break;
+		case 0xCF://DCP ABS
+			this.DCP(this.GetAddressAbsolute());
+			break;
+		case 0xDF://DCP ABSX
+			this.DCP(this.GetAddressAbsoluteX());
+			break;
+		case 0xDB://DCP ABSY
+			this.DCP(this.GetAddressAbsoluteY());
+			break;
+		case 0xC3://DCP XIND
+			this.DCP(this.GetAddressIndirectX());
+			break;
+		case 0xD3://DCP INDY
+			this.DCP(this.GetAddressIndirectY());
+			break;
+
+		case 0xE7://ISB ZP
+			this.ISB(this.GetAddressZeroPage());
+			break;
+		case 0xF7://ISB ZPX
+			this.ISB(this.GetAddressZeroPageX());
+			break;
+		case 0xEF://ISB ABS
+			this.ISB(this.GetAddressAbsolute());
+			break;
+		case 0xFF://ISB ABSX
+			this.ISB(this.GetAddressAbsoluteX());
+			break;
+		case 0xFB://ISB ABSY
+			this.ISB(this.GetAddressAbsoluteY());
+			break;
+		case 0xE3://ISB XIND
+			this.ISB(this.GetAddressIndirectX());
+			break;
+		case 0xF3://ISB INDY
+			this.ISB(this.GetAddressIndirectY());
+			break;
+
+		case 0xBB://LAS ABSY
+			this.LAS(this.GetAddressAbsoluteY());
+			break;
+
+		case 0xA7://LAX ZP
+			this.LAX(this.GetAddressZeroPage());
+			break;
+		case 0xB7://LAX ZPY
+			this.LAX(this.GetAddressZeroPageY());
+			break;
+		case 0xAF://LAX ABS
+			this.LAX(this.GetAddressAbsolute());
+			break;
+		case 0xBF://LAX ABSY
+			this.LAX(this.GetAddressAbsoluteY());
+			break;
+		case 0xA3://LAX XIND
+			this.LAX(this.GetAddressIndirectX());
+			break;
+		case 0xB3://LAX INDY
+			this.LAX(this.GetAddressIndirectY());
+			break;
+
+		case 0xAB://LXA IMM
+			this.LXA(this.GetAddressImmediate());
+			break;
+
+		case 0x27://RLA ZP
+			this.RLA(this.GetAddressZeroPage());
+			break;
+		case 0x37://RLA ZPX
+			this.RLA(this.GetAddressZeroPageX());
+			break;
+		case 0x2F://RLA ABS
+			this.RLA(this.GetAddressAbsolute());
+			break;
+		case 0x3F://RLA ABSX
+			this.RLA(this.GetAddressAbsoluteX());
+			break;
+		case 0x3B://RLA ABSY
+			this.RLA(this.GetAddressAbsoluteY());
+			break;
+		case 0x23://RLA XIND
+			this.RLA(this.GetAddressIndirectX());
+			break;
+		case 0x33://RLA INDY
+			this.RLA(this.GetAddressIndirectY());
+			break;
+
+		case 0x67://RRA ZP
+			this.RRA(this.GetAddressZeroPage());
+			break;
+		case 0x77://RRA ZPX
+			this.RRA(this.GetAddressZeroPageX());
+			break;
+		case 0x6F://RRA ABS
+			this.RRA(this.GetAddressAbsolute());
+			break;
+		case 0x7F://RRA ABSX
+			this.RRA(this.GetAddressAbsoluteX());
+			break;
+		case 0x7B://RRA ABSY
+			this.RRA(this.GetAddressAbsoluteY());
+			break;
+		case 0x63://RRA XIND
+			this.RRA(this.GetAddressIndirectX());
+			break;
+		case 0x73://RRA INDY
+			this.RRA(this.GetAddressIndirectY());
+			break;
+
+		case 0x87://SAX ZP
+			this.SAX(this.GetAddressZeroPage());
+			break;
+		case 0x97://SAX ZPY
+			this.SAX(this.GetAddressZeroPageY());
+			break;
+		case 0x8F://SAX ABS
+			this.SAX(this.GetAddressAbsolute());
+			break;
+		case 0x83://SAX XIND
+			this.SAX(this.GetAddressIndirectX());
+			break;
+
+		case 0xCB://SBX IMM
+			this.SBX(this.GetAddressImmediate());
+			break;
+
+		case 0x9F://SHA ABSY
+			this.SHA(this.GetAddressAbsoluteY());
+			break;
+		case 0x93://SHA INDY
+			this.SHA(this.GetAddressIndirectY());
+			break;
+
+		case 0x9B://SHS ABSY
+			this.SHS(this.GetAddressAbsoluteY());
+			break;
+
+		case 0x9E://SHX ABSY
+			this.SHX(this.GetAddressAbsoluteY());
+			break;
+
+		case 0x9C://SHY ABSX
+			this.SHY(this.GetAddressAbsoluteX());
+			break;
+
+		case 0x07://SLO ZP
+			this.SLO(this.GetAddressZeroPage());
+			break;
+		case 0x17://SLO ZPX
+			this.SLO(this.GetAddressZeroPageX());
+			break;
+		case 0x0F://SLO ABS
+			this.SLO(this.GetAddressAbsolute());
+			break;
+		case 0x1F://SLO ABSX
+			this.SLO(this.GetAddressAbsoluteX());
+			break;
+		case 0x1B://SLO ABSY
+			this.SLO(this.GetAddressAbsoluteY());
+			break;
+		case 0x03://SLO XIND
+			this.SLO(this.GetAddressIndirectX());
+			break;
+		case 0x13://SLO INDY
+			this.SLO(this.GetAddressIndirectY());
+			break;
+
+		case 0x47://SRE ZP
+			this.SRE(this.GetAddressZeroPage());
+			break;
+		case 0x57://SRE ZPX
+			this.SRE(this.GetAddressZeroPageX());
+			break;
+		case 0x4F://SRE ABS
+			this.SRE(this.GetAddressAbsolute());
+			break;
+		case 0x5F://SRE ABSX
+			this.SRE(this.GetAddressAbsoluteX());
+			break;
+		case 0x5B://SRE ABSY
+			this.SRE(this.GetAddressAbsoluteY());
+			break;
+		case 0x43://SRE XIND
+			this.SRE(this.GetAddressIndirectX());
+			break;
+		case 0x53://SRE INDY
+			this.SRE(this.GetAddressIndirectY());
+			break;
+
+		case 0xEB://SBC IMM
+			this.SBC(this.GetAddressImmediate());
+			break;
+
+		case 0x1A://NOP
+		case 0x3A://NOP
+		case 0x5A://NOP
+		case 0x7A://NOP
+		case 0xDA://NOP
+		case 0xFA://NOP
+			break;
+
+		case 0x80://DOP IMM
+		case 0x82://DOP IMM
+		case 0x89://DOP IMM
+		case 0xC2://DOP IMM
+		case 0xE2://DOP IMM
+		case 0x04://DOP ZP
+		case 0x44://DOP ZP
+		case 0x64://DOP ZP
+		case 0x14://DOP ZPX
+		case 0x34://DOP ZPX
+		case 0x54://DOP ZPX
+		case 0x74://DOP ZPX
+		case 0xD4://DOP ZPX
+		case 0xF4://DOP ZPX
+			this.PC++;
+			break;
+
+		case 0x0C://TOP ABS
+		case 0x1C://TOP ABSX
+		case 0x3C://TOP ABSX
+		case 0x5C://TOP ABSX
+		case 0x7C://TOP ABSX
+		case 0xDC://TOP ABSX
+		case 0xFC://TOP ABSX
+			this.PC += 2;
+			break;
+
+		case 0x02://JAM
+		case 0x12://JAM
+		case 0x22://JAM
+		case 0x32://JAM
+		case 0x42://JAM
+		case 0x52://JAM
+		case 0x62://JAM
+		case 0x72://JAM
+		case 0x92://JAM
+		case 0xB2://JAM
+		case 0xD2://JAM
+		case 0xF2://JAM
+		/* falls through */
+		default:
+			window.alert("Unknown opcode: " + opcode);
+			this.PC--;
+			break;
+	}
+};
+
+
+/* **************************************************************** */
+/* NES CPU ステータスレジスタ
+/* **************************************************************** */
+
+// ネガティブフラグ
+NES.prototype.SetNegativeFlag = function() {
+	this.P |=  this.REG_P_NEGATIVE;
+};
+NES.prototype.ClearNegativeFlag = function() {
+	this.P &= ~this.REG_P_NEGATIVE;
+};
+
+// オーバーフローフラグ
+NES.prototype.SetOverflowFlag = function() {
+	this.P |=  this.REG_P_OVERFLOW;
+};
+NES.prototype.ClearOverflowFlag = function() {
+	this.P &= ~this.REG_P_OVERFLOW;
+};
+
+// 割り込みフラグ
+NES.prototype.SetBreakFlag = function() {
+	this.P |=  this.REG_P_BREAK;
+};
+NES.prototype.ClearBreakFlag = function() {
+	this.P &= ~this.REG_P_BREAK;
+};
+
+// 10 進モードステータスフラグ
+NES.prototype.SetDecimalModeFlag = function() {
+	this.P |=  this.REG_P_DECIMAL;
+};
+NES.prototype.ClearDecimalModeFlag = function() {
+	this.P &= ~this.REG_P_DECIMAL;
+};
+
+// 割り込み禁止フラグ
+NES.prototype.SetInterruptFlag = function() {
+	this.P |=  this.REG_P_INTERRUPT;
+};
+NES.prototype.ClearInterruptFlag = function() {
+	this.P &= ~this.REG_P_INTERRUPT;
+};
+
+// ゼロフラグ
+NES.prototype.SetZeroFlag = function() {
+	this.P |=  this.REG_P_INTERRUPT;
+};
+NES.prototype.ClearZeroFlag = function() {
+	this.P &= ~this.REG_P_INTERRUPT;
+};
+
+// キャリーフラグをセット
+NES.prototype.SetCarryFlag = function() {
+	this.P |=  this.REG_P_CARRY;
+};
+NES.prototype.ClearCarryFlag = function() {
+	this.P &= ~this.REG_P_CARRY;
+};
 
 /* **************************************************************** */
 /* NES CPU 割り込み
@@ -6742,7 +6818,7 @@ NES.prototype.CpuReset = function () {
 	this.P |= 0x04;
 	this.toNMI = false;
 	this.toIRQ = 0x00;
-	this.PC = this.Get16(0xFFFC);
+	this.PC = this.Get16(this.IRQ_RESET_ADDR);
 };
 
 
@@ -6765,7 +6841,7 @@ NES.prototype.NMI = function () {
 	this.P = (this.P | 0x04) & 0xEF; // 0x04 = 0b0100
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFA);
+	this.PC = this.Get16(this.IRQ_NMI_ADDR);
 };
 
 
@@ -6788,7 +6864,7 @@ NES.prototype.IRQ = function () {
 	this.P = (this.P | 0x04) & 0xEF;
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
+	this.PC = this.Get16(this.IRQ_BRK_ADDR);
 };
 
 NES.prototype.BRK = function () {
@@ -6811,7 +6887,7 @@ NES.prototype.BRK = function () {
 	this.P |= 0x14; // 0x14 = 0b00010100
 
 	// 割り込みベクタ
-	this.PC = this.Get16(0xFFFE);
+	this.PC = this.Get16(this.IRQ_BRK_ADDR);
 };
 
 /* **************************************************************** */
@@ -6930,6 +7006,7 @@ NES.prototype.Pop = function () {
 /* NES CPU オペコード
 /* **************************************************************** */
 
+// Aレジスタにロード
 NES.prototype.LDA = function (address) {
 	this.A = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -6937,6 +7014,7 @@ NES.prototype.LDA = function (address) {
 };
 
 
+// Xレジスタにロード
 NES.prototype.LDX = function (address) {
 	this.X = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -6944,6 +7022,7 @@ NES.prototype.LDX = function (address) {
 };
 
 
+// Yレジスタにロード
 NES.prototype.LDY = function (address) {
 	this.Y = this.Get(address);
 	// N と Z をクリア -> 演算結果のbit7をNにストア
@@ -6951,35 +7030,110 @@ NES.prototype.LDY = function (address) {
 };
 
 
+// Aレジスタをストア
 NES.prototype.STA = function (address) {
 	this.Set(address, this.A);
 };
 
 
+// Xレジスタをストア
 NES.prototype.STX = function (address) {
 	this.Set(address, this.X);
 };
 
 
+// Yレジスタをストア
 NES.prototype.STY = function (address) {
 	this.Set(address, this.Y);
 };
 
+// XレジスタをAレジスタにコピー
+NES.prototype.TXA = function () {
+	this.A = this.X;
 
-NES.prototype.Adder = function (data1) {
-	/*var data0 = this.A;
-	this.HalfCarry = ((data0 & 0x0F) + (data1 & 0x0F) + (this.P & 0x01)) >= 0x10 ? true : false;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];*/
-
-	var data0 = this.A;
-	var tmp = data0 + data1 + (this.P & 0x01);
-	this.A = tmp & 0xFF;
-	this.P = (this.P & 0x3C) | ((~(data0 ^ data1) & (data0 ^ tmp) & 0x80) >>> 1) | (tmp >>> 8) | this.ZNCacheTable[this.A];
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
+// YレジスタをAレジスタにコピー
+NES.prototype.TYA = function () {
+	this.A = this.Y;
 
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// XレジスタをSレジスタにコピー
+NES.prototype.TXS = function () {
+	this.S = this.X;
+};
+
+// AレジスタをYレジスタにコピー
+NES.prototype.TAY = function () {
+	this.Y = this.A;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// AレジスタをXレジスタにコピー
+NES.prototype.TAX = function () {
+	this.X = this.A;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+// SレジスタをXレジスタにコピー
+NES.prototype.TSX = function () {
+	this.X = this.S;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+// ステータスレジスタをプッシュする
+NES.prototype.PHP = function () {
+	// BRK割り込みをセット
+	// 0x30 = 0b00110000
+	this.Push(this.P | 0x30);
+};
+
+// ステータスレジスタをポップする
+NES.prototype.PLP = function () {
+	this.P = this.Pop();
+};
+
+// Aレジスタをプッシュする
+NES.prototype.PHA = function () {
+	this.Push(this.A);
+};
+
+// Aレジスタをポップする
+NES.prototype.PLA = function () {
+	this.A = this.Pop();
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
+};
+
+NES.prototype.Adder = function (data) {
+	var carry_flag = this.P & 0x01;
+	var tmp = this.A + data + carry_flag;
+
+	//this.HalfCarry = ((this.A & 0x0F) + (data & 0x0F) + carry_flag) >= 0x10 ? true : false;
+
+	// 0x3C = 0b00111100
+	this.P = this.P & 0x3C;
+
+	// TODO: 引き続き調査
+	// 0x80 = 0b10000000
+	this.P |= (~(this.A ^ data) & (this.A ^ tmp) & 0x80) >>> 1;
+	this.P |= (tmp >>> 8);
+	this.P |= this.ZNCacheTable[tmp & 0xFF];
+	this.A = tmp & 0xFF;
+};
+
+// (A + メモリ + キャリーフラグ) を演算して結果をAへ返します
 NES.prototype.ADC = function (address) {
 	this.Adder(this.Get(address));
 
@@ -6996,6 +7150,7 @@ NES.prototype.ADC = function (address) {
 };
 
 
+// (A - メモリ + キャリーフラグ) を演算して結果をAへ返します
 NES.prototype.SBC = function (address) {
 	this.Adder(~this.Get(address) & 0xFF);
 
@@ -7007,42 +7162,58 @@ NES.prototype.SBC = function (address) {
 	}*/
 };
 
-
+// TODO: 調べる
+// Aレジスタと比較する
 NES.prototype.CMP = function (address) {
+	// 0x7C = 0b01111100
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.A - this.Get(address)) & 0x1FF];
 };
 
 
+// TODO: 調べる
+// Xレジスタと比較する
 NES.prototype.CPX = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.X - this.Get(address)) & 0x1FF];
 };
 
 
+// TODO: 調べる
+// Yレジスタと比較する
 NES.prototype.CPY = function (address) {
 	this.P = this.P & 0x7C | this.ZNCacheTableCMP[(this.Y - this.Get(address)) & 0x1FF];
 };
 
-
+// AレジスタとAND演算をする
 NES.prototype.AND = function (address) {
 	this.A &= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとEX-OR演算をする
 NES.prototype.EOR = function (address) {
 	this.A ^= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとOR演算をする
 NES.prototype.ORA = function (address) {
 	this.A |= this.Get(address);
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[this.A];
 };
 
-
+// AレジスタとAND比較をする
 NES.prototype.BIT = function (address) {
 	var x = this.Get(address);
+	// 0x3D = 0b00111101
+	// 0x02 = 0b00000010
+	// 0xC0 = 0b11000000
+	// TODO: 調べる
 	this.P = this.P & 0x3D | this.ZNCacheTable[x & this.A] & 0x02 | x & 0xC0;
 };
 
@@ -7054,7 +7225,8 @@ NES.prototype.ASL_Sub = function (data) {
 	return data;
 };
 
-
+// 左シフト
+// TODO: 調べる
 NES.prototype.ASL = function (address) {
 	this.Set(address, this.ASL_Sub(this.Get(address)));
 };
@@ -7067,7 +7239,8 @@ NES.prototype.LSR_Sub = function (data) {
 	return data;
 };
 
-
+// 右シフト
+// TODO: 調べる
 NES.prototype.LSR = function (address) {
 	this.Set(address, this.LSR_Sub(this.Get(address)));
 };
@@ -7080,7 +7253,8 @@ NES.prototype.ROL_Sub = function (data) {
 	return data;
 };
 
-
+// 左ローテイト
+// TODO: 調べる
 NES.prototype.ROL = function (address) {
 	this.Set(address, this.ROL_Sub(this.Get(address)));
 };
@@ -7094,25 +7268,166 @@ NES.prototype.ROR_Sub = function (data) {
 };
 
 
+// 右ローテイト
+// TODO: 調べる
 NES.prototype.ROR = function (address) {
 	this.Set(address, this.ROR_Sub(this.Get(address)));
 };
 
-
+// 1を加算する
 NES.prototype.INC = function (address) {
 	var data = (this.Get(address) + 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
 };
 
-
+// 1を減算する
 NES.prototype.DEC = function (address) {
 	var data = (this.Get(address) - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
 	this.P = this.P & 0x7D | this.ZNCacheTable[data];
 	this.Set(address, data);
 };
 
+// Xレジスタに1を加算
+NES.prototype.INX = function () {
+	this.X = (this.X + 1) & 0xFF;
 
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+// Yレジスタに1を加算
+NES.prototype.INY = function () {
+	this.Y = (this.Y + 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+};
+
+// Xレジスタに1を減算
+NES.prototype.DEX = function () {
+	this.X = (this.X - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.X];
+};
+
+// Yレジスタに1を減算
+NES.prototype.DEY = function () {
+	this.Y = (this.Y - 1) & 0xFF;
+
+	// N と Z をクリア -> 演算結果のbit7をNにストア
+	this.P = this.P & 0x7D | this.ZNCacheTable[this.Y];
+};
+
+// 何もしない
+NES.prototype.NOP = function () {
+};
+
+// Cフラグをクリア
+NES.prototype.CLC = function () {
+	this.P &= 0xFE;
+};
+
+// Iフラグをクリア
+NES.prototype.CLC = function () {
+	this.P &= 0xFB;
+};
+
+// Iフラグをクリア
+NES.prototype.CLV = function () {
+	this.P &= 0xBF;
+};
+
+// Dフラグをクリア
+NES.prototype.CLD = function () {
+	this.P &= 0xF7;
+};
+
+// Cフラグをセット
+NES.prototype.SEC = function () {
+	this.P |= 0x01;
+};
+
+// Iフラグをセット
+NES.prototype.SEI = function () {
+	this.P |= 0x04;
+};
+
+// Dフラグをセット
+NES.prototype.SED = function () {
+	this.P |= 0x08;
+};
+
+// ジャンプ
+NES.prototype.JMP = function (address) {
+	this.PC = address;
+};
+
+// サブルーチン呼び出し
+NES.prototype.JSR = function () {
+	var PC = (this.PC + 1) & 0xFFFF;
+	this.Push(PC >> 8);
+	this.Push(PC & 0xFF);
+	this.JMP(this.GetAddressAbsolute());
+};
+
+// サブルーチンから復帰
+NES.prototype.RTS = function () {
+	this.PC = (this.Pop() | (this.Pop() << 8)) + 1;
+};
+
+// 割り込みから復帰
+NES.prototype.RTI = function () {
+	this.P = this.Pop();
+	this.PC = this.Pop() | (this.Pop() << 8);
+};
+
+// キャリーフラグが立っていない時ジャンプ
+NES.prototype.BCC = function () {
+	this.Branch((this.P & 0x01) === 0);
+};
+
+// キャリーフラグが立っている時ジャンプ
+NES.prototype.BCS = function () {
+	this.Branch((this.P & 0x01) !== 0);
+};
+
+// ネガティブフラグが立っていない時ジャンプ
+NES.prototype.BPL = function () {
+	this.Branch((this.P & 0x80) === 0);
+};
+
+// ネガティブフラグが立っている時ジャンプ
+NES.prototype.BMI = function () {
+	this.Branch((this.P & 0x80) !== 0);
+};
+
+// オーバーフローフラグが立っていない時ジャンプ
+NES.prototype.BVC = function () {
+	this.Branch((this.P & 0x40) === 0);
+};
+
+// オーバーフローフラグが立っている時ジャンプ
+NES.prototype.BVS = function () {
+	this.Branch((this.P & 0x40) !== 0);
+};
+
+// ゼロフラグが立っていない時ジャンプ
+NES.prototype.BNE = function () {
+	this.Branch((this.P & 0x02) === 0);
+};
+
+// ゼロフラグが立っている時ジャンプ
+NES.prototype.BEQ = function () {
+	this.Branch((this.P & 0x02) !== 0);
+};
+
+// 条件分岐命令
 NES.prototype.Branch = function (state) {
 	if(!state) {
 		this.PC++;
