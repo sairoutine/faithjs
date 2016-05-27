@@ -795,7 +795,7 @@ NES.prototype.CpuInit = function () {
 NES.prototype.CpuRun = function () {
 	this.DrawFlag = false;
 
-	do {
+	while(!this.DrawFlag) {
 		if(this.toNMI) {
 			// NMI割り込み
 			this.NMI();
@@ -814,8 +814,7 @@ NES.prototype.CpuRun = function () {
 		this.ApuRun();
 		this.CPUClock = 0;
 		this.ExecuteOpCode(opcode);
-
-	} while(!this.DrawFlag);
+	}
 };
 
 NES.prototype.ExecuteOpCode = function (opcode) {
