@@ -166,8 +166,8 @@ var NES = function(canvas) {
 
 	this.PaletteArray = [0x10, 0x01, 0x02, 0x03, 0x10, 0x05, 0x06, 0x07, 0x10, 0x09, 0x0A, 0x0B, 0x10, 0x0D, 0x0E, 0x0F];
 
-	this.PpuX = 0;
-	this.PpuY = 0;
+	this.PpuX = 0; //クロック
+	this.PpuY = 0; //スキャンライン
 
 	this.ImageData = null;
 	this.DrawFlag = false;
@@ -217,8 +217,10 @@ var NES = function(canvas) {
 	this.CHRROM_PAGES = null;
 
 	// PPU Registers
+	// (0x2000 〜 0x2007)
 	this.IO1 = new Array(8);
 	// APU Registers
+	// (0x4000 〜 0x4017)
 	this.IO2 = new Array(0x20);
 
 	// NES ROMデータ
@@ -793,8 +795,10 @@ NES.prototype.CpuInit = function () {
 };
 
 NES.prototype.CpuRun = function () {
+	// 画面を描画したかどうか
 	this.DrawFlag = false;
 
+	// 1フレーム1描画。描画するまでCPU, APU, PPUをrun
 	while(!this.DrawFlag) {
 		if(this.toNMI) {
 			// NMI割り込み
@@ -2792,6 +2796,8 @@ NES.prototype.WritePPUAddressRegister = function (value) {
 
 NES.prototype.ReadPPUStatus = function () {
 	var result = this.IO1[0x02];
+
+	// TODO: V-Blank 終了?
 	this.IO1[0x02] &= 0x1F;
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
@@ -3019,29 +3025,28 @@ NES.prototype.Get = function (address) {
 
 			// Registers(Mostly APU)
 			switch (address) {
-				case 0x4000:
-				case 0x4001:
-				case 0x4002:
-				case 0x4003:
-				case 0x4004:
-				case 0x4005:
-				case 0x4006:
-				case 0x4007:
-				case 0x4008:
-				case 0x4009:
-				case 0x400A:
-				case 0x400B:
-				case 0x400C:
-				case 0x400D:
-				case 0x400E:
-				case 0x400F:
-				case 0x4010:
-				case 0x4011:
-				case 0x4012:
-				case 0x4013:
-				case 0x4014:
-					// PPU OAMDMA
-				case 0x4015:
+				case 0x4000: // 矩形波制御レジスタ #1
+				case 0x4001: // 矩形波制御レジスタ #2
+				case 0x4002: // 矩形波周波数値レジスタ #1
+				case 0x4003: // 矩形波周波数値レジスタ #2
+				case 0x4004: // 矩形波制御レジスタ #1
+				case 0x4005: // 矩形波制御レジスタ #2
+				case 0x4006: // 矩形波周波数値レジスタ #1
+				case 0x4007: // 矩形波周波数値レジスタ #2
+				case 0x4008: // 三角波制御レジスタ #1
+				case 0x4009: // 三角波制御レジスタ #2
+				case 0x400A: // 三角波周波数値レジスタ #1
+				case 0x400B: // 三角波周波数値レジスタ #2
+				case 0x400C: // ノイズ制御レジスタ #1
+				case 0x400D: // ノイズ制御レジスタ #2
+				case 0x400E: // 周波数値レジスタ #1
+				case 0x400F: // 周波数値レジスタ #2
+				case 0x4010: // PCM 制御レジスタ #1
+				case 0x4011: // PCM 音量制御レジスタ
+				case 0x4012: // PCM アドレスレジスタ
+				case 0x4013: // PCM データ長レジスタ
+				case 0x4014: // SPRDMA (W) スプライト DMA
+				case 0x4015: // SNDCNT (RW) サウンド制御レジスタ
 					return this.ReadWaveControl();
 				case 0x4016:
 					// PAD I/O Register(1P)
@@ -3058,6 +3063,9 @@ NES.prototype.Get = function (address) {
 				case 0x401E:
 				case 0x401F:
 			}
+
+			// サウンドのドキュメントによると、
+			// 0x40 が返ってくる確率が高いらしい
 			return 0x40;
 		case 0x6000:
 			// 拡張RAM
@@ -3135,51 +3143,51 @@ NES.prototype.Set = function (address, data) {
 				// APU Registers
 				// TODO: why?
 				this.IO2[address & 0x00FF] = data;
-				// TODO: 実装
 				switch (address) {
-					case 0x4000:
-					case 0x4001:
-					case 0x4002:
+					case 0x4000: // 矩形波制御レジスタ #1
+					case 0x4001: // 矩形波制御レジスタ #2
+					case 0x4002: // 矩形波周波数値レジスタ #1
 						this.WriteCh1Length0();
 						return;
-					case 0x4003:
+					case 0x4003: // 矩形波周波数値レジスタ #2
 						this.WriteCh1Length1();
 						return;
-					case 0x4004:
-					case 0x4005:
-					case 0x4006:
+					case 0x4004: // 矩形波制御レジスタ #1
+					case 0x4005: // 矩形波制御レジスタ #2
+					case 0x4006: // 矩形波周波数値レジスタ #1
 						this.WriteCh2Length0();
 						return;
-					case 0x4007:
+					case 0x4007: // 矩形波周波数値レジスタ #2
 						this.WriteCh2Length1();
 						return;
-					case 0x4008:
+					case 0x4008: // 三角波制御レジスタ #1
 						this.WriteCh3LinearCounter();
 						return;
-					case 0x4009:
-					case 0x400A:
-					case 0x400B:
+					case 0x4009: // 三角波制御レジスタ #2
+					case 0x4010: // PCM 制御レジスタ #1
+					case 0x400A: // 三角波周波数値レジスタ #1
+					case 0x400B: // 三角波周波数値レジスタ #2
 						this.WriteCh3Length1();
 						return;
-					case 0x400C:
-					case 0x400D:
-					case 0x400E:
-					case 0x400F:
+					case 0x400C: // ノイズ制御レジスタ #1
+					case 0x400D: // ノイズ制御レジスタ #2
+					case 0x400E: // 周波数値レジスタ #1
+					case 0x400F: // 周波数値レジスタ #2
 						this.WriteCh4Length1();
 						return;
-					case 0x4010:
+					case 0x4010: // PCM 制御レジスタ #1
 						this.WriteCh5DeltaControl();
 						return;
-					case 0x4011:
+					case 0x4011: // PCM 音量制御レジスタ
 						this.WriteCh5DeltaCounter();
 						return;
-					case 0x4012:
-					case 0x4013:
-					case 0x4014:
+					case 0x4012: // PCM アドレスレジスタ
+					case 0x4013: // PCM データ長レジスタ
+					case 0x4014: // SPRDMA (W) スプライト DMA
 						// PPU OAMDMA
 						this.StartDMA(data);
 						return;
-					case 0x4015:
+					case 0x4015: // SNDCNT (RW) サウンド制御レジスタ
 						this.WriteWaveControl();
 						return;
 					case 0x4016:
@@ -3188,8 +3196,6 @@ NES.prototype.Set = function (address, data) {
 						return;
 					case 0x4017:
 						// PAD I/O Register(2P)
-						// TODO: 実装
-						//this.WriteJoyPadRegister2(data);
 						return;
 					case 0x4018:
 					case 0x4019:
