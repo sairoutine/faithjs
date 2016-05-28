@@ -2562,7 +2562,14 @@ NES.prototype.PpuRun = function () {
 
 			this.DrawFlag = true;
 			this.ScrollRegisterFlag = false;
-			this.IO1[0x02] = (this.IO1[0x02] & 0x1F) | 0x80;
+
+			// VBlankフラグをクリア
+			// スプライトヒットをクリア
+			// スキャンラインスプライト数をクリア
+			this.IO1[0x02] &= 0x1F; // 0x1F = 0b00011111
+
+			// VBlankフラグを立てる
+			this.IO1[0x02] |= 0x80; // 0x80 = 0b10000000
 
 			// VBlank時のNMI割り込み
 			this.toNMI = (this.IO1[0x00] & 0x80) === 0x80;
