@@ -2535,9 +2535,9 @@ NES.prototype.PpuRun = function () {
 
 	while(this.PpuX >= 341) {
 		// 画面を表示するかどうか
-		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08; // 0b00001000
+		var IsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08; // 0b00001000
 		// スプライトを画面に表示するかどうかを設定
-		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10; // 0b00010000
+		var IsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10; // 0b00010000
 
 		this.PpuX -= 341;
 		tmpx = 0;
@@ -2546,7 +2546,7 @@ NES.prototype.PpuRun = function () {
 
 		if(this.PpuY === 262) {
 			this.PpuY = 0;
-			if(tmpIsScreenEnable || tmpIsSpriteEnable)
+			if(IsScreenEnable || IsSpriteEnable)
 				this.PPUAddress = this.PPUAddressBuffer;
 			tmpIO1[0x02] &= 0x7F;
 		}
@@ -2574,7 +2574,7 @@ NES.prototype.PpuRun = function () {
 			var p;
 			var tmpDist;
 			var tmpPal;
-			if(tmpIsScreenEnable || tmpIsSpriteEnable) {
+			if(IsScreenEnable || IsSpriteEnable) {
 				this.PPUAddress = (this.PPUAddress & 0xFBE0) | (this.PPUAddressBuffer & 0x041F);
 
 				if(this.PpuY >= 8 && this.PpuY < 232) {
