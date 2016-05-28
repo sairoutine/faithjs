@@ -2598,7 +2598,6 @@ NES.prototype.PpuRun = function () {
 						this.ImageData.data[tmpDist + 2] = tmpPal[2];
 					}
 				} else {
-					this.BgLineBuffer = this.BgLineBuffer;
 					for(p=0; p<264; p++)
 						this.BgLineBuffer[p] = 0x10;
 					this.BuildSpriteLine();
