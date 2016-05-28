@@ -2527,7 +2527,6 @@ NES.prototype.initCanvas = function () {
 
 
 NES.prototype.PpuRun = function () {
-	var tmpSpLine = this.SpriteLineBuffer;
 	var tmpx = this.PpuX;
 
 	// PPUクロック数 = CPUクロック数の3倍
@@ -2628,7 +2627,7 @@ NES.prototype.PpuRun = function () {
 	if(this.Sprite0Line && (this.IO1[0x02] & 0x40) !== 0x40) { // 0x40 = 0b01000000
 		var i = this.PpuX > 255 ? 255 : this.PpuX;
 		for(; tmpx<=i; tmpx++) {
-			if(tmpSpLine[tmpx] === 0) {
+			if(this.SpriteLineBuffer[tmpx] === 0) {
 				this.IO1[0x02] |= 0x40; // スプライトヒット
 				break;
 			}
