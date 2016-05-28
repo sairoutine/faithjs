@@ -2529,11 +2529,15 @@ NES.prototype.PpuRun = function () {
 	var tmpIO1 = this.IO1;
 	var tmpSpLine = this.SpriteLineBuffer;
 	var tmpx = this.PpuX;
+
+	// PPUクロック数 = CPUクロック数の3倍
 	this.PpuX += this.CPUClock * 3;
 
 	while(this.PpuX >= 341) {
-		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08;
-		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10;
+		// 画面を表示するかどうか
+		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08; // 0b00001000
+		// スプライトを画面に表示するかどうかを設定
+		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10; // 0b00010000
 
 		this.PpuX -= 341;
 		tmpx = 0;
