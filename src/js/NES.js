@@ -169,6 +169,7 @@ var NES = function(canvas) {
 	this.PpuX = 0; //クロック
 	this.PpuY = 0; //スキャンライン
 
+	// 画面データ
 	this.ImageData = null;
 	this.DrawFlag = false;
 	this.ctx = canvas.getContext("2d");
@@ -2526,45 +2527,50 @@ NES.prototype.initCanvas = function () {
 
 
 NES.prototype.PpuRun = function () {
-	var tmpIO1 = this.IO1;
 	var tmpSpLine = this.SpriteLineBuffer;
 	var tmpx = this.PpuX;
 
 	// PPUクロック数 = CPUクロック数の3倍
 	this.PpuX += this.CPUClock * 3;
 
+	// PPUは341クロックで一つのラインの描画と次のラインの準備を行います
 	while(this.PpuX >= 341) {
 		// 画面を表示するかどうか
-		var IsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08; // 0b00001000
+		var IsScreenEnable = (this.IO1[0x01] & 0x08) === 0x08; // 0b00001000
 		// スプライトを画面に表示するかどうかを設定
-		var IsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10; // 0b00010000
+		var IsSpriteEnable = (this.IO1[0x01] & 0x10) === 0x10; // 0b00010000
 
 		this.PpuX -= 341;
 		tmpx = 0;
 		this.Sprite0Line = false;
 		this.PpuY++;
 
+		// 垂直回帰時間の終了
 		if(this.PpuY === 262) {
 			this.PpuY = 0;
-			if(IsScreenEnable || IsSpriteEnable)
+			if(IsScreenEnable || IsSpriteEnable) {
 				this.PPUAddress = this.PPUAddressBuffer;
-			tmpIO1[0x02] &= 0x7F;
+			}
+			// VBlankフラグを消去
+			this.IO1[0x02] &= 0x7F; // 0x7F = 0b01111111
 		}
 
 		this.Mapper.HSync(this.PpuY);
 
+		// 画面の描画終了
 		if(this.PpuY === 240) {
 			this.ctx.putImageData(this.ImageData, 0, 0);
 
 			this.DrawFlag = true;
 			this.ScrollRegisterFlag = false;
-			tmpIO1[0x02] = (tmpIO1[0x02] & 0x1F) | 0x80;
+			this.IO1[0x02] = (this.IO1[0x02] & 0x1F) | 0x80;
 
 			// VBlank時のNMI割り込み
-			this.toNMI = (tmpIO1[0x00] & 0x80) === 0x80;
+			this.toNMI = (this.IO1[0x00] & 0x80) === 0x80;
 			continue;
 		}
 
+		// 画面描画中
 		if(this.PpuY < 240) {
 			var tmpPalette = this.Palette;
 			var tmpPaletteTable = this.PaletteTable;
@@ -2618,11 +2624,12 @@ NES.prototype.PpuRun = function () {
 		}
 	}
 
-	if(this.Sprite0Line && (tmpIO1[0x02] & 0x40) !== 0x40) {
+	// 0番スプライトヒット検出
+	if(this.Sprite0Line && (this.IO1[0x02] & 0x40) !== 0x40) { // 0x40 = 0b01000000
 		var i = this.PpuX > 255 ? 255 : this.PpuX;
 		for(; tmpx<=i; tmpx++) {
 			if(tmpSpLine[tmpx] === 0) {
-				tmpIO1[0x02] |= 0x40;
+				this.IO1[0x02] |= 0x40; // スプライトヒット
 				break;
 			}
 		}
