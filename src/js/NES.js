@@ -2593,7 +2593,7 @@ NES.prototype.PpuRun = function () {
 					tmpDist = (this.PpuY - 8) << 10;
 					for(p=0; p<256; p++, tmpDist+=4) {
 						tmpPal = this.PaletteTable[this.Palette[this.BgLineBuffer[p]]];
-						this.ImageData.data[tmpDist] = tmpPal[0];
+						this.ImageData.data[tmpDist]     = tmpPal[0];
 						this.ImageData.data[tmpDist + 1] = tmpPal[1];
 						this.ImageData.data[tmpDist + 2] = tmpPal[2];
 					}
@@ -2619,7 +2619,7 @@ NES.prototype.PpuRun = function () {
 				tmpDist = (this.PpuY - 8) << 10;
 				tmpPal = this.PaletteTable[this.Palette[0x10]];
 				for(p=0; p<256; p++, tmpDist += 4) {
-					this.ImageData.data[tmpDist] = tmpPal[0];
+					this.ImageData.data[tmpDist]     = tmpPal[0];
 					this.ImageData.data[tmpDist + 1] = tmpPal[1];
 					this.ImageData.data[tmpDist + 2] = tmpPal[2];
 				}
