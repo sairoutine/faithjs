@@ -5303,24 +5303,6 @@ var NES = function(canvas) {
 
 	this.PPUReadBuffer = 0;
 
-	this.PaletteTable = [
-	[0x78,0x78,0x78],[0x20,0x00,0xB0],[0x28,0x00,0xB8],[0x60,0x10,0xA0],
-	[0x98,0x20,0x78],[0xB0,0x10,0x30],[0xA0,0x30,0x00],[0x78,0x40,0x00],
-	[0x48,0x58,0x00],[0x38,0x68,0x00],[0x38,0x6C,0x00],[0x30,0x60,0x40],
-	[0x30,0x50,0x80],[0x00,0x00,0x00],[0x00,0x00,0x00],[0x00,0x00,0x00],
-	[0xB0,0xB0,0xB0],[0x40,0x60,0xF8],[0x40,0x40,0xFF],[0x90,0x40,0xF0],
-	[0xD8,0x40,0xC0],[0xD8,0x40,0x60],[0xE0,0x50,0x00],[0xC0,0x70,0x00],
-	[0x88,0x88,0x00],[0x50,0xA0,0x00],[0x48,0xA8,0x10],[0x48,0xA0,0x68],
-	[0x40,0x90,0xC0],[0x00,0x00,0x00],[0x00,0x00,0x00],[0x00,0x00,0x00],
-	[0xFF,0xFF,0xFF],[0x60,0xA0,0xFF],[0x50,0x80,0xFF],[0xA0,0x70,0xFF],
-	[0xF0,0x60,0xFF],[0xFF,0x60,0xB0],[0xFF,0x78,0x30],[0xFF,0xA0,0x00],
-	[0xE8,0xD0,0x20],[0x98,0xE8,0x00],[0x70,0xF0,0x40],[0x70,0xE0,0x90],
-	[0x60,0xD0,0xE0],[0x78,0x78,0x78],[0x00,0x00,0x00],[0x00,0x00,0x00],
-	[0xFF,0xFF,0xFF],[0x90,0xD0,0xFF],[0xA0,0xB8,0xFF],[0xC0,0xB0,0xFF],
-	[0xE0,0xB0,0xFF],[0xFF,0xB8,0xE8],[0xFF,0xC8,0xB8],[0xFF,0xD8,0xA0],
-	[0xFF,0xF0,0x90],[0xC8,0xF0,0x80],[0xA0,0xF0,0xA0],[0xA0,0xFF,0xC8],
-	[0xA0,0xFF,0xF0],[0xA0,0xA0,0xA0],[0x00,0x00,0x00],[0x00,0x00,0x00]];
-
 	this.BgLineBuffer = null;
 
 	this.SPBitArray = new Array(256);
@@ -5335,9 +5317,10 @@ var NES = function(canvas) {
 
 	this.PaletteArray = [0x10, 0x01, 0x02, 0x03, 0x10, 0x05, 0x06, 0x07, 0x10, 0x09, 0x0A, 0x0B, 0x10, 0x0D, 0x0E, 0x0F];
 
-	this.PpuX = 0;
-	this.PpuY = 0;
+	this.PpuX = 0; //クロック
+	this.PpuY = 0; //スキャンライン
 
+	// 画面データ
 	this.ImageData = null;
 	this.DrawFlag = false;
 	this.ctx = canvas.getContext("2d");
@@ -5386,8 +5369,10 @@ var NES = function(canvas) {
 	this.CHRROM_PAGES = null;
 
 	// PPU Registers
+	// (0x2000 〜 0x2007)
 	this.IO1 = new Array(8);
 	// APU Registers
+	// (0x4000 〜 0x4017)
 	this.IO2 = new Array(0x20);
 
 	// NES ROMデータ
@@ -5673,6 +5658,25 @@ NES.prototype.IRQ_RESET_ADDR = 0xFFFC;
 // 割り込みベクタ 3 (ソフトウェア割り込み)
 NES.prototype.IRQ_BRK_ADDR   = 0xFFFE;
 
+// ファミコン固有のパレットテーブル
+NES.prototype.PaletteTable = [
+	[ 0x80,0x80,0x80 ], [ 0x00,0x3D,0xA6 ], [ 0x00,0x12,0xB0 ], [ 0x44,0x00,0x96 ],
+	[ 0xA1,0x00,0x5E ], [ 0xC7,0x00,0x28 ], [ 0xBA,0x06,0x00 ], [ 0x8C,0x17,0x00 ],
+	[ 0x5C,0x2F,0x00 ], [ 0x10,0x45,0x00 ], [ 0x05,0x4A,0x00 ], [ 0x00,0x47,0x2E ],
+	[ 0x00,0x41,0x66 ], [ 0x00,0x00,0x00 ], [ 0x05,0x05,0x05 ], [ 0x05,0x05,0x05 ],
+	[ 0xC7,0xC7,0xC7 ], [ 0x00,0x77,0xFF ], [ 0x21,0x55,0xFF ], [ 0x82,0x37,0xFA ],
+	[ 0xEB,0x2F,0xB5 ], [ 0xFF,0x29,0x50 ], [ 0xFF,0x22,0x00 ], [ 0xD6,0x32,0x00 ],
+	[ 0xC4,0x62,0x00 ], [ 0x35,0x80,0x00 ], [ 0x05,0x8F,0x00 ], [ 0x00,0x8A,0x55 ],
+	[ 0x00,0x99,0xCC ], [ 0x21,0x21,0x21 ], [ 0x09,0x09,0x09 ], [ 0x09,0x09,0x09 ],
+	[ 0xFF,0xFF,0xFF ], [ 0x0F,0xD7,0xFF ], [ 0x69,0xA2,0xFF ], [ 0xD4,0x80,0xFF ],
+	[ 0xFF,0x45,0xF3 ], [ 0xFF,0x61,0x8B ], [ 0xFF,0x88,0x33 ], [ 0xFF,0x9C,0x12 ],
+	[ 0xFA,0xBC,0x20 ], [ 0x9F,0xE3,0x0E ], [ 0x2B,0xF0,0x35 ], [ 0x0C,0xF0,0xA4 ],
+	[ 0x05,0xFB,0xFF ], [ 0x5E,0x5E,0x5E ], [ 0x0D,0x0D,0x0D ], [ 0x0D,0x0D,0x0D ],
+	[ 0xFF,0xFF,0xFF ], [ 0xA6,0xFC,0xFF ], [ 0xB3,0xEC,0xFF ], [ 0xDA,0xAB,0xEB ],
+	[ 0xFF,0xA8,0xF9 ], [ 0xFF,0xAB,0xB3 ], [ 0xFF,0xD2,0xB0 ], [ 0xFF,0xEF,0xA6 ],
+	[ 0xFF,0xF7,0x9C ], [ 0xD7,0xE8,0x95 ], [ 0xA6,0xED,0xAF ], [ 0xA2,0xF2,0xDA ],
+	[ 0x99,0xFF,0xFC ], [ 0xDD,0xDD,0xDD ], [ 0x11,0x11,0x11 ], [ 0x11,0x11,0x11 ]
+];
 
 
 /* **************************************************************** */
@@ -5962,9 +5966,11 @@ NES.prototype.CpuInit = function () {
 };
 
 NES.prototype.CpuRun = function () {
+	// 画面を描画したかどうか
 	this.DrawFlag = false;
 
-	do {
+	// 1フレーム1描画。描画するまでCPU, APU, PPUをrun
+	while(!this.DrawFlag) {
 		if(this.toNMI) {
 			// NMI割り込み
 			this.NMI();
@@ -5983,8 +5989,7 @@ NES.prototype.CpuRun = function () {
 		this.ApuRun();
 		this.CPUClock = 0;
 		this.ExecuteOpCode(opcode);
-
-	} while(!this.DrawFlag);
+	}
 };
 
 NES.prototype.ExecuteOpCode = function (opcode) {
@@ -7604,19 +7609,23 @@ NES.prototype.PpuInit = function () {
 	this.Palette = new Array(33);
 
 	var i;
-	for(i=0; i<this.Palette.length; i++)
+	for(i=0; i<this.Palette.length; i++) {
 		this.Palette[i] = 0x0F;
+	}
 
 	this.SpriteLineBuffer = new Array(256);
-	for(i=0; i<this.SpriteLineBuffer.length; i++)
+	for(i=0; i<this.SpriteLineBuffer.length; i++) {
 		this.SpriteLineBuffer[i] = 0;
+	}
 
 	this.PPUReadBuffer = 0;
 
-	if(this.FourScreen)
+	if(this.FourScreen) {
 		this.SetMirrors(0, 1, 2, 3);
-	else
+	}
+	else {
 		this.SetMirror(this.HMirror);
+	}
 
 	this.BgLineBuffer = new Array(256 + 8);
 
@@ -7692,68 +7701,80 @@ NES.prototype.initCanvas = function () {
 
 
 NES.prototype.PpuRun = function () {
-	var tmpIO1 = this.IO1;
-	var tmpSpLine = this.SpriteLineBuffer;
 	var tmpx = this.PpuX;
+
+	// PPUクロック数 = CPUクロック数の3倍
 	this.PpuX += this.CPUClock * 3;
 
+	// PPUは341クロックで一つのラインの描画と次のラインの準備を行います
 	while(this.PpuX >= 341) {
-		var tmpIsScreenEnable = (tmpIO1[0x01] & 0x08) === 0x08;
-		var tmpIsSpriteEnable = (tmpIO1[0x01] & 0x10) === 0x10;
+		// 画面を表示するかどうか
+		var IsScreenEnable = (this.IO1[0x01] & 0x08) === 0x08; // 0b00001000
+		// スプライトを画面に表示するかどうかを設定
+		var IsSpriteEnable = (this.IO1[0x01] & 0x10) === 0x10; // 0b00010000
 
 		this.PpuX -= 341;
 		tmpx = 0;
 		this.Sprite0Line = false;
 		this.PpuY++;
 
+		// 垂直回帰時間の終了
 		if(this.PpuY === 262) {
 			this.PpuY = 0;
-			if(tmpIsScreenEnable || tmpIsSpriteEnable)
+			if(IsScreenEnable || IsSpriteEnable) {
 				this.PPUAddress = this.PPUAddressBuffer;
-			tmpIO1[0x02] &= 0x7F;
+			}
+			// VBlankフラグを消去
+			this.IO1[0x02] &= 0x7F; // 0x7F = 0b01111111
 		}
 
 		this.Mapper.HSync(this.PpuY);
 
+		// 画面の描画終了
 		if(this.PpuY === 240) {
 			this.ctx.putImageData(this.ImageData, 0, 0);
 
 			this.DrawFlag = true;
 			this.ScrollRegisterFlag = false;
-			tmpIO1[0x02] = (tmpIO1[0x02] & 0x1F) | 0x80;
+
+			// VBlankフラグをクリア
+			// スプライトヒットをクリア
+			// スキャンラインスプライト数をクリア
+			this.IO1[0x02] &= 0x1F; // 0x1F = 0b00011111
+
+			// VBlankフラグを立てる
+			this.IO1[0x02] |= 0x80; // 0x80 = 0b10000000
 
 			// VBlank時のNMI割り込み
-			this.toNMI = (tmpIO1[0x00] & 0x80) === 0x80;
+			this.toNMI = (this.IO1[0x00] & 0x80) === 0x80;
 			continue;
 		}
 
+		// 画面描画中
 		if(this.PpuY < 240) {
-			var tmpPalette = this.Palette;
-			var tmpPaletteTable = this.PaletteTable;
-			var tmpImageData = this.ImageData.data;
-			var tmpBgLineBuffer = this.BgLineBuffer;
-
 			var p;
 			var tmpDist;
 			var tmpPal;
-			if(tmpIsScreenEnable || tmpIsSpriteEnable) {
+			if(IsScreenEnable || IsSpriteEnable) {
+				// 0xFBE0 = 0b 11111011 11100000
+				// 0x041F = 0b 00000100 00011111
 				this.PPUAddress = (this.PPUAddress & 0xFBE0) | (this.PPUAddressBuffer & 0x041F);
 
-				if(this.PpuY >= 8 && this.PpuY < 232) {
+				// 上下8ラインは画面表示されない
+				if(8 <= this.PpuY && this.PpuY < 232) {
 					this.BuildBGLine();
 					this.BuildSpriteLine();
 
 					tmpDist = (this.PpuY - 8) << 10;
 					for(p=0; p<256; p++, tmpDist+=4) {
-						tmpPal = tmpPaletteTable[tmpPalette[tmpBgLineBuffer[p]]];
-						tmpImageData[tmpDist] = tmpPal[0];
-						tmpImageData[tmpDist + 1] = tmpPal[1];
-						tmpImageData[tmpDist + 2] = tmpPal[2];
+						tmpPal = this.PaletteTable[this.Palette[this.BgLineBuffer[p]]];
+						this.ImageData.data[tmpDist]     = tmpPal[0];
+						this.ImageData.data[tmpDist + 1] = tmpPal[1];
+						this.ImageData.data[tmpDist + 2] = tmpPal[2];
 					}
 				} else {
-					tmpBgLineBuffer = this.BgLineBuffer;
 					for(p=0; p<264; p++)
-						tmpBgLineBuffer[p] = 0x10;
+						this.BgLineBuffer[p] = 0x10;
 					this.BuildSpriteLine();
 				}
 
@@ -7768,23 +7789,26 @@ NES.prototype.PpuRun = function () {
 				} else
 					this.PPUAddress += 0x1000;
 
-			} else if(this.PpuY >= 8 && this.PpuY < 232) {
+			}
+			// 上下8ラインは画面表示されない
+			else if(8 <= this.PpuY && this.PpuY < 232) {
 				tmpDist = (this.PpuY - 8) << 10;
-				tmpPal = tmpPaletteTable[tmpPalette[0x10]];
+				tmpPal = this.PaletteTable[this.Palette[0x10]];
 				for(p=0; p<256; p++, tmpDist += 4) {
-					tmpImageData[tmpDist] = tmpPal[0];
-					tmpImageData[tmpDist + 1] = tmpPal[1];
-					tmpImageData[tmpDist + 2] = tmpPal[2];
+					this.ImageData.data[tmpDist]     = tmpPal[0];
+					this.ImageData.data[tmpDist + 1] = tmpPal[1];
+					this.ImageData.data[tmpDist + 2] = tmpPal[2];
 				}
 			}
 		}
 	}
 
-	if(this.Sprite0Line && (tmpIO1[0x02] & 0x40) !== 0x40) {
+	// 0番スプライトヒット検出
+	if(this.Sprite0Line && (this.IO1[0x02] & 0x40) !== 0x40) { // 0x40 = 0b01000000
 		var i = this.PpuX > 255 ? 255 : this.PpuX;
 		for(; tmpx<=i; tmpx++) {
-			if(tmpSpLine[tmpx] === 0) {
-				tmpIO1[0x02] |= 0x40;
+			if(this.SpriteLineBuffer[tmpx] === 0) {
+				this.IO1[0x02] |= 0x40; // スプライトヒット
 				break;
 			}
 		}
@@ -7962,6 +7986,8 @@ NES.prototype.WritePPUAddressRegister = function (value) {
 
 NES.prototype.ReadPPUStatus = function () {
 	var result = this.IO1[0x02];
+
+	// TODO: V-Blank 終了?
 	this.IO1[0x02] &= 0x1F;
 	this.ScrollRegisterFlag = false;
 	this.PPUAddressRegisterFlag = false;
@@ -8189,29 +8215,28 @@ NES.prototype.Get = function (address) {
 
 			// Registers(Mostly APU)
 			switch (address) {
-				case 0x4000:
-				case 0x4001:
-				case 0x4002:
-				case 0x4003:
-				case 0x4004:
-				case 0x4005:
-				case 0x4006:
-				case 0x4007:
-				case 0x4008:
-				case 0x4009:
-				case 0x400A:
-				case 0x400B:
-				case 0x400C:
-				case 0x400D:
-				case 0x400E:
-				case 0x400F:
-				case 0x4010:
-				case 0x4011:
-				case 0x4012:
-				case 0x4013:
-				case 0x4014:
-					// PPU OAMDMA
-				case 0x4015:
+				case 0x4000: // 矩形波制御レジスタ #1
+				case 0x4001: // 矩形波制御レジスタ #2
+				case 0x4002: // 矩形波周波数値レジスタ #1
+				case 0x4003: // 矩形波周波数値レジスタ #2
+				case 0x4004: // 矩形波制御レジスタ #1
+				case 0x4005: // 矩形波制御レジスタ #2
+				case 0x4006: // 矩形波周波数値レジスタ #1
+				case 0x4007: // 矩形波周波数値レジスタ #2
+				case 0x4008: // 三角波制御レジスタ #1
+				case 0x4009: // 三角波制御レジスタ #2
+				case 0x400A: // 三角波周波数値レジスタ #1
+				case 0x400B: // 三角波周波数値レジスタ #2
+				case 0x400C: // ノイズ制御レジスタ #1
+				case 0x400D: // ノイズ制御レジスタ #2
+				case 0x400E: // 周波数値レジスタ #1
+				case 0x400F: // 周波数値レジスタ #2
+				case 0x4010: // PCM 制御レジスタ #1
+				case 0x4011: // PCM 音量制御レジスタ
+				case 0x4012: // PCM アドレスレジスタ
+				case 0x4013: // PCM データ長レジスタ
+				case 0x4014: // SPRDMA (W) スプライト DMA
+				case 0x4015: // SNDCNT (RW) サウンド制御レジスタ
 					return this.ReadWaveControl();
 				case 0x4016:
 					// PAD I/O Register(1P)
@@ -8228,6 +8253,9 @@ NES.prototype.Get = function (address) {
 				case 0x401E:
 				case 0x401F:
 			}
+
+			// サウンドのドキュメントによると、
+			// 0x40 が返ってくる確率が高いらしい
 			return 0x40;
 		case 0x6000:
 			// 拡張RAM
@@ -8305,51 +8333,51 @@ NES.prototype.Set = function (address, data) {
 				// APU Registers
 				// TODO: why?
 				this.IO2[address & 0x00FF] = data;
-				// TODO: 実装
 				switch (address) {
-					case 0x4000:
-					case 0x4001:
-					case 0x4002:
+					case 0x4000: // 矩形波制御レジスタ #1
+					case 0x4001: // 矩形波制御レジスタ #2
+					case 0x4002: // 矩形波周波数値レジスタ #1
 						this.WriteCh1Length0();
 						return;
-					case 0x4003:
+					case 0x4003: // 矩形波周波数値レジスタ #2
 						this.WriteCh1Length1();
 						return;
-					case 0x4004:
-					case 0x4005:
-					case 0x4006:
+					case 0x4004: // 矩形波制御レジスタ #1
+					case 0x4005: // 矩形波制御レジスタ #2
+					case 0x4006: // 矩形波周波数値レジスタ #1
 						this.WriteCh2Length0();
 						return;
-					case 0x4007:
+					case 0x4007: // 矩形波周波数値レジスタ #2
 						this.WriteCh2Length1();
 						return;
-					case 0x4008:
+					case 0x4008: // 三角波制御レジスタ #1
 						this.WriteCh3LinearCounter();
 						return;
-					case 0x4009:
-					case 0x400A:
-					case 0x400B:
+					case 0x4009: // 三角波制御レジスタ #2
+					case 0x4010: // PCM 制御レジスタ #1
+					case 0x400A: // 三角波周波数値レジスタ #1
+					case 0x400B: // 三角波周波数値レジスタ #2
 						this.WriteCh3Length1();
 						return;
-					case 0x400C:
-					case 0x400D:
-					case 0x400E:
-					case 0x400F:
+					case 0x400C: // ノイズ制御レジスタ #1
+					case 0x400D: // ノイズ制御レジスタ #2
+					case 0x400E: // 周波数値レジスタ #1
+					case 0x400F: // 周波数値レジスタ #2
 						this.WriteCh4Length1();
 						return;
-					case 0x4010:
+					case 0x4010: // PCM 制御レジスタ #1
 						this.WriteCh5DeltaControl();
 						return;
-					case 0x4011:
+					case 0x4011: // PCM 音量制御レジスタ
 						this.WriteCh5DeltaCounter();
 						return;
-					case 0x4012:
-					case 0x4013:
-					case 0x4014:
+					case 0x4012: // PCM アドレスレジスタ
+					case 0x4013: // PCM データ長レジスタ
+					case 0x4014: // SPRDMA (W) スプライト DMA
 						// PPU OAMDMA
 						this.StartDMA(data);
 						return;
-					case 0x4015:
+					case 0x4015: // SNDCNT (RW) サウンド制御レジスタ
 						this.WriteWaveControl();
 						return;
 					case 0x4016:
@@ -8358,8 +8386,6 @@ NES.prototype.Set = function (address, data) {
 						return;
 					case 0x4017:
 						// PAD I/O Register(2P)
-						// TODO: 実装
-						//this.WriteJoyPadRegister2(data);
 						return;
 					case 0x4018:
 					case 0x4019:
