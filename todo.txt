@@ -1,0 +1,2 @@
+ToDoコメントの消化
+nes-test-roms 全て通るようにしたい
