@@ -509,8 +509,6 @@ NES.prototype.PaletteTable = [
 	[0xA0,0xFF,0xF0],[0xA0,0xA0,0xA0],[0x00,0x00,0x00],[0x00,0x00,0x00]
 ];
 
-
-
 /* **************************************************************** */
 NES.prototype.Init = function () {
 	// iNES ヘッダーを読み込み
@@ -2441,19 +2439,23 @@ NES.prototype.PpuInit = function () {
 	this.Palette = new Array(33);
 
 	var i;
-	for(i=0; i<this.Palette.length; i++)
+	for(i=0; i<this.Palette.length; i++) {
 		this.Palette[i] = 0x0F;
+	}
 
 	this.SpriteLineBuffer = new Array(256);
-	for(i=0; i<this.SpriteLineBuffer.length; i++)
+	for(i=0; i<this.SpriteLineBuffer.length; i++) {
 		this.SpriteLineBuffer[i] = 0;
+	}
 
 	this.PPUReadBuffer = 0;
 
-	if(this.FourScreen)
+	if(this.FourScreen) {
 		this.SetMirrors(0, 1, 2, 3);
-	else
+	}
+	else {
 		this.SetMirror(this.HMirror);
+	}
 
 	this.BgLineBuffer = new Array(256 + 8);
 
@@ -2584,8 +2586,11 @@ NES.prototype.PpuRun = function () {
 			var tmpDist;
 			var tmpPal;
 			if(IsScreenEnable || IsSpriteEnable) {
+				// 0xFBE0 = 0b 11111011 11100000
+				// 0x041F = 0b 00000100 00011111
 				this.PPUAddress = (this.PPUAddress & 0xFBE0) | (this.PPUAddressBuffer & 0x041F);
 
+				// 上下8ラインは画面表示されない
 				if(this.PpuY >= 8 && this.PpuY < 232) {
 					this.BuildBGLine();
 					this.BuildSpriteLine();
