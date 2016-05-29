@@ -2592,7 +2592,7 @@ NES.prototype.PpuRun = function () {
 				this.PPUAddress = (this.PPUAddress & 0xFBE0) | (this.PPUAddressBuffer & 0x041F);
 
 				// 上下8ラインは画面表示されない
-				if(this.PpuY >= 8 && this.PpuY < 232) {
+				if(8 <= this.PpuY && this.PpuY < 232) {
 					this.BuildBGLine();
 					this.BuildSpriteLine();
 
@@ -2620,7 +2620,9 @@ NES.prototype.PpuRun = function () {
 				} else
 					this.PPUAddress += 0x1000;
 
-			} else if(this.PpuY >= 8 && this.PpuY < 232) {
+			}
+			// 上下8ラインは画面表示されない
+			else if(8 <= this.PpuY && this.PpuY < 232) {
 				tmpDist = (this.PpuY - 8) << 10;
 				tmpPal = this.PaletteTable[this.Palette[0x10]];
 				for(p=0; p<256; p++, tmpDist += 4) {
