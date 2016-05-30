@@ -1,2 +1,5 @@
 ToDoコメントの消化
 nes-test-roms 全て通るようにしたい
+PPU調査
+APU調査
+自分でnes rom作る
