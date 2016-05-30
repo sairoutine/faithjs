@@ -1,3 +1,11 @@
+# FaithJS
+FaithJS はブラウザ上で動く NES(ファミコン)エミュレータです。
+
+# きっかけ
+コンピュータの仕組みについて知りたいなら NES エミュ作るのが手っ取り早いと、
+優秀な人が強い事を言ってて、僕もコンピュータの仕組みについて知りたかったので、
+実装しようと思いました。
+
 # まず読んだ本
 ### コンピュータシステムの理論と実装
 CPUやメモリの仕組みを大まかに知ることができる
@@ -8,35 +16,27 @@ OSの仕組みやアセンブラの基本がわかる
 ### たのしいバイナリの歩き方
 バイナリに慣れるために読んだ
 
-# ファミコンのアーキテクチャについて一通り目を通しておく
-http://pgate1.at-ninja.jp/NES_on_FPGA/index.html
+# 参考にしたサイト
 
-この辺とかを読んで、通常のx86アーキテクチャと違って
-ファミコンの6502は、PPUやAPUがあるとかそういうことを一通り知っておく。
-(用語に慣れておく)
+http://pgate1.at-ninja.jp/NES_on_FPGA/index.html 
+日本語。 
 
-
-# iNESファイルのフォーマットについて知る
-まずNESファイルを解析することから始めます。
-1.iNES フォーマットのバイナリを 16進数でダンプしましょう。
-2.先頭4バイトはSignature なのでそれを読んでROMファイルかどうか判別してみる
-ROMデータをPRG ROM, CHR ROM に振り分ける
-CPUやJoyPad、Register などのガワだけ作る
-JoyPad がキーボードの入力を受け取れるようにする
-電源ONにする際の処理を作る
-イベントループする
-
-
-
-# TODO:
-CPU を実装する
-レジスタビューア・逆アセンブラを実装する
-画像処理機能を実装する (PPU)
-音声処理機能を実装する (APU)
-マッパーを実装する (MMC)
+http://wiki.nesdev.com/w/index.php/Nesdev_Wiki 
+英語。 
 
 # Test ROMs
 https://github.com/christopherpow/nes-test-roms
 
+# 実装してみて
+OS自作系の知識を応用して、CPUの実装までは容易にできる。その後 PPU APU等の
+描画や音楽周りになってくると、ドキュメントを読んでも理解できないことが多かった。
 
+ドキュメントを読んでも実装のイメージがまったく湧かなかったので、
+とにかく他人が既に実装したコードを読み漁った。
+人によって実装内容が異なり、また実装によって動くROM動かないROMが異なるので、
+何を正にすればいいのか戸惑った。
 
+# 他のJS系NESの実装
+http://twoseater.hp2.jp/nes/index.html 
+http://takahirox.github.io/nes-js/index.html 
+https://github.com/peteward44/WebNES
