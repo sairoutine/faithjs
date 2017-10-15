@@ -1,54 +1,105 @@
 ﻿<html lang="ja">
 <head>
 	<title>FaithJS</title>
+	<style>
+	body {
+		color: white;
+		background-color: black;
+	}
+	div {
+		text-align: center;
+		margin-bottom: 1em;
+	}
+	button#reset {
+		margin-left:2em;
+	}
+	table {
+		margin-left:auto;
+		margin-right:auto;
+	}
+	</style>
+	<script>
+	// 画面の高さに応じてcanvasサイズ変更
+	var baseWidth = 256;
+	var baseHeight = 224;
+	function canvas_zoom(diameter) {
+		document.getElementById("mainCanvas").style.width = baseWidth * diameter;
+		document.getElementById("mainCanvas").style.height = baseHeight * diameter;
+	}
+	window.addEventListener('resize', resize);
+	function resize() {
+		var diameter = (parseInt)(window.innerHeight / baseHeight);
+		canvas_zoom(diameter);
+	}
+	
+	// ページ読み込み時に実行
+	window.addEventListener('load', startup);
+	function startup() {
+		resize();
+		document.getElementById("romlist").focus();
+	}
+
+	// ロム読み込み時の処理
+	function romload() {
+		// rom読み込み
+		document.getElementById("romload").click();
+		// ページ先頭にスクロール
+		window.scrollTo(0,0);
+		romloaded = true;
+	}
+	</script>
 </head>
 <body>
-
-	<canvas id="mainCanvas" width="256" height="224" style="border:1px solid black; width:512px; height:448px;">
+	<div>
+	<canvas id="mainCanvas" width="256" height="224" style="width:512px; height:448px;">
 		Unsupported CANVAS
 	</canvas>
-	<br />
+	</div>
+
+	<div>
+	<button id="start">START</button>
+	<button id="pause">PAUSE</button>
+	<button id="reset">RESET</button>
+	</div>
+
+	<div>
 	ROM選択：
-	<select id="romlist">
+	<select id="romlist" onChange="romload();">
 		<option value="./rom/megaari.nes">MegaAri</option>
 		<option value="./rom/nittori.nes">河童ニットリちゃん</option>
 		<option value="./rom/bad_apple_2_5.nes">Bad Apple!! PV-FC 2.5</option>
 		<option value="./rom/nestest.nes">nestest</option>
 	</select>
 	<button id="romload">ロード</button>
-	<br />
-	<br />
+	</div>
 
-	<span id="usefileapi">
+	<div id="usefileapi">
 		ROMファイル（.nes）を選択または、ドラッグ＆ドロップすることで<br />
 		自分の持っているROMファイルも遊べます。<br />
 		<input type="file" id="file">
-	</span>
-	<br />
-	<br />
+	</div>
 
-	<button id="start">START</button><button id="pause">PAUSE</button><button id="reset">RESET</button>
-	<br />
-	<br />
-
-	操作方法<br />
-	<table>
+	<div>
+	操作方法
+	<table border=1>
 		<tr><td></td><td>1P</td><td>2P</td></tr>
-		<tr><td>A</td><td>X</td><td>Num&nbsp;7</td></tr>
-		<tr><td>B</td><td>Z</td><td>Num&nbsp;9</td></tr>
-		<tr><td>START</td><td>S</td><td></td></tr>
-		<tr><td>SELECT</td><td>A</td><td></td></tr>
-		<tr><td>UP</td><td>↑</td><td>Num&nbsp;8</td></tr>
-		<tr><td>DOWN</td><td>↓</td><td>Num&nbsp;2</td></tr>
-		<tr><td>LEFT</td><td>←</td><td>Num&nbsp;4</td></tr>
-		<tr><td>RIGHT</td><td>→</td><td>Num&nbsp;6</td></tr>
+		<tr><td>A</td><td>J or X</td><td>Num&nbsp;7</td></tr>
+		<tr><td>B</td><td>K or Z</td><td>Num&nbsp;9</td></tr>
+		<tr><td>START</td><td>ENTER or .</td><td></td></tr>
+		<tr><td>SELECT</td><td>A or ,</td><td></td></tr>
+		<tr><td>UP</td><td>E or ↑</td><td>Num&nbsp;8</td></tr>
+		<tr><td>DOWN</td><td>D or ↓</td><td>Num&nbsp;2</td></tr>
+		<tr><td>LEFT</td><td>S or ←</td><td>Num&nbsp;4</td></tr>
+		<tr><td>RIGHT</td><td>F or →</td><td>Num&nbsp;6</td></tr>
 	</table>
+	</div>
 
-	<br />
+	<div>
 	「Bad Apple!! PV-FC 2.5」「MegaAri」「河童ニットリちゃん」<br />
 	については私の制作物ではなく、<br />
 	<a href="http://www.geocities.jp/littlimi/fc.htm">Little Limit 門真 なむ</a>様の作成されたものを<br />
 	利用させていただいております。<br />
+	</div>
 	<script type="text/javascript" src="js/main.min.js"></script>
 </body>
 </html>

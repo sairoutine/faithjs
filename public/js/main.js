@@ -8480,38 +8480,48 @@ NES.prototype._keyCodeToBitCode = function(keyCode) {
 	};
 
 	switch(keyCode) {
+		// player 1
 		case 88:// X
+		case 75:// K
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_A;
 			break;
 		case 90:// Z
+		case 74:// J
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_B;
 			break;
 		case 65:// A
+		case 188:// ,
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_SELECT;
 			break;
-		case 83:// S
+		case 13:// ENTER
+		case 190:// .
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_START;
 			break;
 		case 38:// ↑
+		case 69:// E
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_UP;
 			break;
 		case 40:// ↓
+		case 68:// D
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_DOWN;
 			break;
 		case 37:// ←
+		case 83:// S
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_LEFT;
 			break;
 		case 39:// →
+		case 70:// F
 			data.player = this.JOYPAD_1P;
 			data.flag   = this.BUTTON_RIGHT;
 			break;
+		// player 2
 		case 105:// Num7
 			data.player = this.JOYPAD_2P;
 			data.flag   = this.BUTTON_A;
