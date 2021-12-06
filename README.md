@@ -2,7 +2,7 @@
 FaithJS is a JavaScript NES emulator which runs on your chrome.
 
 # Demo
-[Demo](http://sairoutine.github.io/faithjs/public/)
+[Demo](https://sairoutine.github.io/faithjs/public/)
 
 # Screenshot
 ![](public/image/screenshot1.png)
