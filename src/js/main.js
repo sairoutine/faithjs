@@ -5,6 +5,8 @@ var NES = require('./NES');
 
 // canvas
 var canvas = document.getElementById('mainCanvas');
+var canvas_width = canvas.width;
+var canvas_height = canvas.height;
 
 var nes = new NES(canvas);
 
@@ -72,6 +74,13 @@ var read_url = function (url, cb) {
 	request.send(null);
 };
 
+// 画面の高さに応じてcanvasサイズ変更
+function resize_canvas() {
+	var diameter = (parseInt)(window.innerHeight / canvas_height);
+	canvas.style.width = canvas_width * diameter;
+	canvas.style.height = canvas_height * diameter;
+}
+
 // DOMのイベントを設定
 var initialize_dom_events = function() {
 	if(typeof window.FileReader !== "undefined") {
@@ -117,6 +126,9 @@ var initialize_dom_events = function() {
 		document.getElementById("pause").disabled = true;
 	}
 
+	// 画面の高さに応じてcanvasサイズ変更
+	window.addEventListener('resize', resize_canvas);
+
 	// Chrome ではイベント発生してから resume しないと音が再生されない。
 	// よってマウスクリック時に resume を設定
 	var ontouchendEventName = typeof window.document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup';
@@ -132,6 +144,7 @@ var initialize_dom_events = function() {
 window.onload = function() {
 	// DOMのイベントを設定
 	initialize_dom_events();
+
+	// 画面の高さに応じてcanvasサイズ変更
+	resize_canvas();
 };
-
-
