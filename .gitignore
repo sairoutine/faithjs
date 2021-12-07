@@ -1,4 +1,3 @@
 node_modules/
 .DS_Store
-access_logs.db
-tmp/
+package-lock.json

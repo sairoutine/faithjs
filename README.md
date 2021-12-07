@@ -14,12 +14,12 @@ FaithJS is a JavaScript NES emulator which runs on your chrome.
 To run locally:
 ```
 $ npm install
-$ ./activate_mock_server.sh
+$ npm run watch
 ```
 And it'll be available at http://localhost:3000/
 
 To build a distribution:
 ```
-$  gulp build
+$ npm run build
 ```
-This will create `main.min.js`.
+This will create `main.js`.
