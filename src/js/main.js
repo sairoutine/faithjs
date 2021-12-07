@@ -109,16 +109,23 @@ var initialize_dom_events = function() {
 				read_url(url, nes_rom_change);
 			}, false);
 
-
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
-
 	}
 
+	// Chrome ではイベント発生してから resume しないと音が再生されない。
+	// よってマウスクリック時に resume を設定
+	var ontouchendEventName = typeof window.document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup';
+	var resume_audio_func = function () {
+		nes.webAudioContextResume();
+		window.removeEventListener(ontouchendEventName, resume_audio_func);
+	};
+
+	window.addEventListener(ontouchendEventName, resume_audio_func);
 };
 
 // 初期化

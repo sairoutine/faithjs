@@ -3405,6 +3405,12 @@ NES.prototype.handleKeyDown = function (e){
 	e.preventDefault();
 };
 
+NES.prototype.webAudioContextResume = function (){
+	if(this.canAudioContext) {
+		this.WebAudioCtx.resume();
+	}
+};
+
 /* **************************************************************** */
 /* NES APU
 /* **************************************************************** */
