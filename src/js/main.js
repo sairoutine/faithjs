@@ -81,6 +81,22 @@ function resize_canvas() {
 	canvas.style.height = canvas_height * diameter;
 }
 
+
+function fullscreen() {
+	if (canvas.requestFullscreen) {
+		canvas.requestFullscreen();
+	}
+	else if (canvas.msRequestuestFullscreen) {
+		canvas.msRequestuestFullscreen();
+	}
+	else if (canvas.mozRequestFullScreen) {
+		canvas.mozRequestFullScreen();
+	}
+	else if (canvas.webkitRequestFullscreen) {
+		canvas.webkitRequestFullscreen();
+	}
+}
+
 // DOMのイベントを設定
 var initialize_dom_events = function() {
 	if(typeof window.FileReader !== "undefined") {
@@ -121,6 +137,8 @@ var initialize_dom_events = function() {
 		document.getElementById("pause").addEventListener("click", nes_pause, false);
 		document.getElementById("start").addEventListener("click", nes_start, false);
 		document.getElementById("reset").addEventListener("click", nes_reset, false);
+
+		document.getElementById("fullscreen").addEventListener("click", fullscreen, false);
 
 		document.getElementById("start").disabled = true;
 		document.getElementById("pause").disabled = true;
