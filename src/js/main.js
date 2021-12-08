@@ -11,6 +11,8 @@ var canvas_height = canvas.height;
 var nes = new NES(canvas);
 
 nes.initCanvas();
+
+// キーボード取得 設定
 window.onkeydown = function(e) { nes.handleKeyDown(e); };
 window.onkeyup   = function(e) { nes.handleKeyUp(e); };
 

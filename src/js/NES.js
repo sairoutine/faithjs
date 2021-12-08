@@ -218,6 +218,11 @@ var NES = function(canvas) {
 	this.JoyPadState = [0x00, 0x00];
 	this.JoyPadBuffer = [0x00, 0x00];
 
+
+	// ゲームパッドの接続状況
+	this.isConnectedGamePad1P = false;
+	this.isConnectedGamePad2P = false;
+
 	//////////////////////////////////////////////////////////////////
 	// APU
 	//////////////////////////////////////////////////////////////////
@@ -743,6 +748,9 @@ NES.prototype.Start = function () {
 NES.prototype.Run = function () {
 	// Run
 	this.CpuRun();
+
+	// ゲームパッド対応端末なら入力を処理
+	this._handleGamePads();
 
 	// 再帰的に自身を呼び出す。
 	this.requestID = window.requestAnimationFrame(this.Run.bind(this));
@@ -3378,6 +3386,10 @@ NES.prototype.handleKeyUp = function (e){
 	var player = data.player;
 	var flag   = data.flag;
 
+	// ゲームパッド接続中はキーボード操作を無効にする
+	if(player === this.JOYPAD_1P && this.isConnectedGamePad1P) return;
+	if(player === this.JOYPAD_2P && this.isConnectedGamePad2P) return;
+
 	if(player !== null) {
 		this.JoyPadState[player] &= ~flag;
 	}
@@ -3390,6 +3402,10 @@ NES.prototype.handleKeyDown = function (e){
 	var player = data.player;
 	var flag   = data.flag;
 
+	// ゲームパッド接続中はキーボード操作を無効にする
+	if(player === this.JOYPAD_1P && this.isConnectedGamePad1P) return;
+	if(player === this.JOYPAD_2P && this.isConnectedGamePad2P) return;
+
 	if(player !== null) {
 		this.JoyPadState[player] |= flag;
 	}
@@ -3397,9 +3413,105 @@ NES.prototype.handleKeyDown = function (e){
 	e.preventDefault();
 };
 
-NES.prototype.webAudioContextResume = function (){
-	if(this.canAudioContext) {
-		this.WebAudioCtx.resume();
+// ゲームパッドのボタンIDをBitに変換
+NES.prototype._buttonIDToBitCode = function(buttonID) {
+	var flag = null;
+	switch(buttonID) {
+		case 0:
+			flag   = this.BUTTON_A;
+			break;
+		case 1:
+			flag   = this.BUTTON_B;
+			break;
+		case 8:
+			flag   = this.BUTTON_SELECT;
+			break;
+		case 9:
+			flag   = this.BUTTON_START;
+			break;
+	}
+
+	return flag;
+};
+
+NES.prototype._handleGamePads = function () {
+	if(typeof window === "undefined" || !window.Gamepad || !window.navigator.getGamepads) {
+		return;
+	}
+
+	var pads = navigator.getGamepads();
+	var pad1 = pads[0]; // 1Pコン
+	var pad2 = pads[1]; // 2Pコン
+
+	if(pad1) {
+		this.isConnectedGamePad1P = true;
+
+		this._handleGamePad(this.JOYPAD_1P, pad1);
+	}
+	else {
+		this.isConnectedGamePad1P = false;
+	}
+
+	if(pad2) {
+		this.isConnectedGamePad2P = true;
+
+		this._handleGamePad(this.JOYPAD_2P, pad2);
+	}
+	else {
+		this.isConnectedGamePad2P = false;
+	}
+};
+
+NES.prototype._handleGamePad = function (player, pad) {
+	this.JoyPadState[player] = 0x00;
+
+	// ボタン入力
+	for (var i = 0; i < pad.buttons.length; i++) {
+		var flag = this._buttonIDToBitCode(i);
+
+		if(flag !== null) { // 関係ないボタンは無視する
+			if(pad.buttons[i].pressed) { // 押下されてたら
+				this.JoyPadState[player] |= flag;
+			}
+			else { // 押下されていなかったら
+				this.JoyPadState[player] &= ~flag;
+			}
+		}
+
+	}
+
+	// 十字キー入力
+
+	// UP
+	if(pad.axes[1] < -0.5) {
+		this.JoyPadState[player] |= this.BUTTON_UP;
+	}
+	else {
+		this.JoyPadState[player] &= ~this.BUTTON_UP;
+	}
+
+	// DOWN
+	if(pad.axes[1] > -0.5) {
+		this.JoyPadState[player] |= this.BUTTON_DOWN;
+	}
+	else {
+		this.JoyPadState[player] &= ~this.BUTTON_DOWN;
+	}
+
+	// LEFT
+	if(pad.axes[0] < -0.5) {
+		this.JoyPadState[player] |= this.BUTTON_LEFT;
+	}
+	else {
+		this.JoyPadState[player] &= ~this.BUTTON_LEFT;
+	}
+
+	// LEFT
+	if(pad.axes[0] >  0.5) {
+		this.JoyPadState[player] |= this.BUTTON_RIGHT;
+	}
+	else {
+		this.JoyPadState[player] &= ~this.BUTTON_RIGHT;
 	}
 };
 
@@ -4330,6 +4442,16 @@ NES.prototype.Out_AY = function () {
 			all_out += vol * noiseout;
 	}
 	return all_out;
+};
+
+/* **************************************************************** */
+/* その他
+/* **************************************************************** */
+
+NES.prototype.webAudioContextResume = function (){
+	if(this.canAudioContext) {
+		this.WebAudioCtx.resume();
+	}
 };
 
 module.exports = NES;
